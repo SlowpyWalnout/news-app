@@ -70,111 +70,120 @@ class _FeedViewState extends State<_FeedView> {
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.line, width: 1.5))),
-              child: Column(
-                children: [
-                  Row(
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: false,
+              floating: true,
+              snap: true,
+              elevation: 0,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              surfaceTintColor: Colors.transparent,
+              automaticallyImplyLeading: false,
+              toolbarHeight: 58,
+              titleSpacing: 20,
+              title: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontFamily: 'Space Grotesk',
+                    fontWeight: FontWeight.w700,
+                    fontSize: dims.fLg,
+                    letterSpacing: -0.8,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  children: [
+                    TextSpan(text: l10n.appWordmark),
+                    TextSpan(text: '.', style: TextStyle(color: palette.accentInk)),
+                  ],
+                ),
+              ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: GestureDetector(
+                    onTap: () => sl<AppShellController>().goToTab(2),
+                    child: InitialsAvatar(initials: userInitials, size: 46),
+                  ),
+                ),
+              ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(142),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                  decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.line, width: 1.5))),
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              fontFamily: 'Space Grotesk',
-                              fontWeight: FontWeight.w700,
-                              fontSize: dims.fLg,
-                              letterSpacing: -0.8,
-                              color: Theme.of(context).colorScheme.onSurface,
+                      Container(
+                        constraints: const BoxConstraints(minHeight: 52),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          border: Border.all(color: palette.line),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.search, color: palette.ink3, size: 20),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (v) => context.read<FeedBloc>().add(FeedQueryChanged(v)),
+                                decoration: InputDecoration(
+                                  hintText: l10n.searchPlaceholder,
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                ),
+                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: dims.fMd),
+                              ),
                             ),
-                            children: [
-                              TextSpan(text: l10n.appWordmark),
-                              TextSpan(text: '.', style: TextStyle(color: palette.accentInk)),
-                            ],
-                          ),
+                          ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () => sl<AppShellController>().goToTab(2),
-                        child: InitialsAvatar(initials: userInitials, size: 46),
+                      const SizedBox(height: 12),
+                      BlocBuilder<FeedBloc, FeedState>(
+                        buildWhen: (a, b) => a.category != b.category,
+                        builder: (context, state) {
+                          return SizedBox(
+                            height: 42,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: CategoryChip(
+                                    label: l10n.categoryAll,
+                                    icon: Icons.grid_view_outlined,
+                                    active: state.category == null,
+                                    onTap: () => context.read<FeedBloc>().add(const FeedCategorySelected(null)),
+                                  ),
+                                ),
+                                for (final category in ArticleCategory.values)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: CategoryChip(
+                                      label: categoryLabel(l10n, category),
+                                      icon: categoryIcon(category),
+                                      active: state.category == category,
+                                      onTap: () => context.read<FeedBloc>().add(FeedCategorySelected(category)),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Container(
-                    constraints: const BoxConstraints(minHeight: 52),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      border: Border.all(color: palette.line),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search, color: palette.ink3, size: 20),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (v) => context.read<FeedBloc>().add(FeedQueryChanged(v)),
-                            decoration: InputDecoration(
-                              hintText: l10n.searchPlaceholder,
-                              border: InputBorder.none,
-                              isDense: true,
-                            ),
-                            style: TextStyle(fontWeight: FontWeight.w500, fontSize: dims.fMd),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             BlocBuilder<FeedBloc, FeedState>(
-              buildWhen: (a, b) => a.category != b.category,
               builder: (context, state) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: SizedBox(
-                    height: 42,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: CategoryChip(
-                            label: l10n.categoryAll,
-                            icon: Icons.grid_view_outlined,
-                            active: state.category == null,
-                            onTap: () => context.read<FeedBloc>().add(const FeedCategorySelected(null)),
-                          ),
-                        ),
-                        for (final category in ArticleCategory.values)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: CategoryChip(
-                              label: categoryLabel(l10n, category),
-                              icon: categoryIcon(category),
-                              active: state.category == category,
-                              onTap: () => context.read<FeedBloc>().add(FeedCategorySelected(category)),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            Expanded(
-              child: BlocBuilder<FeedBloc, FeedState>(
-                builder: (context, state) {
-                  if (state.status == FeedStatus.loading) {
-                    return ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 6, 20, 120),
+                if (state.status == FeedStatus.loading) {
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 6, 20, 120),
+                    sliver: SliverList.list(
                       children: [
                         const SkeletonBlock(height: 250, borderRadius: 20),
                         const SizedBox(height: 16),
@@ -182,11 +191,13 @@ class _FeedViewState extends State<_FeedView> {
                         const SizedBox(height: 16),
                         const SkeletonBlock(height: 120, borderRadius: 18, delay: Duration(milliseconds: 400)),
                       ],
-                    );
-                  }
-                  if (state.status == FeedStatus.failure) {
-                    return ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 6, 20, 120),
+                    ),
+                  );
+                }
+                if (state.status == FeedStatus.failure) {
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 6, 20, 120),
+                    sliver: SliverList.list(
                       children: [
                         ErrorStateCard(
                           title: l10n.feedNetworkErrorTitle,
@@ -195,13 +206,15 @@ class _FeedViewState extends State<_FeedView> {
                           onRetryPressed: () => context.read<FeedBloc>().add(const FeedRefreshed()),
                         ),
                       ],
-                    );
-                  }
-                  final visible = state.visibleArticles;
-                  if (state.status == FeedStatus.success && visible.isEmpty) {
-                    final hasQuery = state.query.trim().isNotEmpty;
-                    return ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 6, 20, 120),
+                    ),
+                  );
+                }
+                final visible = state.visibleArticles;
+                if (state.status == FeedStatus.success && visible.isEmpty) {
+                  final hasQuery = state.query.trim().isNotEmpty;
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 6, 20, 120),
+                    sliver: SliverList.list(
                       children: [
                         EmptyStateCard(
                           title: hasQuery ? l10n.feedEmptySearchTitle : l10n.feedEmptyFilterTitle,
@@ -215,10 +228,12 @@ class _FeedViewState extends State<_FeedView> {
                           },
                         ),
                       ],
-                    );
-                  }
-                  return ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(20, 6, 20, 120),
+                    ),
+                  );
+                }
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 120),
+                  sliver: SliverList.separated(
                     itemCount: visible.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
@@ -228,9 +243,9 @@ class _FeedViewState extends State<_FeedView> {
                       }
                       return CompactArticleCard(article: article, onTap: () => _openDetail(article));
                     },
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ],
         ),

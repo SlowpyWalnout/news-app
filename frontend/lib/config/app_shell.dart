@@ -23,6 +23,7 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   late int _index = widget.initialTab;
+  late final _pageController = PageController(initialPage: _index);
   final _shellController = sl<AppShellController>();
 
   static const _tabs = [
@@ -40,12 +41,18 @@ class _AppShellState extends State<AppShell> {
   @override
   void dispose() {
     _shellController.removeListener(_onShellControllerChanged);
+    _pageController.dispose();
     super.dispose();
   }
 
   void _onShellControllerChanged() {
     final index = _shellController.consumePendingTabIndex();
-    if (index != null && mounted) setState(() => _index = index);
+    if (index != null && mounted) _goToIndex(index);
+  }
+
+  void _goToIndex(int index) {
+    setState(() => _index = index);
+    _pageController.animateToPage(index, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
   }
 
   @override
@@ -54,7 +61,11 @@ class _AppShellState extends State<AppShell> {
     final showFab = _index == 0 || _index == 1;
 
     return Scaffold(
-      body: IndexedStack(index: _index, children: _tabs),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (i) => setState(() => _index = i),
+        children: _tabs,
+      ),
       floatingActionButton: showFab
           ? FloatingActionButton.extended(
               onPressed: () => Navigator.of(context).push(
@@ -66,7 +77,7 @@ class _AppShellState extends State<AppShell> {
           : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        onDestinationSelected: _goToIndex,
         destinations: [
           NavigationDestination(icon: const Icon(Icons.article_outlined), selectedIcon: const Icon(Icons.article), label: l10n.navFeed),
           NavigationDestination(icon: const Icon(Icons.edit_note_outlined), selectedIcon: const Icon(Icons.edit_note), label: l10n.navMyArticles),
