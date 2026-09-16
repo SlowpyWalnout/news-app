@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -77,8 +79,14 @@ class _FeedViewState extends State<_FeedView> {
               floating: true,
               snap: true,
               elevation: 0,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.82),
               surfaceTintColor: Colors.transparent,
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                  child: const SizedBox.expand(),
+                ),
+              ),
               automaticallyImplyLeading: false,
               toolbarHeight: 58,
               titleSpacing: 20,

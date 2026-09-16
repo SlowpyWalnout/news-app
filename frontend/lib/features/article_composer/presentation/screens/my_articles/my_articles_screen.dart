@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -100,40 +102,61 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
 
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
-              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.line, width: 1.5))),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.myArticlesTitle, style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fH)),
-                  const SizedBox(height: 14),
-                  BlocBuilder<MyArticlesBloc, MyArticlesState>(
-                    buildWhen: (a, b) => a.tab != b.tab,
-                    builder: (context, state) => SegmentedTabs(
-                      items: [
-                        SegmentedTabItem(label: l10n.tabAll, value: MyArticlesTab.all.name),
-                        SegmentedTabItem(label: l10n.tabDrafts, value: MyArticlesTab.drafts.name),
-                        SegmentedTabItem(label: l10n.tabPublished, value: MyArticlesTab.published.name),
-                      ],
-                      selected: state.tab.name,
-                      onSelected: (v) => context.read<MyArticlesBloc>().add(
-                            MyArticlesTabChanged(MyArticlesTab.values.byName(v)),
-                          ),
-                    ),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: false,
+              floating: true,
+              snap: true,
+              elevation: 0,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.82),
+              surfaceTintColor: Colors.transparent,
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+              automaticallyImplyLeading: false,
+              toolbarHeight: 0,
+              titleSpacing: 0,
+              title: const SizedBox.shrink(),
+              bottom: PreferredSize(
+                preferredSize: Size.fromHeight(14 + dims.fH * 1.3 + 14 + 56 + 12 + 8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+                  decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.line, width: 1.5))),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.myArticlesTitle, style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fH)),
+                      const SizedBox(height: 14),
+                      BlocBuilder<MyArticlesBloc, MyArticlesState>(
+                        buildWhen: (a, b) => a.tab != b.tab,
+                        builder: (context, state) => SegmentedTabs(
+                          items: [
+                            SegmentedTabItem(label: l10n.tabAll, value: MyArticlesTab.all.name),
+                            SegmentedTabItem(label: l10n.tabDrafts, value: MyArticlesTab.drafts.name),
+                            SegmentedTabItem(label: l10n.tabPublished, value: MyArticlesTab.published.name),
+                          ],
+                          selected: state.tab.name,
+                          onSelected: (v) => context.read<MyArticlesBloc>().add(
+                                MyArticlesTabChanged(MyArticlesTab.values.byName(v)),
+                              ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-            Expanded(
-              child: BlocBuilder<MyArticlesBloc, MyArticlesState>(
-                builder: (context, state) {
-                  if (state.status == MyArticlesStatus.loading) {
-                    return ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+            BlocBuilder<MyArticlesBloc, MyArticlesState>(
+              builder: (context, state) {
+                if (state.status == MyArticlesStatus.loading) {
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                    sliver: SliverList.list(
                       children: const [
                         SkeletonBlock(height: 110),
                         SizedBox(height: 13),
@@ -141,11 +164,13 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
                         SizedBox(height: 13),
                         SkeletonBlock(height: 110, delay: Duration(milliseconds: 400)),
                       ],
-                    );
-                  }
-                  if (state.status == MyArticlesStatus.failure) {
-                    return ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                    ),
+                  );
+                }
+                if (state.status == MyArticlesStatus.failure) {
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                    sliver: SliverList.list(
                       children: [
                         ErrorStateCard(
                           title: l10n.myArticlesNetErrorTitle,
@@ -157,12 +182,14 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
                           },
                         ),
                       ],
-                    );
-                  }
-                  if (state.isEmpty) {
-                    final isDrafts = state.tab == MyArticlesTab.drafts;
-                    return ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                    ),
+                  );
+                }
+                if (state.isEmpty) {
+                  final isDrafts = state.tab == MyArticlesTab.drafts;
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                    sliver: SliverList.list(
                       children: [
                         EmptyStateCard(
                           title: isDrafts ? l10n.myArticlesEmptyDraftTitle : l10n.myArticlesEmptyTitle,
@@ -173,11 +200,13 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
                           ),
                         ),
                       ],
-                    );
-                  }
-                  final visible = state.visibleArticles;
-                  return ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                    ),
+                  );
+                }
+                final visible = state.visibleArticles;
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                  sliver: SliverList.separated(
                     itemCount: visible.length + 1,
                     separatorBuilder: (_, __) => const SizedBox(height: 13),
                     itemBuilder: (context, index) {
@@ -227,9 +256,9 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
                         ),
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ],
         ),
