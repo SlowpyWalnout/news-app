@@ -1,5 +1,5 @@
-name: news_app_clean_architecture
-description: A new Flutter project.
+name: news_app
+description: News app with Clean Architecture, BLoC and Firebase — journalists can publish their own articles.
 
 publish_to: 'none'
 
@@ -13,9 +13,6 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.2
-
-  # icons
-  ionicons: ^0.1.2
 
   # state management
   flutter_bloc: ^8.1.2

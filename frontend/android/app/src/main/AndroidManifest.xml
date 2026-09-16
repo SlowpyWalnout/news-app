@@ -1,9 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.news_app_clean_architecture">
+    package="com.trikedevs.news_app">
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="news_app_clean_architecture"
+        android:label="News App"
         android:name="androidx.multidex.MultiDexApplication"
-        
+
         android:icon="@mipmap/ic_launcher"
         >
         <activity
