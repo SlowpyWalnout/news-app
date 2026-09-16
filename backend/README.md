@@ -3,7 +3,41 @@ In this folder are all the [Firebase Firestore](https://firebase.google.com/docs
 You will use this folder to add the schema of the *Articles* you want to upload for the app and to add the rules that enforce this schema. 
 
 ## DB Schema
-**TODO: ADD YOUR DB SCHEMA (SCHEMA FOR "ARTICLES" AND ANY OTHER SCHEMAS) HERE**
+
+Detalle completo y justificación de cada decisión en
+[`docs/DB_SCHEMA.md`](docs/DB_SCHEMA.md). Resumen:
+
+### `users/{uid}`
+
+| Campo | Tipo |
+|---|---|
+| `displayName` | `string` (1–60) |
+| `photoURL` | `string \| null` |
+| `createdAt` | `timestamp` |
+
+### `articles/{articleId}` (colección raíz, no subcolección de `users`)
+
+| Campo | Tipo |
+|---|---|
+| `authorId` | `string` |
+| `authorName` | `string` (1–60, denormalizado) |
+| `authorPhotoURL` | `string \| null` (denormalizado) |
+| `title` | `string` (1–120) |
+| `body` | `string` (1–20000) |
+| `status` | `'draft' \| 'published'` |
+| `category` | `general \| business \| entertainment \| health \| science \| sports \| technology \| politics` |
+| `thumbnailURL` | `string \| null` |
+| `thumbnailPath` | `string \| null` |
+| `searchKeywords` | `array<string>` (≤30) |
+| `createdAt` | `timestamp` |
+| `updatedAt` | `timestamp` |
+| `publishedAt` | `timestamp \| null` |
+
+### Storage: `media/articles/{uid}/{articleId}/{imageId}.{ext}`
+
+Lectura pública, escritura/borrado solo del `uid` dueño, ≤5 MB, solo
+`image/*`. Borrado de artículo: primero Storage, después Firestore (el orden
+recuperable ante fallos, ver `docs/DB_SCHEMA.md`).
 
 ## Getting Started
 Before starting to work on the backend, you must have a Firebase project with the [Firebase Firestore](https://firebase.google.com/docs/firestore), [Firebase Cloud Storage](https://firebase.google.com/docs/storage) and [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite) technologies enabled.

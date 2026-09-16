@@ -1,7 +1,90 @@
 rules_version = '2';
 
+// Esquema documentado en backend/docs/DB_SCHEMA.md — mantener sincronizados.
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TODO: WRITE ANY NECESSARY FIRESTORE RULES HERE
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read: if true;
+
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['displayName', 'photoURL', 'createdAt'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 60
+        && (request.resource.data.photoURL == null || request.resource.data.photoURL is string)
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'photoURL'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 60
+        && (request.resource.data.photoURL == null || request.resource.data.photoURL is string);
+
+      allow delete: if false;
+    }
+
+    match /articles/{articleId} {
+      function allowedCategories() {
+        return ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'politics'];
+      }
+
+      function isValidArticle(data) {
+        return data.authorId is string
+          && data.authorName is string && data.authorName.size() > 0 && data.authorName.size() <= 60
+          && (data.authorPhotoURL == null || data.authorPhotoURL is string)
+          && data.title is string && data.title.size() > 0 && data.title.size() <= 120
+          && data.body is string && data.body.size() > 0 && data.body.size() <= 20000
+          && data.status in ['draft', 'published']
+          && data.category in allowedCategories()
+          && (data.thumbnailURL == null || data.thumbnailURL is string)
+          && (data.thumbnailPath == null || data.thumbnailPath is string)
+          && data.searchKeywords is list && data.searchKeywords.size() <= 30
+          && data.createdAt is timestamp
+          && data.updatedAt is timestamp
+          && (data.status == 'draft'
+                ? data.publishedAt == null
+                : data.publishedAt is timestamp);
+      }
+
+      allow read: if resource.data.status == 'published' || isOwner(resource.data.authorId);
+
+      allow create: if isOwner(request.resource.data.authorId)
+        && request.resource.data.keys().hasOnly([
+             'authorId', 'authorName', 'authorPhotoURL', 'title', 'body',
+             'status', 'category', 'thumbnailURL', 'thumbnailPath',
+             'searchKeywords', 'createdAt', 'updatedAt', 'publishedAt'
+           ])
+        && isValidArticle(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isOwner(resource.data.authorId)
+        && request.resource.data.authorId == resource.data.authorId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && (
+             // Edición normal de contenido: updatedAt debe avanzar a ahora.
+             (isValidArticle(request.resource.data)
+               && request.resource.data.updatedAt == request.time)
+             ||
+             // Fan-out de rename de autor: solo estos dos campos, sin tocar updatedAt.
+             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['authorName', 'authorPhotoURL'])
+               && request.resource.data.authorName is string
+               && request.resource.data.authorName.size() > 0
+               && request.resource.data.authorName.size() <= 60
+               && (request.resource.data.authorPhotoURL == null || request.resource.data.authorPhotoURL is string))
+           );
+
+      allow delete: if isOwner(resource.data.authorId);
+    }
   }
 }
