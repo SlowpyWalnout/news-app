@@ -23,7 +23,8 @@ import 'features/auth/domain/use_cases/sign_out_use_case.dart';
 import 'features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
 
-import 'features/article_composer/data/repository/mock_authored_article_repository.dart';
+import 'features/article_composer/data/data_sources/remote/authored_article_firestore_data_source.dart';
+import 'features/article_composer/data/repository/authored_article_repository_impl.dart';
 import 'features/article_composer/domain/repository/authored_article_repository.dart';
 import 'features/article_composer/domain/use_cases/delete_article_use_case.dart';
 import 'features/article_composer/domain/use_cases/edit_article_use_case.dart';
@@ -72,7 +73,10 @@ Future<void> initializeDependencies() async {
 
   sl.registerSingleton<FirebaseAuthDataSource>(FirebaseAuthDataSource(sl(), sl()));
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
-  sl.registerSingleton<AuthoredArticleRepository>(MockAuthoredArticleRepository());
+  sl.registerSingleton<AuthoredArticleFirestoreDataSource>(
+    AuthoredArticleFirestoreDataSource(sl()),
+  );
+  sl.registerSingleton<AuthoredArticleRepository>(AuthoredArticleRepositoryImpl(sl()));
   sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl()));
 
   //UseCases
