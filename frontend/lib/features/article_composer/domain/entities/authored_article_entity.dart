@@ -1,0 +1,101 @@
+import 'package:equatable/equatable.dart';
+import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
+import 'package:news_app/features/article_composer/domain/entities/article_status.dart';
+import 'package:news_app/features/daily_news/domain/entities/article.dart';
+
+class AuthoredArticleEntity extends Equatable {
+  final String id;
+  final String authorId;
+  final String authorName;
+  final String? authorPhotoURL;
+  final String title;
+  final String body;
+  final ArticleStatus status;
+  final ArticleCategory category;
+  final String? thumbnailURL;
+  final String? thumbnailPath;
+  final List<String> searchKeywords;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? publishedAt;
+
+  const AuthoredArticleEntity({
+    required this.id,
+    required this.authorId,
+    required this.authorName,
+    this.authorPhotoURL,
+    required this.title,
+    required this.body,
+    required this.status,
+    required this.category,
+    this.thumbnailURL,
+    this.thumbnailPath,
+    this.searchKeywords = const [],
+    required this.createdAt,
+    required this.updatedAt,
+    this.publishedAt,
+  });
+
+  // Adapts to the existing NewsAPI entity so favorites, the article tile and
+  // the detail screen can be reused without touching them or Floor's schema.
+  ArticleEntity toFeedArticle() {
+    return ArticleEntity(
+      author: authorName,
+      title: title,
+      description: body.length > 200 ? body.substring(0, 200) : body,
+      url: null,
+      urlToImage: thumbnailURL,
+      publishedAt: publishedAt?.toIso8601String(),
+      content: body,
+    );
+  }
+
+  AuthoredArticleEntity copyWith({
+    String? title,
+    String? body,
+    ArticleStatus? status,
+    ArticleCategory? category,
+    String? thumbnailURL,
+    String? thumbnailPath,
+    List<String>? searchKeywords,
+    DateTime? updatedAt,
+    DateTime? publishedAt,
+  }) {
+    return AuthoredArticleEntity(
+      id: id,
+      authorId: authorId,
+      authorName: authorName,
+      authorPhotoURL: authorPhotoURL,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      status: status ?? this.status,
+      category: category ?? this.category,
+      thumbnailURL: thumbnailURL ?? this.thumbnailURL,
+      thumbnailPath: thumbnailPath ?? this.thumbnailPath,
+      searchKeywords: searchKeywords ?? this.searchKeywords,
+      createdAt: createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      publishedAt: publishedAt ?? this.publishedAt,
+    );
+  }
+
+  @override
+  List<Object?> get props {
+    return [
+      id,
+      authorId,
+      authorName,
+      authorPhotoURL,
+      title,
+      body,
+      status,
+      category,
+      thumbnailURL,
+      thumbnailPath,
+      searchKeywords,
+      createdAt,
+      updatedAt,
+      publishedAt,
+    ];
+  }
+}
