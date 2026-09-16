@@ -67,7 +67,11 @@ class _FakeAuthoredArticleRepository implements AuthoredArticleRepository {
   }
 
   @override
-  Future<DataState<UploadThumbnailResult>> uploadThumbnail(String articleId, String filePath) async {
+  Future<DataState<UploadThumbnailResult>> uploadThumbnail(
+    String articleId,
+    String filePath, {
+    void Function(double progress)? onProgress,
+  }) async {
     throw UnimplementedError();
   }
 }

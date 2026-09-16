@@ -20,6 +20,7 @@ class ArticleEditorState extends Equatable {
     this.touched = false,
     this.submitStatus = EditorSubmitStatus.idle,
     this.error,
+    this.uploadProgress,
   });
 
   final String articleId;
@@ -38,6 +39,9 @@ class ArticleEditorState extends Equatable {
   final bool touched;
   final EditorSubmitStatus submitStatus;
   final Failure? error;
+
+  /// Progress in [0, 1] of the cover upload, or null when not uploading.
+  final double? uploadProgress;
 
   bool get isEditing => articleId.isNotEmpty;
   bool get hasCover => coverLocalPath != null || (thumbnailURL != null && thumbnailURL!.isNotEmpty);
@@ -66,6 +70,8 @@ class ArticleEditorState extends Equatable {
     EditorSubmitStatus? submitStatus,
     Failure? error,
     bool clearError = false,
+    double? uploadProgress,
+    bool clearUploadProgress = false,
   }) {
     return ArticleEditorState(
       articleId: articleId ?? this.articleId,
@@ -80,6 +86,7 @@ class ArticleEditorState extends Equatable {
       touched: touched ?? this.touched,
       submitStatus: submitStatus ?? this.submitStatus,
       error: clearError ? null : (error ?? this.error),
+      uploadProgress: clearUploadProgress ? null : (uploadProgress ?? this.uploadProgress),
     );
   }
 
@@ -97,5 +104,6 @@ class ArticleEditorState extends Equatable {
         touched,
         submitStatus,
         error,
+        uploadProgress,
       ];
 }

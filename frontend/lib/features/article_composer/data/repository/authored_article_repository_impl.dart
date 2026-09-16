@@ -94,10 +94,15 @@ class AuthoredArticleRepositoryImpl implements AuthoredArticleRepository {
   @override
   Future<DataState<UploadThumbnailResult>> uploadThumbnail(
     String articleId,
-    String filePath,
-  ) async {
+    String filePath, {
+    void Function(double progress)? onProgress,
+  }) async {
     try {
-      return DataSuccess(await _storageDataSource.uploadThumbnail(articleId, filePath));
+      return DataSuccess(await _storageDataSource.uploadThumbnail(
+        articleId,
+        filePath,
+        onProgress: onProgress,
+      ));
     } on FirebaseException catch (e) {
       return DataFailed(mapFirebaseExceptionToFailure(e));
     }

@@ -201,28 +201,46 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                 Container(
                   padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
                   decoration: BoxDecoration(border: Border(top: BorderSide(color: palette.line, width: 1.5))),
-                  child: Row(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: SecondaryButton(
-                          label: l10n.saveDraft,
-                          onPressed: () {
-                            _lastAction = _EditorAction.draft;
-                            context.read<ArticleEditorBloc>().add(const EditorDraftSaved());
-                          },
+                      if (state.uploadProgress != null) ...[
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: state.uploadProgress! > 0 ? state.uploadProgress : null,
+                            minHeight: 4,
+                            backgroundColor: palette.line,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 11),
-                      Expanded(
-                        child: PrimaryButton(
-                          label: state.submitStatus == EditorSubmitStatus.publishing ? l10n.publishing : l10n.publish,
-                          loading: state.submitStatus == EditorSubmitStatus.publishing,
-                          enabled: state.isValid,
-                          onPressed: () {
-                            _lastAction = _EditorAction.publish;
-                            context.read<ArticleEditorBloc>().add(const EditorPublishRequested());
-                          },
-                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SecondaryButton(
+                              label: l10n.saveDraft,
+                              onPressed: () {
+                                _lastAction = _EditorAction.draft;
+                                context.read<ArticleEditorBloc>().add(const EditorDraftSaved());
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 11),
+                          Expanded(
+                            child: PrimaryButton(
+                              label: state.submitStatus == EditorSubmitStatus.publishing
+                                  ? l10n.publishing
+                                  : l10n.publish,
+                              loading: state.submitStatus == EditorSubmitStatus.publishing,
+                              enabled: state.isValid,
+                              onPressed: () {
+                                _lastAction = _EditorAction.publish;
+                                context.read<ArticleEditorBloc>().add(const EditorPublishRequested());
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

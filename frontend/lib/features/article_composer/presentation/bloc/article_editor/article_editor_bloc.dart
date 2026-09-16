@@ -118,8 +118,10 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
 
     final coverPath = state.coverLocalPath;
     if (coverPath != null) {
+      emit(state.copyWith(uploadProgress: 0));
       final uploadResult = await _uploadThumbnailUseCase(
         UploadThumbnailParams(articleId: saved.id, filePath: coverPath),
+        onProgress: (progress) => emit(state.copyWith(uploadProgress: progress)),
       );
       if (uploadResult is DataSuccess && uploadResult.data != null) {
         final withThumbnail = saved.copyWith(
@@ -140,6 +142,7 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
       thumbnailURL: saved.thumbnailURL,
       clearCover: true,
       submitStatus: EditorSubmitStatus.success,
+      clearUploadProgress: true,
     ));
   }
 }

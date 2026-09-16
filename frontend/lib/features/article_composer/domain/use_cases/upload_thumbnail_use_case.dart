@@ -11,7 +11,14 @@ class UploadThumbnailUseCase
   UploadThumbnailUseCase(this._repository);
 
   @override
-  Future<DataState<UploadThumbnailResult>> call(UploadThumbnailParams params) {
-    return _repository.uploadThumbnail(params.articleId, params.filePath);
+  Future<DataState<UploadThumbnailResult>> call(
+    UploadThumbnailParams params, {
+    void Function(double progress)? onProgress,
+  }) {
+    return _repository.uploadThumbnail(
+      params.articleId,
+      params.filePath,
+      onProgress: onProgress,
+    );
   }
 }

@@ -31,5 +31,9 @@ abstract class AuthoredArticleRepository {
 
   Future<DataState<void>> deleteArticle(String articleId);
 
-  Future<DataState<UploadThumbnailResult>> uploadThumbnail(String articleId, String filePath);
+  Future<DataState<UploadThumbnailResult>> uploadThumbnail(
+    String articleId,
+    String filePath, {
+    void Function(double progress)? onProgress,
+  });
 }
