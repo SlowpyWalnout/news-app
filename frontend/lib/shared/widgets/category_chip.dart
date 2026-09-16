@@ -11,11 +11,13 @@ class CategoryChip extends StatelessWidget {
     required this.label,
     required this.active,
     required this.onTap,
+    this.icon,
   });
 
   final String label;
   final bool active;
   final VoidCallback onTap;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,7 @@ class CategoryChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.pill),
         child: Container(
           constraints: const BoxConstraints(minHeight: 42),
-          padding: const EdgeInsets.symmetric(horizontal: 17),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadii.pill),
             border: Border.all(
@@ -39,14 +41,28 @@ class CategoryChip extends StatelessWidget {
               width: dims.borderWidth,
             ),
           ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: dims.fXs,
-              color: active ? scheme.onPrimary : scheme.onSurface,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: dims.fXs + 3,
+                  color: active ? scheme.onPrimary : scheme.onSurface,
+                ),
+                const SizedBox(width: 6),
+              ],
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: dims.fXs,
+                    color: active ? scheme.onPrimary : scheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

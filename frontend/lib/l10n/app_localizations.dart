@@ -575,7 +575,7 @@ abstract class AppLocalizations {
   /// No description provided for @saveDraft.
   ///
   /// In es, this message translates to:
-  /// **'Guardar borrador'**
+  /// **'Guardar'**
   String get saveDraft;
 
   /// No description provided for @publish.

@@ -51,11 +51,11 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
   }
 
   Future<void> onTitleChanged(EditorTitleChanged event, Emitter<ArticleEditorState> emit) async {
-    emit(state.copyWith(title: event.title, touched: true));
+    emit(state.copyWith(title: event.title));
   }
 
   Future<void> onBodyChanged(EditorBodyChanged event, Emitter<ArticleEditorState> emit) async {
-    emit(state.copyWith(body: event.body, touched: true));
+    emit(state.copyWith(body: event.body));
   }
 
   Future<void> onCategorySelected(EditorCategorySelected event, Emitter<ArticleEditorState> emit) async {
@@ -68,7 +68,12 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
       emit(state.copyWith(coverError: sizeMb, clearCover: true));
       return;
     }
-    emit(state.copyWith(coverLocalPath: event.filePath, clearCoverError: true));
+    emit(state.copyWith(
+      coverLocalPath: event.filePath,
+      coverFileName: event.fileName,
+      coverFileSizeBytes: event.fileSizeBytes,
+      clearCoverError: true,
+    ));
   }
 
   Future<void> onCoverRemoved(EditorCoverRemoved event, Emitter<ArticleEditorState> emit) async {

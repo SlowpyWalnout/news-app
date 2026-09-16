@@ -92,7 +92,7 @@
   "bodyCounter": "{count} / 20.000",
   "@bodyCounter": {"placeholders": {"count": {"type": "String"}}},
   "bodyEmptyError": "Falta el cuerpo de la nota.",
-  "saveDraft": "Guardar borrador",
+  "saveDraft": "Guardar",
   "publish": "Publicar",
   "publishing": "Publicando…",
   "draftSavedToast": "Borrador guardado en este teléfono",

@@ -267,7 +267,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bodyEmptyError => 'Falta el cuerpo de la nota.';
 
   @override
-  String get saveDraft => 'Guardar borrador';
+  String get saveDraft => 'Guardar';
 
   @override
   String get publish => 'Publicar';

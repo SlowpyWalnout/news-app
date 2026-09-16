@@ -91,7 +91,7 @@
   "bodyCounter": "{count} / 20,000",
   "@bodyCounter": {"placeholders": {"count": {"type": "String"}}},
   "bodyEmptyError": "The story body is missing.",
-  "saveDraft": "Save draft",
+  "saveDraft": "Save",
   "publish": "Publish",
   "publishing": "Publishing…",
   "draftSavedToast": "Draft saved on this phone",

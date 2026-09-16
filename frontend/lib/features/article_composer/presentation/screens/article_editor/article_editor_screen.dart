@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +13,7 @@ import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_text_field.dart';
 import '../../../../../shared/widgets/app_toast.dart';
 import '../../../../../shared/widgets/category_chip.dart';
+import '../../../../../shared/widgets/dashed_border_box.dart';
 import '../../../../../shared/widgets/inline_banner.dart';
 import '../../../../../shared/widgets/scrim_overlay.dart';
 import '../../../../../shared/widgets/striped_image_placeholder.dart';
@@ -71,7 +73,7 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
     if (picked == null || !context.mounted) return;
     final size = await File(picked.path).length();
     if (!context.mounted) return;
-    context.read<ArticleEditorBloc>().add(EditorCoverPicked(picked.path, size));
+    context.read<ArticleEditorBloc>().add(EditorCoverPicked(picked.path, size, picked.name));
   }
 
   @override
@@ -109,20 +111,18 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                   decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.line, width: 1.5))),
                   child: Row(
                     children: [
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: BackPillButton(label: l10n.exit, onPressed: () => Navigator.of(context).maybePop()),
-                        ),
-                      ),
+                      BackPillButton(label: l10n.exit, onPressed: () => Navigator.of(context).maybePop()),
                       Expanded(
                         child: Text(
                           state.isEditing ? l10n.editArticleTitle : l10n.newArticleTitle,
                           textAlign: TextAlign.center,
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fMd),
                         ),
                       ),
-                      const Expanded(child: SizedBox()),
+                      const SizedBox(width: 44),
                     ],
                   ),
                 ),
@@ -152,6 +152,7 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                             for (final category in ArticleCategory.values)
                               CategoryChip(
                                 label: categoryLabel(l10n, category),
+                                icon: categoryIcon(category),
                                 active: state.category == category,
                                 onTap: () => context.read<ArticleEditorBloc>().add(EditorCategorySelected(category)),
                               ),
@@ -163,20 +164,35 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                         if (state.hasCover)
                           _CoverPreview(state: state)
                         else
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () => _pickCover(context),
-                                  style: OutlinedButton.styleFrom(
-                                    minimumSize: Size(0, dims.tap),
-                                    side: BorderSide(color: palette.edge, width: 2.5, style: BorderStyle.solid),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          SizedBox(
+                            width: double.infinity,
+                            height: dims.tap,
+                            child: DashedBorderBox(
+                              color: palette.edge,
+                              radius: AppRadii.r15,
+                              strokeWidth: 2.5,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(AppRadii.r15),
+                                  onTap: () => _pickCover(context),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.add_photo_alternate_outlined, color: Theme.of(context).colorScheme.onSurface),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        l10n.chooseCoverImage,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  child: Text(l10n.chooseCoverImage, style: const TextStyle(fontWeight: FontWeight.w700)),
                                 ),
                               ),
-                            ],
+                            ),
                           ),
                         if (state.coverError != null) ...[
                           const SizedBox(height: 10),
@@ -254,6 +270,12 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
   }
 }
 
+String _coverBadgeLabel(String fileName, int? sizeBytes) {
+  if (sizeBytes == null) return fileName;
+  final mb = sizeBytes / (1024 * 1024);
+  return '$fileName · ${mb.toStringAsFixed(1)} MB';
+}
+
 class _CoverPreview extends StatelessWidget {
   const _CoverPreview({required this.state});
   final ArticleEditorState state;
@@ -281,6 +303,29 @@ class _CoverPreview extends StatelessWidget {
                 else
                   StripedImagePlaceholder(imageUrl: state.thumbnailURL),
                 const ScrimOverlay(opacityTop: 0.9, opacityBottom: 0.0),
+                if (state.coverFileName != null)
+                  Positioned(
+                    left: 12,
+                    bottom: 12,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(9),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                          color: palette.glass,
+                          child: Text(
+                            _coverBadgeLabel(state.coverFileName!, state.coverFileSizeBytes),
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 10.5,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

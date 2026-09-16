@@ -266,7 +266,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bodyEmptyError => 'The story body is missing.';
 
   @override
-  String get saveDraft => 'Save draft';
+  String get saveDraft => 'Save';
 
   @override
   String get publish => 'Publish';

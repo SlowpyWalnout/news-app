@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/article_category.dart';
 
@@ -20,5 +22,27 @@ String categoryLabel(AppLocalizations l10n, ArticleCategory category) {
       return l10n.categoryTechnology;
     case ArticleCategory.politics:
       return l10n.categoryPolitics;
+  }
+}
+
+/// Icon representing an [ArticleCategory] in chips and pickers.
+IconData categoryIcon(ArticleCategory category) {
+  switch (category) {
+    case ArticleCategory.general:
+      return Icons.public;
+    case ArticleCategory.business:
+      return Icons.business_center_outlined;
+    case ArticleCategory.entertainment:
+      return Icons.movie_outlined;
+    case ArticleCategory.health:
+      return Icons.favorite_outline;
+    case ArticleCategory.science:
+      return Icons.science_outlined;
+    case ArticleCategory.sports:
+      return Icons.sports_soccer;
+    case ArticleCategory.technology:
+      return Icons.memory;
+    case ArticleCategory.politics:
+      return Icons.account_balance_outlined;
   }
 }

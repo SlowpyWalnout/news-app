@@ -148,6 +148,7 @@ class _FeedViewState extends State<_FeedView> {
                           padding: const EdgeInsets.only(right: 8),
                           child: CategoryChip(
                             label: l10n.categoryAll,
+                            icon: Icons.grid_view_outlined,
                             active: state.category == null,
                             onTap: () => context.read<FeedBloc>().add(const FeedCategorySelected(null)),
                           ),
@@ -157,6 +158,7 @@ class _FeedViewState extends State<_FeedView> {
                             padding: const EdgeInsets.only(right: 8),
                             child: CategoryChip(
                               label: categoryLabel(l10n, category),
+                              icon: categoryIcon(category),
                               active: state.category == category,
                               onTap: () => context.read<FeedBloc>().add(FeedCategorySelected(category)),
                             ),

@@ -16,6 +16,8 @@ class ArticleEditorState extends Equatable {
     this.category = ArticleCategory.general,
     this.thumbnailURL,
     this.coverLocalPath,
+    this.coverFileName,
+    this.coverFileSizeBytes,
     this.coverError,
     this.touched = false,
     this.submitStatus = EditorSubmitStatus.idle,
@@ -34,8 +36,12 @@ class ArticleEditorState extends Equatable {
   /// Locally picked cover, pending upload — not yet reflected in
   /// [thumbnailURL] until the article is saved.
   final String? coverLocalPath;
+  final String? coverFileName;
+  final int? coverFileSizeBytes;
   final String? coverError;
 
+  /// True once a publish was attempted — gates showing validation errors,
+  /// so they don't appear while the user is still filling the form.
   final bool touched;
   final EditorSubmitStatus submitStatus;
   final Failure? error;
@@ -63,6 +69,8 @@ class ArticleEditorState extends Equatable {
     ArticleCategory? category,
     String? thumbnailURL,
     String? coverLocalPath,
+    String? coverFileName,
+    int? coverFileSizeBytes,
     bool clearCover = false,
     String? coverError,
     bool clearCoverError = false,
@@ -82,6 +90,8 @@ class ArticleEditorState extends Equatable {
       category: category ?? this.category,
       thumbnailURL: thumbnailURL ?? this.thumbnailURL,
       coverLocalPath: clearCover ? null : (coverLocalPath ?? this.coverLocalPath),
+      coverFileName: clearCover ? null : (coverFileName ?? this.coverFileName),
+      coverFileSizeBytes: clearCover ? null : (coverFileSizeBytes ?? this.coverFileSizeBytes),
       coverError: clearCoverError ? null : (coverError ?? this.coverError),
       touched: touched ?? this.touched,
       submitStatus: submitStatus ?? this.submitStatus,
@@ -100,6 +110,8 @@ class ArticleEditorState extends Equatable {
         category,
         thumbnailURL,
         coverLocalPath,
+        coverFileName,
+        coverFileSizeBytes,
         coverError,
         touched,
         submitStatus,

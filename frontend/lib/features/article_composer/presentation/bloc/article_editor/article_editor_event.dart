@@ -48,12 +48,13 @@ class EditorCategorySelected extends ArticleEditorEvent {
 }
 
 class EditorCoverPicked extends ArticleEditorEvent {
-  const EditorCoverPicked(this.filePath, this.fileSizeBytes);
+  const EditorCoverPicked(this.filePath, this.fileSizeBytes, this.fileName);
   final String filePath;
   final int fileSizeBytes;
+  final String fileName;
 
   @override
-  List<Object?> get props => [filePath, fileSizeBytes];
+  List<Object?> get props => [filePath, fileSizeBytes, fileName];
 }
 
 class EditorCoverRemoved extends ArticleEditorEvent {
