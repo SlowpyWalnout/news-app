@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../shared/app_shell_controller.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_toast.dart';
 import '../../../../../shared/widgets/confirm_delete_sheet.dart';
@@ -58,6 +59,37 @@ class _MyArticlesView extends StatefulWidget {
 
 class _MyArticlesViewState extends State<_MyArticlesView> {
   String? _openMenuId;
+  final _shellController = sl<AppShellController>();
+  late int _lastSeenRefreshTick = _shellController.myArticlesRefreshTick;
+
+  @override
+  void initState() {
+    super.initState();
+    _shellController.addListener(_onShellControllerChanged);
+  }
+
+  @override
+  void dispose() {
+    _shellController.removeListener(_onShellControllerChanged);
+    super.dispose();
+  }
+
+  void _onShellControllerChanged() {
+    final tick = _shellController.myArticlesRefreshTick;
+    final subTab = _shellController.consumeMyArticlesSubTab();
+    if (tick == _lastSeenRefreshTick || !mounted) return;
+    _lastSeenRefreshTick = tick;
+
+    final bloc = context.read<MyArticlesBloc>();
+    final tab = switch (subTab) {
+      'drafts' => MyArticlesTab.drafts,
+      'published' => MyArticlesTab.published,
+      _ => null,
+    };
+    if (tab != null) bloc.add(MyArticlesTabChanged(tab));
+    final authorId = context.read<AuthBloc>().state.user?.uid ?? '';
+    bloc.add(MyArticlesRequested(authorId));
+  }
 
   @override
   Widget build(BuildContext context) {

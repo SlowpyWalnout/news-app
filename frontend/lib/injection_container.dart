@@ -45,10 +45,13 @@ import 'shared/settings/domain/repository/settings_repository.dart';
 import 'shared/settings/domain/use_cases/load_settings_use_case.dart';
 import 'shared/settings/domain/use_cases/save_settings_use_case.dart';
 import 'shared/settings/presentation/cubit/settings_cubit.dart';
+import 'shared/app_shell_controller.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
+  sl.registerLazySingleton<AppShellController>(() => AppShellController());
+
   final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
   sl.registerSingleton<AppDatabase>(database);
 

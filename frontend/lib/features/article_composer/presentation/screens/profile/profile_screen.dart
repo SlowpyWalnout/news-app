@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../shared/app_shell_controller.dart';
 import '../../../../../shared/settings/presentation/cubit/settings_cubit.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
@@ -13,7 +14,6 @@ import '../../bloc/my_articles/my_articles_bloc.dart';
 import '../../bloc/my_articles/my_articles_event.dart';
 import '../../bloc/my_articles/my_articles_state.dart';
 import '../article_editor/article_editor_screen.dart';
-import '../my_articles/my_articles_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -95,7 +95,7 @@ class _ProfileView extends StatelessWidget {
               _SettingsRow(
                 label: l10n.myArticlesRow,
                 trailing: const Icon(Icons.arrow_forward, size: 18),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MyArticlesScreen())),
+                onTap: () => sl<AppShellController>().notifyMyArticlesChanged(tabIndex: 1),
               ),
               const SizedBox(height: 11),
               _SettingsRow(

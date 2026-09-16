@@ -21,8 +21,8 @@ import '../../../domain/entities/authored_article_entity.dart';
 import '../../bloc/article_editor/article_editor_bloc.dart';
 import '../../bloc/article_editor/article_editor_event.dart';
 import '../../bloc/article_editor/article_editor_state.dart';
+import '../../../../../shared/app_shell_controller.dart';
 import '../../widgets/category_label.dart';
-import '../my_articles/my_articles_screen.dart';
 
 class ArticleEditorScreen extends StatelessWidget {
   const ArticleEditorScreen({super.key, this.article});
@@ -86,11 +86,11 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
         if (state.submitStatus == EditorSubmitStatus.success) {
           final wasDraft = _lastAction == _EditorAction.draft;
           showAppToast(context, wasDraft ? l10n.draftSavedToast : l10n.publishedToast);
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => MyArticlesScreen(initialTab: wasDraft ? 'drafts' : 'published'),
-            ),
+          sl<AppShellController>().notifyMyArticlesChanged(
+            tabIndex: 1,
+            subTab: wasDraft ? 'drafts' : 'published',
           );
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       },
       builder: (context, state) {

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../injection_container.dart';
 import '../l10n/app_localizations.dart';
 import '../features/article_composer/presentation/screens/article_editor/article_editor_screen.dart';
 import '../features/article_composer/presentation/screens/feed/feed_screen.dart';
 import '../features/article_composer/presentation/screens/my_articles/my_articles_screen.dart';
 import '../features/article_composer/presentation/screens/profile/profile_screen.dart';
+import '../shared/app_shell_controller.dart';
 
 /// Hosts the three bottom-nav tabs (Feed / Mis artículos / Perfil) plus the
 /// "Nuevo artículo" FAB, which is only shown on the first two tabs.
@@ -21,12 +23,30 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   late int _index = widget.initialTab;
+  final _shellController = sl<AppShellController>();
 
   static const _tabs = [
     FeedScreen(),
     MyArticlesScreen(),
     ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _shellController.addListener(_onShellControllerChanged);
+  }
+
+  @override
+  void dispose() {
+    _shellController.removeListener(_onShellControllerChanged);
+    super.dispose();
+  }
+
+  void _onShellControllerChanged() {
+    final index = _shellController.consumePendingTabIndex();
+    if (index != null && mounted) setState(() => _index = index);
+  }
 
   @override
   Widget build(BuildContext context) {
