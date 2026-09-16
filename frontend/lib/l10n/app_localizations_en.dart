@@ -49,6 +49,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signUp => 'Sign up';
 
   @override
+  String get orDivider => 'or';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get googleSignInError =>
+      'We couldn\'t sign you in with Google. Try again.';
+
+  @override
   String get loginCredentialError =>
       'That email and password don\'t match. Try again or reset your password.';
 

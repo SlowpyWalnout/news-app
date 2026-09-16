@@ -54,6 +54,16 @@ class AuthSignUpSubmitted extends AuthEvent {
   List<Object?> get props => [displayName, email, password];
 }
 
+class AuthGoogleSignInRequested extends AuthEvent {
+  const AuthGoogleSignInRequested();
+}
+
 class AuthSignedOut extends AuthEvent {
   const AuthSignedOut();
+}
+
+/// Dispatched when a login/register screen opens, so a stale error from the
+/// other screen doesn't leak in (AuthBloc/AuthState are shared across both).
+class AuthSubmitErrorCleared extends AuthEvent {
+  const AuthSubmitErrorCleared();
 }

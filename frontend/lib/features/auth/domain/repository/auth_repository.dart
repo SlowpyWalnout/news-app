@@ -8,6 +8,8 @@ abstract class AuthRepository {
 
   Future<DataState<UserEntity>> signUp(SignUpParams params);
 
+  Future<DataState<UserEntity>> signInWithGoogle();
+
   Future<DataState<void>> signOut();
 
   Future<UserEntity?> getCurrentUser();

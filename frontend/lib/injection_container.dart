@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:news_app/features/daily_news/data/data_sources/remote/news_api_service.dart';
 import 'package:news_app/features/daily_news/data/repository/article_repository_impl.dart';
@@ -22,6 +23,7 @@ import 'features/auth/data/repository/auth_repository_impl.dart';
 import 'features/auth/domain/repository/auth_repository.dart';
 import 'features/auth/domain/use_cases/get_current_user_use_case.dart';
 import 'features/auth/domain/use_cases/sign_in_use_case.dart';
+import 'features/auth/domain/use_cases/sign_in_with_google_use_case.dart';
 import 'features/auth/domain/use_cases/sign_out_use_case.dart';
 import 'features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
@@ -87,7 +89,11 @@ Future<void> initializeDependencies() async {
   // et al.). RemoteArticlesBloc itself has no remaining consumer; see
   // ROADMAP.md.
 
-  sl.registerSingleton<FirebaseAuthDataSource>(FirebaseAuthDataSource(sl(), sl()));
+  final googleSignIn = GoogleSignIn.instance;
+  await googleSignIn.initialize();
+  sl.registerSingleton<GoogleSignIn>(googleSignIn);
+
+  sl.registerSingleton<FirebaseAuthDataSource>(FirebaseAuthDataSource(sl(), sl(), sl()));
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
   sl.registerSingleton<AuthoredArticleFirestoreDataSource>(
     AuthoredArticleFirestoreDataSource(sl()),
@@ -113,6 +119,7 @@ Future<void> initializeDependencies() async {
 
   sl.registerSingleton<GetCurrentUserUseCase>(GetCurrentUserUseCase(sl()));
   sl.registerSingleton<SignInUseCase>(SignInUseCase(sl()));
+  sl.registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(sl()));
   sl.registerSingleton<SignUpUseCase>(SignUpUseCase(sl()));
   sl.registerSingleton<SignOutUseCase>(SignOutUseCase(sl()));
 
@@ -133,7 +140,7 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<ReadLaterBloc>(() => ReadLaterBloc(sl(), sl(), sl(), sl()));
 
-  sl.registerFactory<AuthBloc>(() => AuthBloc(sl(), sl(), sl(), sl()));
+  sl.registerFactory<AuthBloc>(() => AuthBloc(sl(), sl(), sl(), sl(), sl()));
 
   sl.registerFactory<FeedBloc>(() => FeedBloc(sl()));
 

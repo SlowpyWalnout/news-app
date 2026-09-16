@@ -24,6 +24,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    context.read<AuthBloc>().add(const AuthSubmitErrorCleared());
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();

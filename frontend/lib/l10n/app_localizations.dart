@@ -176,6 +176,24 @@ abstract class AppLocalizations {
   /// **'Regístrate'**
   String get signUp;
 
+  /// No description provided for @orDivider.
+  ///
+  /// In es, this message translates to:
+  /// **'o'**
+  String get orDivider;
+
+  /// No description provided for @continueWithGoogle.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar con Google'**
+  String get continueWithGoogle;
+
+  /// No description provided for @googleSignInError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo iniciar sesión con Google. Inténtalo de nuevo.'**
+  String get googleSignInError;
+
   /// No description provided for @loginCredentialError.
   ///
   /// In es, this message translates to:

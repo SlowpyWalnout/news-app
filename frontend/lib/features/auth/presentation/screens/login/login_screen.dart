@@ -26,6 +26,12 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _submitted = false;
 
   @override
+  void initState() {
+    super.initState();
+    context.read<AuthBloc>().add(const AuthSubmitErrorCleared());
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -118,6 +124,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             password: _passwordController.text,
                           ));
                     },
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      Expanded(child: Divider(color: palette.line)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(l10n.orDivider, style: TextStyle(color: palette.ink2)),
+                      ),
+                      Expanded(child: Divider(color: palette.line)),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  SecondaryButton(
+                    label: l10n.continueWithGoogle,
+                    expand: true,
+                    onPressed: loading
+                        ? null
+                        : () => context.read<AuthBloc>().add(const AuthGoogleSignInRequested()),
                   ),
                   const SizedBox(height: 18),
                   Center(

@@ -70,33 +70,64 @@ class PrimaryButton extends StatelessWidget {
 
 /// Outlined button on `edge` border — secondary actions like "Editar".
 class SecondaryButton extends StatelessWidget {
-  const SecondaryButton({super.key, required this.label, required this.onPressed});
+  const SecondaryButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.loading = false,
+    this.expand = false,
+  });
 
   final String label;
   final VoidCallback? onPressed;
+  final Widget? icon;
+  final bool loading;
+  final bool expand;
 
   @override
   Widget build(BuildContext context) {
     final dims = Theme.of(context).extension<AppDimensions>()!;
     final palette = context.palette;
     final scheme = Theme.of(context).colorScheme;
+    final isEnabled = !loading;
 
-    return SizedBox(
+    final button = SizedBox(
       height: dims.tap,
       child: OutlinedButton(
-        onPressed: onPressed,
+        onPressed: isEnabled ? onPressed : null,
         style: OutlinedButton.styleFrom(
           backgroundColor: scheme.surface,
           foregroundColor: scheme.onSurface,
+          disabledForegroundColor: palette.ink3,
           side: BorderSide(color: palette.edge, width: dims.borderWidth),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.r15)),
         ),
-        child: Text(
-          label,
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (loading) ...[
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2.5, valueColor: AlwaysStoppedAnimation(scheme.onSurface)),
+              ),
+              const SizedBox(width: 12),
+            ] else if (icon != null) ...[
+              icon!,
+              const SizedBox(width: 10),
+            ],
+            Text(
+              label,
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd),
+            ),
+          ],
         ),
       ),
     );
+
+    return expand ? SizedBox(width: double.infinity, child: button) : button;
   }
 }
 

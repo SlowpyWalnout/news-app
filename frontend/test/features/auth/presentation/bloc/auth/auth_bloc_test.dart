@@ -7,6 +7,7 @@ import 'package:news_app/features/auth/domain/params/sign_up_params.dart';
 import 'package:news_app/features/auth/domain/repository/auth_repository.dart';
 import 'package:news_app/features/auth/domain/use_cases/get_current_user_use_case.dart';
 import 'package:news_app/features/auth/domain/use_cases/sign_in_use_case.dart';
+import 'package:news_app/features/auth/domain/use_cases/sign_in_with_google_use_case.dart';
 import 'package:news_app/features/auth/domain/use_cases/sign_out_use_case.dart';
 import 'package:news_app/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:news_app/features/auth/presentation/bloc/auth/auth_bloc.dart';
@@ -39,6 +40,11 @@ class _FakeAuthRepository implements AuthRepository {
     currentUser = null;
     return const DataSuccess(null);
   }
+
+  @override
+  Future<DataState<UserEntity>> signInWithGoogle() async {
+    return DataSuccess(_user);
+  }
 }
 
 AuthBloc _buildBloc(_FakeAuthRepository repo) {
@@ -47,6 +53,7 @@ AuthBloc _buildBloc(_FakeAuthRepository repo) {
     SignInUseCase(repo),
     SignUpUseCase(repo),
     SignOutUseCase(repo),
+    SignInWithGoogleUseCase(repo),
   );
 }
 
@@ -94,6 +101,26 @@ void main() {
       expect(bloc.state.registerEmailError, isNotNull);
       expect(bloc.state.registerPasswordError, isNotNull);
       expect(bloc.state.registerPasswordValid, isFalse);
+      await bloc.close();
+    });
+
+    test('AuthGoogleSignInRequested exitoso emite authenticated', () async {
+      final bloc = _buildBloc(_FakeAuthRepository());
+      bloc.add(const AuthGoogleSignInRequested());
+      await Future.delayed(Duration.zero);
+      expect(bloc.state.status, AuthStatus.authenticated);
+      expect(bloc.state.user, _user);
+      await bloc.close();
+    });
+
+    test('AuthSubmitErrorCleared limpia un error previo', () async {
+      final bloc = _buildBloc(_FakeAuthRepository());
+      bloc.add(const AuthSignInSubmitted(email: 'rosa@correo.com', password: 'wrongpass'));
+      await Future.delayed(Duration.zero);
+      expect(bloc.state.submitError, isNotNull);
+      bloc.add(const AuthSubmitErrorCleared());
+      await Future.delayed(Duration.zero);
+      expect(bloc.state.submitError, isNull);
       await bloc.close();
     });
 

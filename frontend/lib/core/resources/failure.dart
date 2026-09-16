@@ -23,3 +23,9 @@ class StorageFailure extends Failure {
 class ValidationFailure extends Failure {
   const ValidationFailure(super.message);
 }
+
+/// User dismissed the Google account picker; not a real error, so the UI
+/// should stay silent instead of showing a submit-error banner.
+class AuthCancelledFailure extends Failure {
+  const AuthCancelledFailure() : super('');
+}

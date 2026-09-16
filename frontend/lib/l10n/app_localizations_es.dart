@@ -50,6 +50,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get signUp => 'Regístrate';
 
   @override
+  String get orDivider => 'o';
+
+  @override
+  String get continueWithGoogle => 'Continuar con Google';
+
+  @override
+  String get googleSignInError =>
+      'No se pudo iniciar sesión con Google. Inténtalo de nuevo.';
+
+  @override
   String get loginCredentialError =>
       'El correo o la contraseña no coinciden. Inténtalo de nuevo o restablece tu contraseña.';
 
