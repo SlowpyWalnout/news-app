@@ -40,6 +40,7 @@ class AuthoredArticleEntity extends Equatable {
   // the detail screen can be reused without touching them or Floor's schema.
   ArticleEntity toFeedArticle() {
     return ArticleEntity(
+      sourceId: id,
       author: authorName,
       title: title,
       description: body.length > 200 ? body.substring(0, 200) : body,
@@ -47,6 +48,29 @@ class AuthoredArticleEntity extends Equatable {
       urlToImage: thumbnailURL,
       publishedAt: publishedAt?.toIso8601String(),
       content: body,
+    );
+  }
+
+  // Reverse of toFeedArticle(), for opening a Read it later row when the
+  // fresh Firestore doc couldn't be fetched (offline, deleted...). Fields
+  // Floor never stored (authorId, category, status, timestamps) are
+  // synthesized; callers should treat the result as read-only — with a
+  // synthesized empty authorId, `isMine` in ArticleDetailScreen is always
+  // false, which is the desired "not owned" fallback presentation.
+  factory AuthoredArticleEntity.fromCachedArticle(ArticleEntity cached) {
+    final publishedAt = DateTime.tryParse(cached.publishedAt ?? '');
+    return AuthoredArticleEntity(
+      id: cached.sourceId ?? '',
+      authorId: '',
+      authorName: cached.author ?? '',
+      title: cached.title ?? '',
+      body: cached.content ?? cached.description ?? '',
+      status: ArticleStatus.published,
+      category: ArticleCategory.general,
+      thumbnailURL: cached.urlToImage,
+      createdAt: publishedAt ?? DateTime.now(),
+      updatedAt: publishedAt ?? DateTime.now(),
+      publishedAt: publishedAt,
     );
   }
 

@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:floor/floor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
@@ -10,10 +11,11 @@ import 'package:news_app/features/daily_news/domain/repository/article_repositor
 import 'package:news_app/features/daily_news/domain/use_cases/get_article.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
 import 'features/daily_news/data/data_sources/local/app_database.dart';
-import 'features/daily_news/domain/use_cases/get_saved_article.dart';
-import 'features/daily_news/domain/use_cases/remove_article.dart';
-import 'features/daily_news/domain/use_cases/save_article.dart';
-import 'features/daily_news/presentation/bloc/article/local/local_article_bloc.dart';
+import 'features/daily_news/domain/use_cases/get_read_later_articles_use_case.dart';
+import 'features/daily_news/domain/use_cases/mark_read_later_article_as_read_use_case.dart';
+import 'features/daily_news/domain/use_cases/remove_from_read_later_use_case.dart';
+import 'features/daily_news/domain/use_cases/add_to_read_later_use_case.dart';
+import 'features/daily_news/presentation/bloc/article/local/read_later_bloc.dart';
 
 import 'features/auth/data/data_sources/remote/firebase_auth_data_source.dart';
 import 'features/auth/data/repository/auth_repository_impl.dart';
@@ -29,6 +31,7 @@ import 'features/article_composer/data/data_sources/remote/authored_article_stor
 import 'features/article_composer/data/repository/authored_article_repository_impl.dart';
 import 'features/article_composer/domain/repository/authored_article_repository.dart';
 import 'features/article_composer/domain/use_cases/delete_article_use_case.dart';
+import 'features/article_composer/domain/use_cases/get_article_by_id_use_case.dart';
 import 'features/article_composer/domain/use_cases/edit_article_use_case.dart';
 import 'features/article_composer/domain/use_cases/get_feed_use_case.dart';
 import 'features/article_composer/domain/use_cases/list_my_articles_use_case.dart';
@@ -52,7 +55,13 @@ final sl = GetIt.instance;
 Future<void> initializeDependencies() async {
   sl.registerLazySingleton<AppShellController>(() => AppShellController());
 
-  final database = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+  final database = await $FloorAppDatabase
+      .databaseBuilder('app_database.db')
+      .addMigrations([
+        Migration(1, 2, (db) => db.execute('ALTER TABLE article ADD COLUMN sourceId TEXT')),
+        Migration(2, 3, (db) => db.execute('ALTER TABLE article ADD COLUMN isRead INTEGER NOT NULL DEFAULT 0')),
+      ])
+      .build();
   sl.registerSingleton<AppDatabase>(database);
 
   final sharedPreferences = await SharedPreferences.getInstance();
@@ -74,8 +83,9 @@ Future<void> initializeDependencies() async {
   // NOTE: legacy NewsAPI plumbing above (NewsApiService/ArticleRepositoryImpl)
   // is no longer wired into any screen — Fase 5 moved the feed to
   // AuthoredArticleRepository. Kept registered because ArticleRepository
-  // still backs the local favorites cache (GetSavedArticleUseCase et al.).
-  // RemoteArticlesBloc itself has no remaining consumer; see ROADMAP.md.
+  // still backs the local "Read it later" cache (GetReadLaterArticlesUseCase
+  // et al.). RemoteArticlesBloc itself has no remaining consumer; see
+  // ROADMAP.md.
 
   sl.registerSingleton<FirebaseAuthDataSource>(FirebaseAuthDataSource(sl(), sl()));
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
@@ -93,11 +103,13 @@ Future<void> initializeDependencies() async {
   //UseCases
   sl.registerSingleton<GetArticleUseCase>(GetArticleUseCase(sl()));
 
-  sl.registerSingleton<GetSavedArticleUseCase>(GetSavedArticleUseCase(sl()));
+  sl.registerSingleton<GetReadLaterArticlesUseCase>(GetReadLaterArticlesUseCase(sl()));
 
-  sl.registerSingleton<SaveArticleUseCase>(SaveArticleUseCase(sl()));
+  sl.registerSingleton<AddToReadLaterUseCase>(AddToReadLaterUseCase(sl()));
 
-  sl.registerSingleton<RemoveArticleUseCase>(RemoveArticleUseCase(sl()));
+  sl.registerSingleton<RemoveFromReadLaterUseCase>(RemoveFromReadLaterUseCase(sl()));
+
+  sl.registerSingleton<MarkReadLaterArticleAsReadUseCase>(MarkReadLaterArticleAsReadUseCase(sl()));
 
   sl.registerSingleton<GetCurrentUserUseCase>(GetCurrentUserUseCase(sl()));
   sl.registerSingleton<SignInUseCase>(SignInUseCase(sl()));
@@ -111,6 +123,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<EditArticleUseCase>(EditArticleUseCase(sl()));
   sl.registerSingleton<DeleteArticleUseCase>(DeleteArticleUseCase(sl()));
   sl.registerSingleton<UploadThumbnailUseCase>(UploadThumbnailUseCase(sl()));
+  sl.registerSingleton<GetArticleByIdUseCase>(GetArticleByIdUseCase(sl()));
 
   sl.registerSingleton<LoadSettingsUseCase>(LoadSettingsUseCase(sl()));
   sl.registerSingleton<SaveSettingsUseCase>(SaveSettingsUseCase(sl()));
@@ -118,7 +131,7 @@ Future<void> initializeDependencies() async {
   //Blocs
   sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl()));
 
-  sl.registerFactory<LocalArticleBloc>(() => LocalArticleBloc(sl(), sl(), sl()));
+  sl.registerFactory<ReadLaterBloc>(() => ReadLaterBloc(sl(), sl(), sl(), sl()));
 
   sl.registerFactory<AuthBloc>(() => AuthBloc(sl(), sl(), sl(), sl()));
 

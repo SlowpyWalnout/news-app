@@ -47,6 +47,11 @@ class _FakeAuthoredArticleRepository implements AuthoredArticleRepository {
   }
 
   @override
+  Future<DataState<AuthoredArticleEntity?>> getArticleById(String articleId) async {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<DataState<AuthoredArticleEntity>> publishArticle(AuthoredArticleEntity article) async {
     throw UnimplementedError();
   }

@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../config/theme/app_palette.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/article.dart';
 
 class ArticleWidget extends StatelessWidget {
@@ -20,16 +22,23 @@ class ArticleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => onArticlePressed?.call(article),
       child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsetsDirectional.only(start: 14, end: 14, bottom: 7, top: 7),
         height: MediaQuery.of(context).size.width / 2.2,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          border: Border.all(color: palette.line),
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Row(
           children: [
             _buildImage(context),
-            _buildTitleAndDescription(),
+            _buildTitleAndDescription(context),
             _buildRemovableArea(),
           ],
         ),
@@ -96,7 +105,9 @@ class ArticleWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleAndDescription() {
+  Widget _buildTitleAndDescription(BuildContext context) {
+    final palette = context.palette;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 7),
@@ -104,29 +115,33 @@ class ArticleWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (isRemovable && article.isRead) ...[
+              _AlreadyReadPill(label: AppLocalizations.of(context)!.readLaterAlreadyRead),
+              const SizedBox(height: 6),
+            ],
             Text(
               article.title ?? '',
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Space Grotesk',
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
-                color: Colors.black87,
+                color: onSurface,
               ),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text(article.description ?? '', maxLines: 2),
+                child: Text(article.description ?? '', maxLines: 2, style: TextStyle(color: palette.ink2)),
               ),
             ),
             if (article.publishedAt != null)
               Row(
                 children: [
-                  const Icon(Icons.timeline_outlined, size: 16),
+                  Icon(Icons.timeline_outlined, size: 16, color: palette.ink3),
                   const SizedBox(width: 4),
-                  Text(article.publishedAt!, style: const TextStyle(fontSize: 12)),
+                  Text(article.publishedAt!, style: TextStyle(fontSize: 12, color: palette.ink3)),
                 ],
               ),
           ],
@@ -141,7 +156,38 @@ class ArticleWidget extends StatelessWidget {
       onTap: () => onRemove?.call(article),
       child: const Padding(
         padding: EdgeInsets.symmetric(horizontal: 8),
-        child: Icon(Icons.remove_circle_outline, color: Colors.red),
+        child: Icon(Icons.bookmark_remove_outlined, color: Colors.red),
+      ),
+    );
+  }
+}
+
+// Tells the reader this row is safe to unmark — it's already been opened
+// once from Read it later.
+class _AlreadyReadPill extends StatelessWidget {
+  const _AlreadyReadPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: palette.line,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle, size: 12, color: palette.ink3),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: palette.ink3),
+          ),
+        ],
       ),
     );
   }

@@ -59,14 +59,14 @@
   "@readTimeMinutes": {"placeholders": {"minutes": {"type": "int"}}},
 
   "backToFeed": "Feed",
-  "save": "Guardar",
-  "saved": "Guardado ✓",
-  "savedToast": "Guardado en tus favoritos",
-  "unsavedToast": "Quitado de favoritos",
+  "readLaterAdd": "Leer después",
+  "readLaterAdded": "Leer después ✓",
+  "readLaterAddedToast": "Agregado a Leer después",
+  "readLaterRemovedToast": "Quitado de Leer después",
   "editAction": "Editar",
   "deleteAction": "Borrar",
   "notYoursTitle": "Este artículo no es tuyo",
-  "notYoursBody": "Lo publicó {author}, así que no puedes editarlo ni borrarlo. Puedes guardarlo o escribir tu propia noticia.",
+  "notYoursBody": "Lo publicó {author}, así que no puedes editarlo ni borrarlo. Puedes marcarlo como Leer después o escribir tu propia noticia.",
   "@notYoursBody": {"placeholders": {"author": {"type": "String"}}},
 
   "exit": "Salir",
@@ -115,7 +115,7 @@
   "draftsStatLabel": "borradores",
   "myArticlesRow": "Mis artículos",
   "writeArticleRow": "Escribir un artículo",
-  "savedArticlesRow": "Guardados",
+  "readLaterRow": "Leer después",
   "appearanceRow": "Apariencia",
   "themeLight": "Claro",
   "themeDark": "Oscuro",
@@ -130,7 +130,7 @@
   "profileStaleDataBody": "Mostramos la última copia guardada en el teléfono. Lo reintentamos automáticamente cuando vuelva la conexión.",
 
   "confirmDeleteTitle": "¿Borrar este artículo?",
-  "confirmDeleteBody": "«{title}» se elimina para siempre, también para quienes lo guardaron.",
+  "confirmDeleteBody": "«{title}» se elimina para siempre, también para quienes lo marcaron Leer después.",
   "@confirmDeleteBody": {"placeholders": {"title": {"type": "String"}}},
   "confirmDeleteYes": "Sí, borrar",
   "confirmDeleteNo": "No, volver",
@@ -140,6 +140,7 @@
   "navMyArticles": "Mis artículos",
   "navProfile": "Perfil",
 
-  "savedArticlesTitle": "Guardados",
-  "savedArticlesEmpty": "Todavía no guardaste ningún artículo."
+  "readLaterTitle": "Leer después",
+  "readLaterEmpty": "Todavía no marcaste ningún artículo para leer después.",
+  "readLaterAlreadyRead": "Ya lo leí"
 }

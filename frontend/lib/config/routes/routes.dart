@@ -7,7 +7,7 @@ import '../../features/article_composer/presentation/screens/my_articles/my_arti
 import '../../features/article_composer/presentation/screens/profile/profile_screen.dart';
 import '../../features/auth/presentation/screens/login/login_screen.dart';
 import '../../features/auth/presentation/screens/register/register_screen.dart';
-import '../../features/daily_news/presentation/screens/saved_article/saved_article.dart';
+import '../../features/daily_news/presentation/screens/read_later/read_later_screen.dart';
 import '../app_shell.dart';
 
 class AppRoutes {
@@ -38,8 +38,8 @@ class AppRoutes {
       case '/Profile':
         return _materialRoute(const ProfileScreen());
 
-      case '/SavedArticles':
-        return _materialRoute(const SavedArticles());
+      case '/ReadLater':
+        return _materialRoute(const ReadLaterScreen());
 
       default:
         return _materialRoute(const AppShell());

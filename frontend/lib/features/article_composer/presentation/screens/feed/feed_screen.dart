@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../shared/app_shell_controller.dart';
 import '../../../../../shared/widgets/category_chip.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../../shared/widgets/skeleton_block.dart';
@@ -18,7 +19,6 @@ import '../../widgets/category_label.dart';
 import '../../widgets/compact_article_card.dart';
 import '../../widgets/featured_article_card.dart';
 import '../article_detail/article_detail_screen.dart';
-import '../profile/profile_screen.dart';
 
 class FeedScreen extends StatelessWidget {
   const FeedScreen({super.key});
@@ -95,9 +95,7 @@ class _FeedViewState extends State<_FeedView> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                        ),
+                        onTap: () => sl<AppShellController>().goToTab(2),
                         child: InitialsAvatar(initials: userInitials, size: 46),
                       ),
                     ],

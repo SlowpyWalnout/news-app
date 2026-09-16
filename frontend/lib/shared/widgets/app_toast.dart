@@ -36,5 +36,7 @@ void showAppToast(BuildContext context, String message) {
   );
 
   overlay.insert(entry);
-  Future.delayed(const Duration(milliseconds: 2400), entry.remove);
+  Future.delayed(const Duration(milliseconds: 2400), () {
+    if (entry.mounted) entry.remove();
+  });
 }

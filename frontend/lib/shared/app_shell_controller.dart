@@ -22,6 +22,14 @@ class AppShellController extends ChangeNotifier {
     return index;
   }
 
+  /// Switches the shell to [tabIndex] without touching the "My articles"
+  /// refresh state (e.g. the Feed's profile avatar jumping to the Profile
+  /// tab).
+  void goToTab(int tabIndex) {
+    _pendingTabIndex = tabIndex;
+    notifyListeners();
+  }
+
   String? consumeMyArticlesSubTab() {
     final tab = _myArticlesSubTab;
     _myArticlesSubTab = null;

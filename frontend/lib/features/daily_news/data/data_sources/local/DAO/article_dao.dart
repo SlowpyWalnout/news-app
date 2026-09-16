@@ -12,4 +12,10 @@ abstract class ArticleDao {
   
   @Query('SELECT * FROM article')
   Future<List<ArticleModel>> getArticles();
+
+  @Query('SELECT * FROM article WHERE sourceId = :sourceId')
+  Future<ArticleModel?> findBySourceId(String sourceId);
+
+  @Query('UPDATE article SET isRead = 1 WHERE id = :id')
+  Future<void> markAsRead(int id);
 }

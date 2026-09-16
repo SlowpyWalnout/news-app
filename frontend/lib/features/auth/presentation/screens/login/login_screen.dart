@@ -123,10 +123,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   Center(
                     child: Wrap(
                       alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       spacing: 8,
                       children: [
                         Text(l10n.noAccountYet, style: TextStyle(fontSize: 17.5, color: palette.ink2)),
                         TextButton(
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
                           onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(builder: (_) => const RegisterScreen()),
                           ),

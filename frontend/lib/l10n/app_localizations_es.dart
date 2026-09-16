@@ -173,16 +173,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get backToFeed => 'Feed';
 
   @override
-  String get save => 'Guardar';
+  String get readLaterAdd => 'Leer después';
 
   @override
-  String get saved => 'Guardado ✓';
+  String get readLaterAdded => 'Leer después ✓';
 
   @override
-  String get savedToast => 'Guardado en tus favoritos';
+  String get readLaterAddedToast => 'Agregado a Leer después';
 
   @override
-  String get unsavedToast => 'Quitado de favoritos';
+  String get readLaterRemovedToast => 'Quitado de Leer después';
 
   @override
   String get editAction => 'Editar';
@@ -195,7 +195,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String notYoursBody(String author) {
-    return 'Lo publicó $author, así que no puedes editarlo ni borrarlo. Puedes guardarlo o escribir tu propia noticia.';
+    return 'Lo publicó $author, así que no puedes editarlo ni borrarlo. Puedes marcarlo como Leer después o escribir tu propia noticia.';
   }
 
   @override
@@ -332,7 +332,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get writeArticleRow => 'Escribir un artículo';
 
   @override
-  String get savedArticlesRow => 'Guardados';
+  String get readLaterRow => 'Leer después';
 
   @override
   String get appearanceRow => 'Apariencia';
@@ -376,7 +376,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String confirmDeleteBody(String title) {
-    return '«$title» se elimina para siempre, también para quienes lo guardaron.';
+    return '«$title» se elimina para siempre, también para quienes lo marcaron Leer después.';
   }
 
   @override
@@ -398,8 +398,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navProfile => 'Perfil';
 
   @override
-  String get savedArticlesTitle => 'Guardados';
+  String get readLaterTitle => 'Leer después';
 
   @override
-  String get savedArticlesEmpty => 'Todavía no guardaste ningún artículo.';
+  String get readLaterEmpty =>
+      'Todavía no marcaste ningún artículo para leer después.';
+
+  @override
+  String get readLaterAlreadyRead => 'Ya lo leí';
 }

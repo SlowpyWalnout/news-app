@@ -66,7 +66,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 3,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -82,7 +82,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `article` (`id` INTEGER, `author` TEXT, `title` TEXT, `description` TEXT, `url` TEXT, `urlToImage` TEXT, `publishedAt` TEXT, `content` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `article` (`id` INTEGER, `sourceId` TEXT, `author` TEXT, `title` TEXT, `description` TEXT, `url` TEXT, `urlToImage` TEXT, `publishedAt` TEXT, `content` TEXT, `isRead` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -104,13 +104,15 @@ class _$ArticleDao extends ArticleDao {
             'article',
             (ArticleModel item) => <String, Object?>{
                   'id': item.id,
+                  'sourceId': item.sourceId,
                   'author': item.author,
                   'title': item.title,
                   'description': item.description,
                   'url': item.url,
                   'urlToImage': item.urlToImage,
                   'publishedAt': item.publishedAt,
-                  'content': item.content
+                  'content': item.content,
+                  'isRead': item.isRead ? 1 : 0
                 }),
         _articleModelDeletionAdapter = DeletionAdapter(
             database,
@@ -118,13 +120,15 @@ class _$ArticleDao extends ArticleDao {
             ['id'],
             (ArticleModel item) => <String, Object?>{
                   'id': item.id,
+                  'sourceId': item.sourceId,
                   'author': item.author,
                   'title': item.title,
                   'description': item.description,
                   'url': item.url,
                   'urlToImage': item.urlToImage,
                   'publishedAt': item.publishedAt,
-                  'content': item.content
+                  'content': item.content,
+                  'isRead': item.isRead ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -142,13 +146,38 @@ class _$ArticleDao extends ArticleDao {
     return _queryAdapter.queryList('SELECT * FROM article',
         mapper: (Map<String, Object?> row) => ArticleModel(
             id: row['id'] as int?,
+            sourceId: row['sourceId'] as String?,
             author: row['author'] as String?,
             title: row['title'] as String?,
             description: row['description'] as String?,
             url: row['url'] as String?,
             urlToImage: row['urlToImage'] as String?,
             publishedAt: row['publishedAt'] as String?,
-            content: row['content'] as String?));
+            content: row['content'] as String?,
+            isRead: (row['isRead'] as int?) == 1));
+  }
+
+  @override
+  Future<ArticleModel?> findBySourceId(String sourceId) async {
+    return _queryAdapter.query('SELECT * FROM article WHERE sourceId = ?1',
+        mapper: (Map<String, Object?> row) => ArticleModel(
+            id: row['id'] as int?,
+            sourceId: row['sourceId'] as String?,
+            author: row['author'] as String?,
+            title: row['title'] as String?,
+            description: row['description'] as String?,
+            url: row['url'] as String?,
+            urlToImage: row['urlToImage'] as String?,
+            publishedAt: row['publishedAt'] as String?,
+            content: row['content'] as String?,
+            isRead: (row['isRead'] as int?) == 1),
+        arguments: [sourceId]);
+  }
+
+  @override
+  Future<void> markAsRead(int id) async {
+    await _queryAdapter.queryNoReturn('UPDATE article SET isRead = 1 WHERE id = ?1',
+        arguments: [id]);
   }
 
   @override

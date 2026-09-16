@@ -42,18 +42,28 @@ class ArticleRepositoryImpl implements ArticleRepository {
   }
 
   @override
-  Future<List<ArticleModel>> getSavedArticles() async {
+  Future<List<ArticleModel>> getReadLaterArticles() async {
     return _appDatabase.articleDAO.getArticles();
   }
 
   @override
-  Future<void> removeArticle(ArticleEntity article) {
+  Future<void> removeFromReadLater(ArticleEntity article) {
     return _appDatabase.articleDAO.deleteArticle(ArticleModel.fromEntity(article));
   }
 
   @override
-  Future<void> saveArticle(ArticleEntity article) {
+  Future<void> addToReadLater(ArticleEntity article) async {
+    final sourceId = article.sourceId;
+    if (sourceId != null) {
+      final existing = await _appDatabase.articleDAO.findBySourceId(sourceId);
+      if (existing != null) return;
+    }
     return _appDatabase.articleDAO.insertArticle(ArticleModel.fromEntity(article));
   }
-  
+
+  @override
+  Future<void> markReadLaterArticleAsRead(int id) {
+    return _appDatabase.articleDAO.markAsRead(id);
+  }
+
 }

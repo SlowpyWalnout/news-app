@@ -172,16 +172,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backToFeed => 'Feed';
 
   @override
-  String get save => 'Save';
+  String get readLaterAdd => 'Read it later';
 
   @override
-  String get saved => 'Saved ✓';
+  String get readLaterAdded => 'Read it later ✓';
 
   @override
-  String get savedToast => 'Saved to your favorites';
+  String get readLaterAddedToast => 'Added to Read it later';
 
   @override
-  String get unsavedToast => 'Removed from favorites';
+  String get readLaterRemovedToast => 'Removed from Read it later';
 
   @override
   String get editAction => 'Edit';
@@ -194,7 +194,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String notYoursBody(String author) {
-    return '$author published it, so you can\'t edit or delete it. You can save it or write your own story.';
+    return '$author published it, so you can\'t edit or delete it. You can mark it Read it later or write your own story.';
   }
 
   @override
@@ -331,7 +331,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get writeArticleRow => 'Write an article';
 
   @override
-  String get savedArticlesRow => 'Saved';
+  String get readLaterRow => 'Read it later';
 
   @override
   String get appearanceRow => 'Appearance';
@@ -375,7 +375,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String confirmDeleteBody(String title) {
-    return '\"$title\" is deleted forever, including for people who saved it.';
+    return '\"$title\" is deleted forever, including for people who marked it Read it later.';
   }
 
   @override
@@ -397,8 +397,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navProfile => 'Profile';
 
   @override
-  String get savedArticlesTitle => 'Saved';
+  String get readLaterTitle => 'Read it later';
 
   @override
-  String get savedArticlesEmpty => 'You haven\'t saved any articles yet.';
+  String get readLaterEmpty =>
+      'You haven\'t marked any articles Read it later yet.';
+
+  @override
+  String get readLaterAlreadyRead => 'Already read';
 }

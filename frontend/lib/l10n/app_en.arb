@@ -58,14 +58,14 @@
   "@readTimeMinutes": {"placeholders": {"minutes": {"type": "int"}}},
 
   "backToFeed": "Feed",
-  "save": "Save",
-  "saved": "Saved ✓",
-  "savedToast": "Saved to your favorites",
-  "unsavedToast": "Removed from favorites",
+  "readLaterAdd": "Read it later",
+  "readLaterAdded": "Read it later ✓",
+  "readLaterAddedToast": "Added to Read it later",
+  "readLaterRemovedToast": "Removed from Read it later",
   "editAction": "Edit",
   "deleteAction": "Delete",
   "notYoursTitle": "This article isn't yours",
-  "notYoursBody": "{author} published it, so you can't edit or delete it. You can save it or write your own story.",
+  "notYoursBody": "{author} published it, so you can't edit or delete it. You can mark it Read it later or write your own story.",
   "@notYoursBody": {"placeholders": {"author": {"type": "String"}}},
 
   "exit": "Exit",
@@ -114,7 +114,7 @@
   "draftsStatLabel": "drafts",
   "myArticlesRow": "My articles",
   "writeArticleRow": "Write an article",
-  "savedArticlesRow": "Saved",
+  "readLaterRow": "Read it later",
   "appearanceRow": "Appearance",
   "themeLight": "Light",
   "themeDark": "Dark",
@@ -129,7 +129,7 @@
   "profileStaleDataBody": "We're showing the last copy saved on this phone. We'll retry automatically once you're back online.",
 
   "confirmDeleteTitle": "Delete this article?",
-  "confirmDeleteBody": "\"{title}\" is deleted forever, including for people who saved it.",
+  "confirmDeleteBody": "\"{title}\" is deleted forever, including for people who marked it Read it later.",
   "@confirmDeleteBody": {"placeholders": {"title": {"type": "String"}}},
   "confirmDeleteYes": "Yes, delete",
   "confirmDeleteNo": "No, go back",
@@ -139,6 +139,7 @@
   "navMyArticles": "My articles",
   "navProfile": "Profile",
 
-  "savedArticlesTitle": "Saved",
-  "savedArticlesEmpty": "You haven't saved any articles yet."
+  "readLaterTitle": "Read it later",
+  "readLaterEmpty": "You haven't marked any articles Read it later yet.",
+  "readLaterAlreadyRead": "Already read"
 }

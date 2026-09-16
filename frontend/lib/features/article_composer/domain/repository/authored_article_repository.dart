@@ -15,6 +15,11 @@ abstract class AuthoredArticleRepository {
     String? cursor,
   });
 
+  /// Returns null (still [DataSuccess]) when no article exists with that id
+  /// — that's an expected outcome (e.g. a Read it later row whose article
+  /// was later deleted), not a failure.
+  Future<DataState<AuthoredArticleEntity?>> getArticleById(String articleId);
+
   Future<DataState<AuthoredArticleEntity>> publishArticle(
     AuthoredArticleEntity article,
   );

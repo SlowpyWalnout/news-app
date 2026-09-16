@@ -404,29 +404,29 @@ abstract class AppLocalizations {
   /// **'Feed'**
   String get backToFeed;
 
-  /// No description provided for @save.
+  /// No description provided for @readLaterAdd.
   ///
   /// In es, this message translates to:
-  /// **'Guardar'**
-  String get save;
+  /// **'Leer después'**
+  String get readLaterAdd;
 
-  /// No description provided for @saved.
+  /// No description provided for @readLaterAdded.
   ///
   /// In es, this message translates to:
-  /// **'Guardado ✓'**
-  String get saved;
+  /// **'Leer después ✓'**
+  String get readLaterAdded;
 
-  /// No description provided for @savedToast.
+  /// No description provided for @readLaterAddedToast.
   ///
   /// In es, this message translates to:
-  /// **'Guardado en tus favoritos'**
-  String get savedToast;
+  /// **'Agregado a Leer después'**
+  String get readLaterAddedToast;
 
-  /// No description provided for @unsavedToast.
+  /// No description provided for @readLaterRemovedToast.
   ///
   /// In es, this message translates to:
-  /// **'Quitado de favoritos'**
-  String get unsavedToast;
+  /// **'Quitado de Leer después'**
+  String get readLaterRemovedToast;
 
   /// No description provided for @editAction.
   ///
@@ -449,7 +449,7 @@ abstract class AppLocalizations {
   /// No description provided for @notYoursBody.
   ///
   /// In es, this message translates to:
-  /// **'Lo publicó {author}, así que no puedes editarlo ni borrarlo. Puedes guardarlo o escribir tu propia noticia.'**
+  /// **'Lo publicó {author}, así que no puedes editarlo ni borrarlo. Puedes marcarlo como Leer después o escribir tu propia noticia.'**
   String notYoursBody(String author);
 
   /// No description provided for @exit.
@@ -698,11 +698,11 @@ abstract class AppLocalizations {
   /// **'Escribir un artículo'**
   String get writeArticleRow;
 
-  /// No description provided for @savedArticlesRow.
+  /// No description provided for @readLaterRow.
   ///
   /// In es, this message translates to:
-  /// **'Guardados'**
-  String get savedArticlesRow;
+  /// **'Leer después'**
+  String get readLaterRow;
 
   /// No description provided for @appearanceRow.
   ///
@@ -785,7 +785,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmDeleteBody.
   ///
   /// In es, this message translates to:
-  /// **'«{title}» se elimina para siempre, también para quienes lo guardaron.'**
+  /// **'«{title}» se elimina para siempre, también para quienes lo marcaron Leer después.'**
   String confirmDeleteBody(String title);
 
   /// No description provided for @confirmDeleteYes.
@@ -824,17 +824,23 @@ abstract class AppLocalizations {
   /// **'Perfil'**
   String get navProfile;
 
-  /// No description provided for @savedArticlesTitle.
+  /// No description provided for @readLaterTitle.
   ///
   /// In es, this message translates to:
-  /// **'Guardados'**
-  String get savedArticlesTitle;
+  /// **'Leer después'**
+  String get readLaterTitle;
 
-  /// No description provided for @savedArticlesEmpty.
+  /// No description provided for @readLaterEmpty.
   ///
   /// In es, this message translates to:
-  /// **'Todavía no guardaste ningún artículo.'**
-  String get savedArticlesEmpty;
+  /// **'Todavía no marcaste ningún artículo para leer después.'**
+  String get readLaterEmpty;
+
+  /// No description provided for @readLaterAlreadyRead.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya lo leí'**
+  String get readLaterAlreadyRead;
 }
 
 class _AppLocalizationsDelegate

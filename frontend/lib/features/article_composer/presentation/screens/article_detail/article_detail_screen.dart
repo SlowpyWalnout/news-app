@@ -13,9 +13,10 @@ import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../../shared/widgets/scrim_overlay.dart';
 import '../../../../../shared/widgets/striped_image_placeholder.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
-import '../../../../daily_news/presentation/bloc/article/local/local_article_bloc.dart';
-import '../../../../daily_news/presentation/bloc/article/local/local_article_event.dart';
-import '../../../../daily_news/presentation/bloc/article/local/local_article_state.dart';
+import '../../../../daily_news/domain/entities/article.dart';
+import '../../../../daily_news/presentation/bloc/article/local/read_later_bloc.dart';
+import '../../../../daily_news/presentation/bloc/article/local/read_later_event.dart';
+import '../../../../daily_news/presentation/bloc/article/local/read_later_state.dart';
 import '../../../domain/entities/authored_article_entity.dart';
 import '../../bloc/article_actions/article_actions_cubit.dart';
 import '../../widgets/category_label.dart';
@@ -33,7 +34,7 @@ class ArticleDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => sl<LocalArticleBloc>()..add(const GetSavedArticles())),
+        BlocProvider(create: (_) => sl<ReadLaterBloc>()..add(const ReadLaterRequested())),
         BlocProvider(create: (_) => sl<ArticleActionsCubit>()),
       ],
       child: _ArticleDetailView(article: article, forcePermissionDenied: forcePermissionDenied),
@@ -52,6 +53,21 @@ class _ArticleDetailView extends StatelessWidget {
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
+  }
+
+  // Matches this screen's article against a stored Read it later row so
+  // removal always uses the row's real Floor `id`, never a freshly built
+  // ArticleEntity with a null one (that used to crash the DELETE query —
+  // Floor drops null primary-key args, leaving a bind-count mismatch).
+  // Falls back to a title match for rows saved before `sourceId` existed.
+  ArticleEntity? _findStoredMatch(List<ArticleEntity> stored) {
+    for (final row in stored) {
+      if (row.sourceId == article.id) return row;
+    }
+    for (final row in stored) {
+      if (row.sourceId == null && row.title == article.title) return row;
+    }
+    return null;
   }
 
   Future<void> _handleDelete(BuildContext context) async {
@@ -86,16 +102,19 @@ class _ArticleDetailView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   BackPillButton(label: l10n.backToFeed, onPressed: () => Navigator.of(context).maybePop()),
-                  BlocBuilder<LocalArticleBloc, LocalArticlesState>(
+                  BlocBuilder<ReadLaterBloc, ReadLaterState>(
                     builder: (context, state) {
-                      final saved = (state.articles ?? []).any((a) => a.title == article.title);
+                      final stored = state.articles ?? const <ArticleEntity>[];
+                      final match = _findStoredMatch(stored);
+                      final saved = match != null;
                       return OutlinedButton(
                         onPressed: () {
-                          final feedArticle = article.toFeedArticle();
-                          context.read<LocalArticleBloc>().add(
-                                saved ? RemoveArticle(feedArticle) : SaveArticle(feedArticle),
-                              );
-                          showAppToast(context, saved ? l10n.unsavedToast : l10n.savedToast);
+                          if (saved) {
+                            context.read<ReadLaterBloc>().add(ReadLaterRemoved(match));
+                          } else {
+                            context.read<ReadLaterBloc>().add(ReadLaterAdded(article.toFeedArticle()));
+                          }
+                          showAppToast(context, saved ? l10n.readLaterRemovedToast : l10n.readLaterAddedToast);
                         },
                         style: OutlinedButton.styleFrom(
                           backgroundColor: saved ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
@@ -104,7 +123,7 @@ class _ArticleDetailView extends StatelessWidget {
                           minimumSize: const Size(0, 48),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
                         ),
-                        child: Text(saved ? l10n.saved : l10n.save, style: const TextStyle(fontWeight: FontWeight.w700)),
+                        child: Text(saved ? l10n.readLaterAdded : l10n.readLaterAdd, style: const TextStyle(fontWeight: FontWeight.w700)),
                       );
                     },
                   ),

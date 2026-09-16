@@ -9,7 +9,7 @@ import '../../../../../shared/settings/presentation/cubit/settings_cubit.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../../../auth/presentation/bloc/auth/auth_event.dart';
-import '../../../../daily_news/presentation/screens/saved_article/saved_article.dart';
+import '../../../../daily_news/presentation/screens/read_later/read_later_screen.dart';
 import '../../bloc/my_articles/my_articles_bloc.dart';
 import '../../bloc/my_articles/my_articles_event.dart';
 import '../../bloc/my_articles/my_articles_state.dart';
@@ -105,9 +105,9 @@ class _ProfileView extends StatelessWidget {
               ),
               const SizedBox(height: 11),
               _SettingsRow(
-                label: l10n.savedArticlesRow,
+                label: l10n.readLaterRow,
                 trailing: const Icon(Icons.arrow_forward, size: 18),
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SavedArticles())),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ReadLaterScreen())),
               ),
               const SizedBox(height: 11),
               _SettingsRow(

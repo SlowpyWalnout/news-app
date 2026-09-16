@@ -115,6 +115,12 @@ class AuthoredArticleFirestoreDataSource {
     return _articles.doc(articleId).delete();
   }
 
+  Future<AuthoredArticleModel?> getArticleById(String articleId) async {
+    final snapshot = await _articles.doc(articleId).get();
+    if (!snapshot.exists) return null;
+    return AuthoredArticleModel.fromFirestore(snapshot);
+  }
+
   Future<String?> getThumbnailPath(String articleId) async {
     final snapshot = await _articles.doc(articleId).get();
     if (!snapshot.exists) return null;

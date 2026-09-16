@@ -42,6 +42,16 @@ class AuthoredArticleRepositoryImpl implements AuthoredArticleRepository {
   }
 
   @override
+  Future<DataState<AuthoredArticleEntity?>> getArticleById(String articleId) async {
+    try {
+      final article = await _dataSource.getArticleById(articleId);
+      return DataSuccess(article);
+    } on FirebaseException catch (e) {
+      return DataFailed(mapFirebaseExceptionToFailure(e));
+    }
+  }
+
+  @override
   Future<DataState<AuthoredArticleEntity>> publishArticle(
     AuthoredArticleEntity article,
   ) async {
