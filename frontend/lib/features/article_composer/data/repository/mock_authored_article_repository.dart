@@ -92,6 +92,37 @@ class MockAuthoredArticleRepository implements AuthoredArticleRepository {
   }
 
   @override
+  Future<DataState<AuthoredArticleEntity>> saveDraft(
+    AuthoredArticleEntity article,
+  ) async {
+    final now = DateTime.now();
+    final index = _articles.indexWhere((existing) => existing.id == article.id);
+    if (index != -1) {
+      final updated = article.copyWith(status: ArticleStatus.draft, updatedAt: now);
+      _articles[index] = updated;
+      return DataSuccess(updated);
+    }
+    final draft = AuthoredArticleEntity(
+      id: article.id.isEmpty ? _uuid.v4() : article.id,
+      authorId: article.authorId,
+      authorName: article.authorName,
+      authorPhotoURL: article.authorPhotoURL,
+      title: article.title,
+      body: article.body,
+      status: ArticleStatus.draft,
+      category: article.category,
+      thumbnailURL: article.thumbnailURL,
+      thumbnailPath: article.thumbnailPath,
+      searchKeywords: article.searchKeywords,
+      createdAt: article.createdAt,
+      updatedAt: now,
+      publishedAt: article.publishedAt,
+    );
+    _articles.add(draft);
+    return DataSuccess(draft);
+  }
+
+  @override
   Future<DataState<AuthoredArticleEntity>> updateArticle(
     AuthoredArticleEntity article,
   ) async {

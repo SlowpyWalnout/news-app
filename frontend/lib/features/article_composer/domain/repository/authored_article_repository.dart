@@ -18,6 +18,12 @@ abstract class AuthoredArticleRepository {
     AuthoredArticleEntity article,
   );
 
+  /// Upserts [article] as a draft. Unlike [publishArticle], the body may be
+  /// empty — a half-written draft is a legitimate state.
+  Future<DataState<AuthoredArticleEntity>> saveDraft(
+    AuthoredArticleEntity article,
+  );
+
   Future<DataState<AuthoredArticleEntity>> updateArticle(
     AuthoredArticleEntity article,
   );

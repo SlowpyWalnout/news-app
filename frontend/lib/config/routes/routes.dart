@@ -1,25 +1,48 @@
 import 'package:flutter/material.dart';
 
-import '../../features/daily_news/domain/entities/article.dart';
-import '../../features/daily_news/presentation/screens/article_detail/article_detail.dart';
-import '../../features/daily_news/presentation/screens/home/daily_news.dart';
+import '../../features/article_composer/domain/entities/authored_article_entity.dart';
+import '../../features/article_composer/presentation/screens/article_detail/article_detail_screen.dart';
+import '../../features/article_composer/presentation/screens/article_editor/article_editor_screen.dart';
+import '../../features/article_composer/presentation/screens/my_articles/my_articles_screen.dart';
+import '../../features/article_composer/presentation/screens/profile/profile_screen.dart';
+import '../../features/auth/presentation/screens/login/login_screen.dart';
+import '../../features/auth/presentation/screens/register/register_screen.dart';
 import '../../features/daily_news/presentation/screens/saved_article/saved_article.dart';
-
+import '../app_shell.dart';
 
 class AppRoutes {
   static Route onGenerateRoutes(RouteSettings settings) {
     switch (settings.name) {
-      case '/':
-        return _materialRoute(const DailyNews());
+      case AppShell.routeName:
+        return _materialRoute(const AppShell());
+
+      case LoginScreen.routeName:
+        return _materialRoute(const LoginScreen());
+
+      case RegisterScreen.routeName:
+        return _materialRoute(const RegisterScreen());
 
       case '/ArticleDetails':
-        return _materialRoute(ArticleDetailsView(article: settings.arguments as ArticleEntity));
+        return _materialRoute(
+          ArticleDetailScreen(article: settings.arguments as AuthoredArticleEntity),
+        );
+
+      case '/ArticleEditor':
+        return _materialRoute(
+          ArticleEditorScreen(article: settings.arguments as AuthoredArticleEntity?),
+        );
+
+      case '/MyArticles':
+        return _materialRoute(const MyArticlesScreen());
+
+      case '/Profile':
+        return _materialRoute(const ProfileScreen());
 
       case '/SavedArticles':
         return _materialRoute(const SavedArticles());
-        
+
       default:
-        return _materialRoute(const DailyNews());
+        return _materialRoute(const AppShell());
     }
   }
 

@@ -1,85 +1,73 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+
+import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
+import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/entities/article.dart';
 import '../../bloc/article/local/local_article_bloc.dart';
 import '../../bloc/article/local/local_article_event.dart';
 import '../../bloc/article/local/local_article_state.dart';
 import '../../widgets/article_tile.dart';
 
-class SavedArticles extends HookWidget {
-  const SavedArticles({Key ? key}) : super(key: key);
+class SavedArticles extends StatelessWidget {
+  const SavedArticles({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => sl<LocalArticleBloc>()..add(const GetSavedArticles()),
-      child: Scaffold(
-        appBar: _buildAppBar(),
-        body: _buildBody(),
+      child: const _SavedArticlesView(),
+    );
+  }
+}
+
+class _SavedArticlesView extends StatelessWidget {
+  const _SavedArticlesView();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(onPressed: () => Navigator.of(context).maybePop()),
+        title: Text(l10n.savedArticlesTitle),
+      ),
+      body: BlocBuilder<LocalArticleBloc, LocalArticlesState>(
+        builder: (context, state) {
+          if (state is LocalArticlesLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state is LocalArticlesError) {
+            return Center(child: Text(state.error?.message ?? ''));
+          }
+          final articles = state.articles ?? const <ArticleEntity>[];
+          if (articles.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  l10n.savedArticlesEmpty,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: context.palette.ink2),
+                ),
+              ),
+            );
+          }
+          return ListView.builder(
+            itemCount: articles.length,
+            itemBuilder: (context, index) {
+              final article = articles[index];
+              return ArticleWidget(
+                article: article,
+                isRemovable: true,
+                onRemove: (a) => context.read<LocalArticleBloc>().add(RemoveArticle(a)),
+              );
+            },
+          );
+        },
       ),
     );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      leading: Builder(
-        builder: (context) => GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _onBackButtonTapped(context),
-          child: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-        ),
-      ),
-      title: const Text('Saved Articles', style: TextStyle(color: Colors.black)),
-    );
-  }
-
-  Widget _buildBody() {
-    return BlocBuilder<LocalArticleBloc, LocalArticlesState>(
-      builder: (context, state) {
-        if (state is LocalArticlesLoading) {
-          return const Center(child: CupertinoActivityIndicator());
-        } else if (state is LocalArticlesDone) {
-          return _buildArticlesList(state.articles!);
-        }
-        return Container();
-      },
-    );
-  }
-
-  Widget _buildArticlesList(List<ArticleEntity> articles) {
-    if (articles.isEmpty) {
-      return const Center(
-          child: Text(
-        'NO SAVED ARTICLES',
-        style: TextStyle(color: Colors.black),
-      ));
-    }
-
-    return ListView.builder(
-      itemCount: articles.length,
-      itemBuilder: (context, index) {
-        return ArticleWidget(
-          article: articles[index],
-          isRemovable: true,
-          onRemove: (article) => _onRemoveArticle(context, article),
-          onArticlePressed: (article) => _onArticlePressed(context, article),
-        );
-      },
-    );
-  }
-
-  void _onBackButtonTapped(BuildContext context) {
-    Navigator.pop(context);
-  }
-
-  void _onRemoveArticle(BuildContext context, ArticleEntity article) {
-    BlocProvider.of<LocalArticleBloc>(context).add(RemoveArticle(article));
-  }
-
-  void _onArticlePressed(BuildContext context, ArticleEntity article) {
-    Navigator.pushNamed(context, '/ArticleDetails', arguments: article);
   }
 }

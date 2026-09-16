@@ -5,11 +5,15 @@ final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 const int kPasswordMinLength = 6;
 const int kDisplayNameMaxLength = 60;
 
+bool isValidEmail(String email) => _emailPattern.hasMatch(email);
+
+bool isValidPassword(String password) => password.length >= kPasswordMinLength;
+
 ValidationFailure? validateEmailAndPassword(String email, String password) {
-  if (!_emailPattern.hasMatch(email)) {
+  if (!isValidEmail(email)) {
     return const ValidationFailure('El email no es válido.');
   }
-  if (password.length < kPasswordMinLength) {
+  if (!isValidPassword(password)) {
     return ValidationFailure(
       'La contraseña debe tener al menos $kPasswordMinLength caracteres.',
     );

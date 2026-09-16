@@ -25,7 +25,14 @@ dependencies:
   get_it: ^7.6.0
 
   # date formatting
-  intl: ^0.18.1
+  intl: ^0.20.2
+
+  # localization
+  flutter_localizations:
+    sdk: flutter
+
+  # persisted app settings (theme/locale/accent/a11y)
+  shared_preferences: ^2.3.3
 
   # local database (favorites cache)
   floor: ^1.5.0
@@ -58,18 +65,25 @@ dev_dependencies:
   build_runner: ^2.4.13
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.8
+  # NOTE: bloc_test/mocktail are NOT added here — floor_generator ^1.5.0 (no
+  # newer version exists) pins analyzer ^6.4.1, which conflicts with every
+  # test_api version bloc_test's `test` dependency chain can resolve to.
+  # Fase 5 tests below use plain flutter_test (bloc.stream + expectLater) and
+  # hand-written fakes instead. Revisit in Fase 8 if Floor gets dropped.
 
 
 flutter:
 
   uses-material-design: true
+  generate: true
 
- 
+  # Both families ship as single variable-font files (wght axis); Skia
+  # interpolates the requested FontWeight from them directly, so no
+  # per-weight asset entries are declared.
   fonts:
-    - family: Muli
+    - family: Figtree
       fonts:
-        - asset: assets/fonts/muli/Muli.ttf
-        - asset: assets/fonts/muli/Muli-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/muli/Muli-Light.ttf
-          weight: 300
+        - asset: assets/fonts/figtree/Figtree.ttf
+    - family: Space Grotesk
+      fonts:
+        - asset: assets/fonts/space_grotesk/SpaceGrotesk.ttf

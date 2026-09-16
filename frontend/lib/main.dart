@@ -1,31 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:news_app/config/routes/routes.dart';
-import 'package:news_app/features/daily_news/presentation/bloc/article/remote/remote_article_event.dart';
-import 'package:news_app/features/daily_news/presentation/screens/home/daily_news.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+import 'config/auth_gate.dart';
+import 'config/routes/routes.dart';
 import 'config/theme/app_themes.dart';
-import 'features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
+import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'injection_container.dart';
+import 'l10n/app_localizations.dart';
+import 'shared/settings/domain/entities/app_settings_entity.dart';
+import 'shared/settings/presentation/cubit/settings_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
+  await initializeDateFormatting();
 
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<RemoteArticlesBloc>(
-      create: (context) => sl()..add(const GetArticles()),
-      child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: theme(),
-          onGenerateRoute: AppRoutes.onGenerateRoutes,
-          home: const DailyNews()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<SettingsCubit>.value(value: sl<SettingsCubit>()),
+        BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
+      ],
+      child: BlocBuilder<SettingsCubit, AppSettingsEntity>(
+        builder: (context, settings) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: appTheme(brightness: Brightness.light, accent: settings.accent, accessible: settings.accessible),
+            darkTheme: appTheme(brightness: Brightness.dark, accent: settings.accent, accessible: settings.accessible),
+            themeMode: settings.themeMode,
+            locale: settings.locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            onGenerateRoute: AppRoutes.onGenerateRoutes,
+            home: const AuthGate(),
+          );
+        },
+      ),
     );
   }
 }

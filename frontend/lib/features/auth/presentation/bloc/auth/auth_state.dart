@@ -1,0 +1,63 @@
+import 'package:equatable/equatable.dart';
+import 'package:news_app/core/resources/failure.dart';
+import 'package:news_app/features/auth/domain/entities/user_entity.dart';
+
+enum AuthStatus { initial, loading, authenticated, unauthenticated }
+
+class AuthState extends Equatable {
+  const AuthState({
+    this.status = AuthStatus.initial,
+    this.user,
+    this.submitError,
+    this.registerNameError,
+    this.registerEmailError,
+    this.registerPasswordError,
+    this.registerPasswordValid = false,
+  });
+
+  final AuthStatus status;
+  final UserEntity? user;
+
+  /// Set after a failed sign-in/sign-up submit (credential/network/etc.).
+  final Failure? submitError;
+
+  /// Live register-field validation, recomputed on every keystroke.
+  final String? registerNameError;
+  final String? registerEmailError;
+  final String? registerPasswordError;
+  final bool registerPasswordValid;
+
+  const AuthState.initial() : this();
+
+  AuthState copyWith({
+    AuthStatus? status,
+    UserEntity? user,
+    Failure? submitError,
+    bool clearSubmitError = false,
+    String? registerNameError,
+    String? registerEmailError,
+    String? registerPasswordError,
+    bool? registerPasswordValid,
+  }) {
+    return AuthState(
+      status: status ?? this.status,
+      user: user ?? this.user,
+      submitError: clearSubmitError ? null : (submitError ?? this.submitError),
+      registerNameError: registerNameError,
+      registerEmailError: registerEmailError,
+      registerPasswordError: registerPasswordError,
+      registerPasswordValid: registerPasswordValid ?? this.registerPasswordValid,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        status,
+        user,
+        submitError,
+        registerNameError,
+        registerEmailError,
+        registerPasswordError,
+        registerPasswordValid,
+      ];
+}
