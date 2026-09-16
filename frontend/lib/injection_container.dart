@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:news_app/features/daily_news/data/data_sources/remote/news_api_service.dart';
 import 'package:news_app/features/daily_news/data/repository/article_repository_impl.dart';
@@ -12,7 +14,8 @@ import 'features/daily_news/domain/use_cases/remove_article.dart';
 import 'features/daily_news/domain/use_cases/save_article.dart';
 import 'features/daily_news/presentation/bloc/article/local/local_article_bloc.dart';
 
-import 'features/auth/data/repository/mock_auth_repository.dart';
+import 'features/auth/data/data_sources/remote/firebase_auth_data_source.dart';
+import 'features/auth/data/repository/auth_repository_impl.dart';
 import 'features/auth/domain/repository/auth_repository.dart';
 import 'features/auth/domain/use_cases/get_current_user_use_case.dart';
 import 'features/auth/domain/use_cases/sign_in_use_case.dart';
@@ -52,6 +55,10 @@ Future<void> initializeDependencies() async {
   // Dio
   sl.registerSingleton<Dio>(Dio());
 
+  // Firebase
+  sl.registerSingleton<fb_auth.FirebaseAuth>(fb_auth.FirebaseAuth.instance);
+  sl.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
+
   // Dependencies
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
 
@@ -63,7 +70,8 @@ Future<void> initializeDependencies() async {
   // still backs the local favorites cache (GetSavedArticleUseCase et al.).
   // RemoteArticlesBloc itself has no remaining consumer; see ROADMAP.md.
 
-  sl.registerSingleton<AuthRepository>(MockAuthRepository());
+  sl.registerSingleton<FirebaseAuthDataSource>(FirebaseAuthDataSource(sl(), sl()));
+  sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
   sl.registerSingleton<AuthoredArticleRepository>(MockAuthoredArticleRepository());
   sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl()));
 
