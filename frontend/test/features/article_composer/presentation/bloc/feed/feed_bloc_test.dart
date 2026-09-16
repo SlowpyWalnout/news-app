@@ -5,6 +5,7 @@ import 'package:news_app/core/resources/paginated_result.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_status.dart';
 import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
+import 'package:news_app/features/article_composer/domain/entities/upload_thumbnail_result.dart';
 import 'package:news_app/features/article_composer/domain/repository/authored_article_repository.dart';
 import 'package:news_app/features/article_composer/domain/use_cases/get_feed_use_case.dart';
 import 'package:news_app/features/article_composer/presentation/bloc/feed/feed_bloc.dart';
@@ -66,7 +67,7 @@ class _FakeAuthoredArticleRepository implements AuthoredArticleRepository {
   }
 
   @override
-  Future<DataState<String>> uploadThumbnail(String articleId, String filePath) async {
+  Future<DataState<UploadThumbnailResult>> uploadThumbnail(String articleId, String filePath) async {
     throw UnimplementedError();
   }
 }

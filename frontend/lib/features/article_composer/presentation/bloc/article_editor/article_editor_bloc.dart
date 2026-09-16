@@ -122,7 +122,10 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
         UploadThumbnailParams(articleId: saved.id, filePath: coverPath),
       );
       if (uploadResult is DataSuccess && uploadResult.data != null) {
-        final withThumbnail = saved.copyWith(thumbnailURL: uploadResult.data);
+        final withThumbnail = saved.copyWith(
+          thumbnailURL: uploadResult.data!.url,
+          thumbnailPath: uploadResult.data!.path,
+        );
         final reattach = saved.status == ArticleStatus.draft
             ? await _saveDraftUseCase(withThumbnail)
             : await _editArticleUseCase(withThumbnail);

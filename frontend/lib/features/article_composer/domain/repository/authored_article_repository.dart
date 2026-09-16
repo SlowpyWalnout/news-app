@@ -2,6 +2,7 @@ import 'package:news_app/core/resources/data_state.dart';
 import 'package:news_app/core/resources/paginated_result.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
 import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
+import 'package:news_app/features/article_composer/domain/entities/upload_thumbnail_result.dart';
 
 abstract class AuthoredArticleRepository {
   Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getFeed({
@@ -30,5 +31,5 @@ abstract class AuthoredArticleRepository {
 
   Future<DataState<void>> deleteArticle(String articleId);
 
-  Future<DataState<String>> uploadThumbnail(String articleId, String filePath);
+  Future<DataState<UploadThumbnailResult>> uploadThumbnail(String articleId, String filePath);
 }

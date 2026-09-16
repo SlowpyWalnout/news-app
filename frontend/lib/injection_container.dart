@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:news_app/features/daily_news/data/data_sources/remote/news_api_service.dart';
 import 'package:news_app/features/daily_news/data/repository/article_repository_impl.dart';
@@ -24,6 +25,7 @@ import 'features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
 
 import 'features/article_composer/data/data_sources/remote/authored_article_firestore_data_source.dart';
+import 'features/article_composer/data/data_sources/remote/authored_article_storage_data_source.dart';
 import 'features/article_composer/data/repository/authored_article_repository_impl.dart';
 import 'features/article_composer/domain/repository/authored_article_repository.dart';
 import 'features/article_composer/domain/use_cases/delete_article_use_case.dart';
@@ -59,6 +61,7 @@ Future<void> initializeDependencies() async {
   // Firebase
   sl.registerSingleton<fb_auth.FirebaseAuth>(fb_auth.FirebaseAuth.instance);
   sl.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
+  sl.registerSingleton<FirebaseStorage>(FirebaseStorage.instance);
 
   // Dependencies
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
@@ -76,7 +79,12 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<AuthoredArticleFirestoreDataSource>(
     AuthoredArticleFirestoreDataSource(sl()),
   );
-  sl.registerSingleton<AuthoredArticleRepository>(AuthoredArticleRepositoryImpl(sl()));
+  sl.registerSingleton<AuthoredArticleStorageDataSource>(
+    AuthoredArticleStorageDataSource(sl(), sl()),
+  );
+  sl.registerSingleton<AuthoredArticleRepository>(
+    AuthoredArticleRepositoryImpl(sl(), sl()),
+  );
   sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl()));
 
   //UseCases

@@ -2,15 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:news_app/core/resources/data_state.dart';
 import 'package:news_app/core/resources/paginated_result.dart';
 import 'package:news_app/features/article_composer/data/data_sources/remote/authored_article_firestore_data_source.dart';
+import 'package:news_app/features/article_composer/data/data_sources/remote/authored_article_storage_data_source.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
 import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
+import 'package:news_app/features/article_composer/domain/entities/upload_thumbnail_result.dart';
 import 'package:news_app/features/article_composer/domain/repository/authored_article_repository.dart';
 import 'package:news_app/shared/data/mappers/firebase_failure_mapper.dart';
 
 class AuthoredArticleRepositoryImpl implements AuthoredArticleRepository {
   final AuthoredArticleFirestoreDataSource _dataSource;
+  final AuthoredArticleStorageDataSource _storageDataSource;
 
-  AuthoredArticleRepositoryImpl(this._dataSource);
+  AuthoredArticleRepositoryImpl(this._dataSource, this._storageDataSource);
 
   @override
   Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getFeed({
@@ -74,6 +77,13 @@ class AuthoredArticleRepositoryImpl implements AuthoredArticleRepository {
   @override
   Future<DataState<void>> deleteArticle(String articleId) async {
     try {
+      // Storage primero, Firestore después (ROADMAP.md): si falla el borrado
+      // de Firestore, queda una imagen huérfana (recuperable) en vez de un
+      // documento con un thumbnailPath que ya no existe.
+      final thumbnailPath = await _dataSource.getThumbnailPath(articleId);
+      if (thumbnailPath != null) {
+        await _storageDataSource.deleteThumbnail(thumbnailPath);
+      }
       await _dataSource.deleteArticle(articleId);
       return const DataSuccess(null);
     } on FirebaseException catch (e) {
@@ -82,11 +92,14 @@ class AuthoredArticleRepositoryImpl implements AuthoredArticleRepository {
   }
 
   @override
-  Future<DataState<String>> uploadThumbnail(String articleId, String filePath) async {
-    // Storage wiring (subida real + borrado en cascada) llega en el
-    // siguiente paso de Fase 6 — ver ROADMAP.md.
-    throw UnimplementedError(
-      'uploadThumbnail: Storage data source pendiente (Fase 6, paso 5).',
-    );
+  Future<DataState<UploadThumbnailResult>> uploadThumbnail(
+    String articleId,
+    String filePath,
+  ) async {
+    try {
+      return DataSuccess(await _storageDataSource.uploadThumbnail(articleId, filePath));
+    } on FirebaseException catch (e) {
+      return DataFailed(mapFirebaseExceptionToFailure(e));
+    }
   }
 }
