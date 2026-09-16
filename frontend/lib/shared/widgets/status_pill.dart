@@ -14,6 +14,7 @@ class StatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final scheme = Theme.of(context).colorScheme;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
 
     final Color bg = published ? scheme.primary : palette.warnSoft;
     final Color border = published ? scheme.primary : palette.warn;
@@ -32,8 +33,8 @@ class StatusPill extends StatelessWidget {
         label.toUpperCase(),
         style: TextStyle(
           fontWeight: FontWeight.w700,
-          fontSize: 11.5,
-          letterSpacing: 0.07 * 11.5,
+          fontSize: dims.fXs,
+          letterSpacing: 0.07 * dims.fXs,
           color: fg,
         ),
       ),

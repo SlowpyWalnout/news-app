@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../config/theme/app_dimensions.dart';
 import '../../../../config/theme/app_palette.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/utils/reading_time.dart';
@@ -20,6 +21,7 @@ class CompactArticleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     final dateLabel = article.publishedAt != null ? DateFormat.MMMd(l10n.localeName).format(article.publishedAt!) : '';
     final readLabel = l10n.readTimeMinutes(estimateReadingMinutes(article.body));
 
@@ -76,17 +78,21 @@ class CompactArticleCard extends StatelessWidget {
                     article.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: 17.5, height: 1.22),
+                    style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fMd, height: 1.22),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     article.authorName,
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: palette.ink2),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: dims.fXs, color: palette.ink2),
                   ),
                   const SizedBox(height: 3),
                   Text(
                     dateLabel.isEmpty ? readLabel : '$dateLabel · $readLabel',
-                    style: TextStyle(fontSize: 13, color: palette.ink3),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: dims.fXs, color: palette.ink3),
                   ),
                 ],
               ),

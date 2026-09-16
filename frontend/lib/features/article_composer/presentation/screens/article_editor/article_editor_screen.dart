@@ -119,7 +119,7 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                         child: Text(
                           state.isEditing ? l10n.editArticleTitle : l10n.newArticleTitle,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: 17.5),
+                          style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fMd),
                         ),
                       ),
                       const Expanded(child: SizedBox()),
@@ -183,7 +183,7 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                           InlineBanner(title: '', body: l10n.coverTooLarge(state.coverError!)),
                         ],
                         const SizedBox(height: 10),
-                        Text(l10n.coverHint, style: TextStyle(fontSize: 12.5, color: palette.ink3)),
+                        Text(l10n.coverHint, style: TextStyle(fontSize: dims.fXs, color: palette.ink3)),
                         const SizedBox(height: 22),
                         AppTextField(
                           label: l10n.bodyLabel,
@@ -262,6 +262,7 @@ class _CoverPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final l10n = AppLocalizations.of(context)!;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     final path = state.coverLocalPath;
 
     return Container(
@@ -291,7 +292,7 @@ class _CoverPreview extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 l10n.removeCoverImage,
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Theme.of(context).colorScheme.error),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fSm, color: Theme.of(context).colorScheme.error),
               ),
             ),
           ),

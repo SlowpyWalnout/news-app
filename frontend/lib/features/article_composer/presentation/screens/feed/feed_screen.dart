@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
@@ -58,6 +59,7 @@ class _FeedViewState extends State<_FeedView> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     final userInitials = context.select<AuthBloc, String>((bloc) {
       final name = bloc.state.user?.displayName ?? '';
       final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
@@ -83,7 +85,7 @@ class _FeedViewState extends State<_FeedView> {
                             style: TextStyle(
                               fontFamily: 'Space Grotesk',
                               fontWeight: FontWeight.w700,
-                              fontSize: 23,
+                              fontSize: dims.fLg,
                               letterSpacing: -0.8,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
@@ -122,7 +124,7 @@ class _FeedViewState extends State<_FeedView> {
                               border: InputBorder.none,
                               isDense: true,
                             ),
-                            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 17.5),
+                            style: TextStyle(fontWeight: FontWeight.w500, fontSize: dims.fMd),
                           ),
                         ),
                       ],

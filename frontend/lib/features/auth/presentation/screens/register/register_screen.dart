@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
@@ -49,6 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
 
     return Scaffold(
       body: SafeArea(
@@ -77,10 +79,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 14),
                   Text(
                     l10n.createAccountTitle,
-                    style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: 28, letterSpacing: -0.03 * 28),
+                    style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fH, letterSpacing: -0.03 * dims.fH),
                   ),
                   const SizedBox(height: 8),
-                  Text(l10n.createAccountSubtitle, style: TextStyle(fontSize: 17.5, height: 1.5, color: palette.ink2)),
+                  Text(l10n.createAccountSubtitle, style: TextStyle(fontSize: dims.fMd, height: 1.5, color: palette.ink2)),
                   const SizedBox(height: 22),
                   if (state.submitError != null) ...[
                     _PlainDangerCard(message: state.submitError!.message),
@@ -121,7 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   if (state.registerPasswordValid && state.registerPasswordError == null) ...[
                     const SizedBox(height: 6),
-                    Text(l10n.passwordValid, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: palette.ok)),
+                    Text(l10n.passwordValid, style: TextStyle(fontWeight: FontWeight.w600, fontSize: dims.fSm, color: palette.ok)),
                   ],
                   const SizedBox(height: 18),
                   PrimaryButton(
@@ -153,6 +155,7 @@ class _PlainDangerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final scheme = Theme.of(context).colorScheme;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 14),
@@ -161,7 +164,7 @@ class _PlainDangerCard extends StatelessWidget {
         border: Border.all(color: scheme.error),
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Text(message, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, height: 1.5, color: scheme.error)),
+      child: Text(message, style: TextStyle(fontWeight: FontWeight.w600, fontSize: dims.fSm, height: 1.5, color: scheme.error)),
     );
   }
 }

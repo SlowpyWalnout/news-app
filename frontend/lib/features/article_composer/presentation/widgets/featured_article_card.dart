@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../config/theme/app_dimensions.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/initials_avatar.dart';
 import '../../../../shared/widgets/scrim_overlay.dart';
@@ -25,6 +26,7 @@ class FeaturedArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
 
     return GestureDetector(
       onTap: onTap,
@@ -50,7 +52,7 @@ class FeaturedArticleCard extends StatelessWidget {
               child: GlassPill(
                 child: Text(
                   categoryLabel(l10n, article.category).toUpperCase(),
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, letterSpacing: 1.1, color: Colors.white),
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fXs, letterSpacing: 1.1, color: Colors.white),
                 ),
               ),
             ),
@@ -68,10 +70,10 @@ class FeaturedArticleCard extends StatelessWidget {
                       article.title,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Space Grotesk',
                         fontWeight: FontWeight.w600,
-                        fontSize: 28,
+                        fontSize: dims.fH,
                         height: 1.1,
                         color: Colors.white,
                       ),
@@ -85,13 +87,13 @@ class FeaturedArticleCard extends StatelessWidget {
                           child: Text(
                             article.authorName,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.white),
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: dims.fSm, color: Colors.white),
                           ),
                         ),
                         if (article.publishedAt != null)
                           Text(
                             ' · ${DateFormat.MMMd(l10n.localeName).format(article.publishedAt!)}',
-                            style: TextStyle(fontSize: 15, color: Colors.white.withValues(alpha: 0.7)),
+                            style: TextStyle(fontSize: dims.fSm, color: Colors.white.withValues(alpha: 0.7)),
                           ),
                       ],
                     ),

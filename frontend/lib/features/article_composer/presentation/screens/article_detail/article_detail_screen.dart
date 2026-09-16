@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
@@ -86,6 +87,7 @@ class _ArticleDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     final currentUserId = context.select<AuthBloc, String?>((b) => b.state.user?.uid);
     final isMine = !forcePermissionDenied && currentUserId != null && currentUserId == article.authorId;
     final dateLabel = article.publishedAt != null ? DateFormat.MMMd(l10n.localeName).format(article.publishedAt!) : '';
@@ -161,13 +163,15 @@ class _ArticleDetailView extends StatelessWidget {
                                 GlassPill(
                                   child: Text(
                                     categoryLabel(l10n, article.category).toUpperCase(),
-                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12, letterSpacing: 1.1, color: Colors.white),
+                                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fXs, letterSpacing: 1.1, color: Colors.white),
                                   ),
                                 ),
                                 const SizedBox(height: 14),
                                 Text(
                                   article.title,
-                                  style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: 36, height: 1.05, color: Colors.white),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fHero, height: 1.05, color: Colors.white),
                                 ),
                               ],
                             ),
@@ -190,10 +194,10 @@ class _ArticleDetailView extends StatelessWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(article.authorName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17.5)),
+                                    Text(article.authorName, style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd)),
                                     Text(
                                       dateLabel.isEmpty ? readLabel : '$dateLabel · $readLabel',
-                                      style: TextStyle(fontSize: 15, color: palette.ink3),
+                                      style: TextStyle(fontSize: dims.fSm, color: palette.ink3),
                                     ),
                                   ],
                                 ),
@@ -230,9 +234,9 @@ class _ArticleDetailView extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(l10n.notYoursTitle, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17.5)),
+                                  Text(l10n.notYoursTitle, style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd)),
                                   const SizedBox(height: 5),
-                                  Text(l10n.notYoursBody(article.authorName), style: TextStyle(fontSize: 15, height: 1.5, color: palette.ink2)),
+                                  Text(l10n.notYoursBody(article.authorName), style: TextStyle(fontSize: dims.fSm, height: 1.5, color: palette.ink2)),
                                 ],
                               ),
                             ),
@@ -242,7 +246,7 @@ class _ArticleDetailView extends StatelessWidget {
                             if (paragraph.trim().isNotEmpty)
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 18),
-                                child: Text(paragraph.trim(), style: const TextStyle(fontSize: 17.5, height: 1.68)),
+                                child: Text(paragraph.trim(), style: TextStyle(fontSize: dims.fMd, height: 1.68)),
                               ),
                         ],
                       ),

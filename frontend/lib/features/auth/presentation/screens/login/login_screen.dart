@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
@@ -47,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
 
     return Scaffold(
       body: SafeArea(
@@ -75,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(
                         fontFamily: 'Space Grotesk',
                         fontWeight: FontWeight.w700,
-                        fontSize: 30,
+                        fontSize: dims.fH,
                         letterSpacing: -1.05,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
@@ -88,10 +90,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 20),
                   Text(
                     l10n.loginHeroTitle,
-                    style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: 36, height: 1.06),
+                    style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fHero, height: 1.06),
                   ),
                   const SizedBox(height: 8),
-                  Text(l10n.loginHeroSubtitle, style: TextStyle(fontSize: 17.5, height: 1.5, color: palette.ink2)),
+                  Text(l10n.loginHeroSubtitle, style: TextStyle(fontSize: dims.fMd, height: 1.5, color: palette.ink2)),
                   const SizedBox(height: 26),
                   AppTextField(
                     label: l10n.emailLabel,
@@ -151,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       spacing: 8,
                       children: [
-                        Text(l10n.noAccountYet, style: TextStyle(fontSize: 17.5, color: palette.ink2)),
+                        Text(l10n.noAccountYet, style: TextStyle(fontSize: dims.fMd, color: palette.ink2)),
                         TextButton(
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,
@@ -163,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: Text(
                             l10n.signUp,
-                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17.5, color: palette.accentInk),
+                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd, color: palette.accentInk),
                           ),
                         ),
                       ],
@@ -187,6 +189,7 @@ class _CredentialErrorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final scheme = Theme.of(context).colorScheme;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 14),
@@ -195,7 +198,7 @@ class _CredentialErrorCard extends StatelessWidget {
         border: Border.all(color: scheme.error),
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Text(message, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, height: 1.5, color: scheme.error)),
+      child: Text(message, style: TextStyle(fontWeight: FontWeight.w600, fontSize: dims.fSm, height: 1.5, color: scheme.error)),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../config/theme/app_dimensions.dart';
 import '../../../../config/theme/app_palette.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/article.dart';
@@ -107,6 +108,7 @@ class ArticleWidget extends StatelessWidget {
 
   Widget _buildTitleAndDescription(BuildContext context) {
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     final onSurface = Theme.of(context).colorScheme.onSurface;
     return Expanded(
       child: Padding(
@@ -126,7 +128,7 @@ class ArticleWidget extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Space Grotesk',
                 fontWeight: FontWeight.w700,
-                fontSize: 18,
+                fontSize: dims.fMd,
                 color: onSurface,
               ),
             ),
@@ -141,7 +143,7 @@ class ArticleWidget extends StatelessWidget {
                 children: [
                   Icon(Icons.timeline_outlined, size: 16, color: palette.ink3),
                   const SizedBox(width: 4),
-                  Text(article.publishedAt!, style: TextStyle(fontSize: 12, color: palette.ink3)),
+                  Text(article.publishedAt!, style: TextStyle(fontSize: dims.fXs, color: palette.ink3)),
                 ],
               ),
           ],
@@ -172,6 +174,7 @@ class _AlreadyReadPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -185,7 +188,7 @@ class _AlreadyReadPill extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: palette.ink3),
+            style: TextStyle(fontSize: dims.fXs, fontWeight: FontWeight.w700, color: palette.ink3),
           ),
         ],
       ),

@@ -53,12 +53,16 @@ class PrimaryButton extends StatelessWidget {
               ),
               const SizedBox(width: 12),
             ],
-            Text(
-              label,
-              style: TextStyle(
-                fontFamily: 'Space Grotesk',
-                fontWeight: FontWeight.w700,
-                fontSize: dims.fLg,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: 'Space Grotesk',
+                  fontWeight: FontWeight.w700,
+                  fontSize: dims.fLg,
+                ),
               ),
             ),
           ],
@@ -118,9 +122,13 @@ class SecondaryButton extends StatelessWidget {
               icon!,
               const SizedBox(width: 10),
             ],
-            Text(
-              label,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd),
+              ),
             ),
           ],
         ),
@@ -156,6 +164,8 @@ class DestructiveButton extends StatelessWidget {
         ),
         child: Text(
           label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd),
         ),
       ),
@@ -173,6 +183,7 @@ class BackPillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
 
     return SizedBox(
       height: 48,
@@ -189,7 +200,14 @@ class BackPillButton extends StatelessWidget {
           children: [
             const Icon(Icons.arrow_back, size: 16),
             const SizedBox(width: 6),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fSm),
+              ),
+            ),
           ],
         ),
       ),

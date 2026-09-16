@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../config/theme/app_dimensions.dart';
+
 /// Shows a single toast at the bottom of the screen, mirroring the
 /// prototype's dark pill toast (2400ms auto-dismiss, one at a time).
 void showAppToast(BuildContext context, String message) {
   final overlay = Overlay.of(context);
   final scheme = Theme.of(context).colorScheme;
+  final dims = Theme.of(context).extension<AppDimensions>()!;
   late OverlayEntry entry;
 
   entry = OverlayEntry(
@@ -27,7 +30,7 @@ void showAppToast(BuildContext context, String message) {
             child: Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: scheme.surface),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fSm, color: scheme.surface),
             ),
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
@@ -42,6 +43,7 @@ class _ProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     final user = context.watch<AuthBloc>().state.user;
     final settings = context.watch<SettingsCubit>().state;
 
@@ -60,8 +62,8 @@ class _ProfileView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(user?.displayName ?? '', style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: 28)),
-                        Text(user?.email ?? '', style: TextStyle(fontSize: 15, color: palette.ink2)),
+                        Text(user?.displayName ?? '', style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fH)),
+                        Text(user?.email ?? '', style: TextStyle(fontSize: dims.fSm, color: palette.ink2)),
                       ],
                     ),
                   ),
@@ -155,6 +157,7 @@ class _StatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final scheme = Theme.of(context).colorScheme;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -168,12 +171,12 @@ class _StatTile extends StatelessWidget {
         children: [
           Text(
             '$value',
-            style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w700, fontSize: 30, color: filled ? scheme.onPrimary : scheme.onSurface),
+            style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w700, fontSize: dims.fH, color: filled ? scheme.onPrimary : scheme.onSurface),
           ),
           const SizedBox(height: 6),
           Text(
             label,
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: filled ? scheme.onPrimary : palette.ink2),
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fXs, color: filled ? scheme.onPrimary : palette.ink2),
           ),
         ],
       ),
@@ -200,24 +203,25 @@ class _SettingsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final scheme = Theme.of(context).colorScheme;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     final color = isDestructive ? scheme.error : scheme.onSurface;
 
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: dims.tap,
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
           backgroundColor: scheme.surface,
           foregroundColor: color,
-          side: BorderSide(color: isDestructive ? scheme.error : palette.line, width: isDestructive ? 2.5 : 1.5),
+          side: BorderSide(color: isDestructive ? scheme.error : palette.line, width: isDestructive ? 2.5 : dims.borderWidth),
           padding: const EdgeInsets.symmetric(horizontal: 18),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17.5)),
+            Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd))),
             if (trailingText != null)
               Text(trailingText!, style: TextStyle(fontWeight: FontWeight.w500, color: palette.ink2))
             else if (trailing != null)

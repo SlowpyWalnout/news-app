@@ -115,7 +115,7 @@ class AppTextField extends StatelessWidget {
                   counterText!,
                   style: TextStyle(
                     fontFamily: 'monospace',
-                    fontSize: 12.5,
+                    fontSize: dims.fXs,
                     color: palette.ink3,
                   ),
                 ),

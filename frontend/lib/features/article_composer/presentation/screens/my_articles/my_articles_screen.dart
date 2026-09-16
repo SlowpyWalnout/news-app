@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
@@ -95,6 +96,7 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
 
     return Scaffold(
       body: SafeArea(
@@ -107,7 +109,7 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(l10n.myArticlesTitle, style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: 28)),
+                  Text(l10n.myArticlesTitle, style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fH)),
                   const SizedBox(height: 14),
                   BlocBuilder<MyArticlesBloc, MyArticlesState>(
                     buildWhen: (a, b) => a.tab != b.tab,
@@ -187,7 +189,7 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
                             children: [
                               Text(
                                 '${l10n.tabAll} · ${visible.length}',
-                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: palette.ink3),
+                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: dims.fSm, color: palette.ink3),
                               ),
                               OutlinedButton(
                                 onPressed: state.hasMore
@@ -258,6 +260,7 @@ class _MyArticleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
+    final dims = Theme.of(context).extension<AppDimensions>()!;
     final published = article.status == ArticleStatus.published;
     final dateLabel = DateFormat.MMMd(l10n.localeName).format(published ? article.publishedAt ?? article.updatedAt : article.updatedAt);
     final categoryText = categoryLabel(l10n, article.category);
@@ -292,7 +295,7 @@ class _MyArticleCard extends StatelessWidget {
                           children: [
                             StatusPill(label: published ? l10n.publishedPill : l10n.draftPill, published: published),
                             const SizedBox(width: 8),
-                            Text(dateLabel, style: TextStyle(fontSize: 12.5, color: palette.ink3)),
+                            Text(dateLabel, style: TextStyle(fontSize: dims.fXs, color: palette.ink3)),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -300,10 +303,10 @@ class _MyArticleCard extends StatelessWidget {
                           article.title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: 17.5),
+                          style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fMd),
                         ),
                         const SizedBox(height: 6),
-                        Text(categoryText, style: TextStyle(fontSize: 12.5, color: palette.ink3)),
+                        Text(categoryText, style: TextStyle(fontSize: dims.fXs, color: palette.ink3)),
                       ],
                     ),
                   ),
