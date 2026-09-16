@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -6,6 +7,7 @@ import 'config/auth_gate.dart';
 import 'config/routes/routes.dart';
 import 'config/theme/app_themes.dart';
 import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'firebase_options.dart';
 import 'injection_container.dart';
 import 'l10n/app_localizations.dart';
 import 'shared/settings/domain/entities/app_settings_entity.dart';
@@ -13,6 +15,7 @@ import 'shared/settings/presentation/cubit/settings_cubit.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDependencies();
   await initializeDateFormatting();
 
