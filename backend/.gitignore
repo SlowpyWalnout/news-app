@@ -1,0 +1,18 @@
+*.csv
+node_modules/
+*.log
+venv/
+
+# Firebase CLI / emulators
+.firebase/
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+storage-debug.log
+emulator-data/
+*-export/
+
+# Secretos
+*serviceAccount*.json
+.env
+.env.*

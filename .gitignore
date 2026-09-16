@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editores
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Secretos y credenciales
+.env
+.env.*
+*serviceAccount*.json
+**/key.properties
+**/*.keystore
+**/*.jks
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+storage-debug.log
+
+# Dependencias y builds
+node_modules/
+**/build/
+**/.dart_tool/
+
+# Logs
+*.log
