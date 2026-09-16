@@ -141,10 +141,11 @@ class SecondaryButton extends StatelessWidget {
 
 /// Destructive-styled outlined button — "Borrar".
 class DestructiveButton extends StatelessWidget {
-  const DestructiveButton({super.key, required this.label, required this.onPressed});
+  const DestructiveButton({super.key, required this.label, required this.onPressed, this.icon});
 
   final String label;
   final VoidCallback? onPressed;
+  final Widget? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -162,11 +163,20 @@ class DestructiveButton extends StatelessWidget {
           side: BorderSide(color: scheme.error, width: dims.borderWidth),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.r15)),
         ),
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[icon!, const SizedBox(width: 10)],
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd),
+              ),
+            ),
+          ],
         ),
       ),
     );

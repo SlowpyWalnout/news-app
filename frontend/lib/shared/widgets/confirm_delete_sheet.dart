@@ -51,13 +51,19 @@ class _ConfirmDeleteSheet extends StatelessWidget {
               style: TextStyle(fontSize: dims.fMd, height: 1.5, color: palette.ink2),
             ),
             const SizedBox(height: 20),
-            DestructiveButton(
-              label: l10n.confirmDeleteYes,
-              onPressed: () => Navigator.of(context).pop(true),
+            SizedBox(
+              width: double.infinity,
+              child: DestructiveButton(
+                label: l10n.confirmDeleteYes,
+                icon: const Icon(Icons.delete_outline, size: 18),
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
             ),
             const SizedBox(height: 11),
             SecondaryButton(
               label: l10n.confirmDeleteNo,
+              icon: const Icon(Icons.close, size: 18),
+              expand: true,
               onPressed: () => Navigator.of(context).pop(false),
             ),
           ],

@@ -96,42 +96,49 @@ class _ProfileView extends StatelessWidget {
               const SizedBox(height: 22),
               _SettingsRow(
                 label: l10n.myArticlesRow,
+                leading: Icons.article_outlined,
                 trailing: const Icon(Icons.arrow_forward, size: 18),
                 onTap: () => sl<AppShellController>().notifyMyArticlesChanged(tabIndex: 1),
               ),
               const SizedBox(height: 11),
               _SettingsRow(
                 label: l10n.writeArticleRow,
+                leading: Icons.edit_outlined,
                 trailing: const Icon(Icons.arrow_forward, size: 18),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ArticleEditorScreen())),
               ),
               const SizedBox(height: 11),
               _SettingsRow(
                 label: l10n.readLaterRow,
+                leading: Icons.bookmark_border,
                 trailing: const Icon(Icons.arrow_forward, size: 18),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ReadLaterScreen())),
               ),
               const SizedBox(height: 11),
               _SettingsRow(
                 label: l10n.appearanceRow,
+                leading: Icons.palette_outlined,
                 trailingText: settings.themeMode == ThemeMode.dark ? l10n.themeDark : l10n.themeLight,
                 onTap: () => context.read<SettingsCubit>().toggleTheme(),
               ),
               const SizedBox(height: 11),
               _SettingsRow(
                 label: l10n.accessibleModeRow,
+                leading: Icons.accessibility_new_outlined,
                 trailingText: settings.accessible ? l10n.on : l10n.off,
                 onTap: () => context.read<SettingsCubit>().toggleAccessible(),
               ),
               const SizedBox(height: 11),
               _SettingsRow(
                 label: l10n.languageRow,
+                leading: Icons.language_outlined,
                 trailingText: settings.locale.languageCode == 'es' ? l10n.languageSpanish : l10n.languageEnglish,
                 onTap: () => context.read<SettingsCubit>().toggleLocale(),
               ),
               const SizedBox(height: 19),
               _SettingsRow(
                 label: l10n.logOut,
+                leading: Icons.logout,
                 isDestructive: true,
                 onTap: () {
                   context.read<AuthBloc>().add(const AuthSignedOut());
@@ -188,6 +195,7 @@ class _SettingsRow extends StatelessWidget {
   const _SettingsRow({
     required this.label,
     required this.onTap,
+    this.leading,
     this.trailing,
     this.trailingText,
     this.isDestructive = false,
@@ -195,6 +203,7 @@ class _SettingsRow extends StatelessWidget {
 
   final String label;
   final VoidCallback onTap;
+  final IconData? leading;
   final Widget? trailing;
   final String? trailingText;
   final bool isDestructive;
@@ -221,7 +230,18 @@ class _SettingsRow extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd))),
+            Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (leading != null) ...[
+                    Icon(leading, size: 18, color: color),
+                    const SizedBox(width: 12),
+                  ],
+                  Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd))),
+                ],
+              ),
+            ),
             if (trailingText != null)
               Text(trailingText!, style: TextStyle(fontWeight: FontWeight.w500, color: palette.ink2))
             else if (trailing != null)

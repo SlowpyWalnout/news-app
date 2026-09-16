@@ -191,20 +191,19 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
                                 '${l10n.tabAll} · ${visible.length}',
                                 style: TextStyle(fontWeight: FontWeight.w500, fontSize: dims.fSm, color: palette.ink3),
                               ),
-                              OutlinedButton(
-                                onPressed: state.hasMore
-                                    ? () => context.read<MyArticlesBloc>().add(const MyArticlesMoreRequested())
-                                    : null,
-                                style: OutlinedButton.styleFrom(
-                                  minimumSize: const Size(0, 50),
-                                  side: BorderSide(color: palette.edge),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              if (state.hasMore)
+                                OutlinedButton(
+                                  onPressed: () => context.read<MyArticlesBloc>().add(const MyArticlesMoreRequested()),
+                                  style: OutlinedButton.styleFrom(
+                                    minimumSize: const Size(0, 50),
+                                    side: BorderSide(color: palette.edge),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                  ),
+                                  child: Text(
+                                    l10n.loadMore,
+                                    style: const TextStyle(fontWeight: FontWeight.w700),
+                                  ),
                                 ),
-                                child: Text(
-                                  state.hasMore ? l10n.loadMore : l10n.noMore,
-                                  style: const TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                              ),
                             ],
                           ),
                         );
@@ -320,9 +319,21 @@ class _MyArticleCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
               child: Row(
                 children: [
-                  Expanded(child: SecondaryButton(label: l10n.editAction, onPressed: onEdit)),
+                  Expanded(
+                    child: SecondaryButton(
+                      label: l10n.editAction,
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      onPressed: onEdit,
+                    ),
+                  ),
                   const SizedBox(width: 9),
-                  Expanded(child: DestructiveButton(label: l10n.deleteAction, onPressed: onDelete)),
+                  Expanded(
+                    child: DestructiveButton(
+                      label: l10n.deleteAction,
+                      icon: const Icon(Icons.delete_outline, size: 18),
+                      onPressed: onDelete,
+                    ),
+                  ),
                 ],
               ),
             ),
