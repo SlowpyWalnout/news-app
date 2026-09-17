@@ -19,6 +19,10 @@
   "continueWithGoogle": "Continue with Google",
   "googleSignInError": "We couldn't sign you in with Google. Try again.",
   "loginCredentialError": "That email and password don't match. Try again or reset your password.",
+  "authErrorNetwork": "No internet connection. Check your connection and try again.",
+  "authErrorEmailInUse": "An account with this email already exists.",
+  "authErrorWeakPassword": "That password is too weak. Use at least 6 characters.",
+  "authErrorGeneric": "Something went wrong. Please try again.",
   "emailRequired": "Email is required.",
   "emailInvalid": "Enter a valid email, with @ and a dot.",
   "passwordRequired": "Password is required.",
@@ -154,6 +158,9 @@
   "navFeed": "Feed",
   "navMyArticles": "My articles",
   "navProfile": "Profile",
+
+  "offlineBannerTitle": "You're offline",
+  "offlineBannerBody": "Some features may not work until your internet connection is back.",
 
   "readLaterTitle": "Read it later",
   "readLaterEmpty": "You haven't marked any articles Read it later yet.",

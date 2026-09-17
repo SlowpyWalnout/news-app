@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../shared/presentation/failure_localizer.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_text_field.dart';
 import '../../bloc/auth/auth_bloc.dart';
@@ -85,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Text(l10n.createAccountSubtitle, style: TextStyle(fontSize: dims.fMd, height: 1.5, color: palette.ink2)),
                   const SizedBox(height: 22),
                   if (state.submitError != null) ...[
-                    _PlainDangerCard(message: state.submitError!.message),
+                    _PlainDangerCard(message: describeFailure(l10n, state.submitError!)),
                     const SizedBox(height: 18),
                   ],
                   AppTextField(

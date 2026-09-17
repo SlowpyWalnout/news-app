@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app/core/resources/data_state.dart';
+import 'package:news_app/core/resources/failure.dart';
 import 'package:news_app/core/resources/paginated_result.dart';
 import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
 import 'package:news_app/features/moderation/domain/use_cases/list_suspended_articles_use_case.dart';
@@ -12,14 +13,14 @@ class ReviewQueueState extends Equatable {
   final List<AuthoredArticleEntity> articles;
   final String? nextCursor;
   final bool isLoadingMore;
-  final String? error;
+  final FailureCode? errorCode;
 
   const ReviewQueueState({
     this.status = ReviewQueueStatus.initial,
     this.articles = const [],
     this.nextCursor,
     this.isLoadingMore = false,
-    this.error,
+    this.errorCode,
   });
 
   bool get hasMore => nextCursor != null;
@@ -30,19 +31,19 @@ class ReviewQueueState extends Equatable {
     String? nextCursor,
     bool clearNextCursor = false,
     bool? isLoadingMore,
-    String? error,
+    FailureCode? errorCode,
   }) {
     return ReviewQueueState(
       status: status ?? this.status,
       articles: articles ?? this.articles,
       nextCursor: clearNextCursor ? null : (nextCursor ?? this.nextCursor),
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-      error: error,
+      errorCode: errorCode,
     );
   }
 
   @override
-  List<Object?> get props => [status, articles, nextCursor, isLoadingMore, error];
+  List<Object?> get props => [status, articles, nextCursor, isLoadingMore, errorCode];
 }
 
 // Cola de revisión de staff: mismo patrón de paginación por cursor que
@@ -67,7 +68,7 @@ class ReviewQueueCubit extends Cubit<ReviewQueueState> {
         clearNextCursor: page.nextCursor == null,
       ));
     } else {
-      emit(state.copyWith(status: ReviewQueueStatus.failure, error: result.error?.message));
+      emit(state.copyWith(status: ReviewQueueStatus.failure, errorCode: result.error?.code));
     }
   }
 

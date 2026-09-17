@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../shared/presentation/failure_localizer.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/skeleton_block.dart';
 import '../../../../../shared/widgets/state_cards.dart';
@@ -89,7 +90,9 @@ class _ReviewQueueViewState extends State<_ReviewQueueView> {
                       children: [
                         ErrorStateCard(
                           title: l10n.readLaterErrorTitle,
-                          body: state.error ?? l10n.readLaterErrorBody,
+                          body: state.errorCode != null
+                              ? describeFailureCode(l10n, state.errorCode!)
+                              : l10n.readLaterErrorBody,
                           retryLabel: l10n.retry,
                           onRetryPressed: () => context.read<ReviewQueueCubit>().load(),
                         ),

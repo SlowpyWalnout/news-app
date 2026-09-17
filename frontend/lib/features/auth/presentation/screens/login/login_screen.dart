@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../shared/presentation/failure_localizer.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_text_field.dart';
 import '../../bloc/auth/auth_bloc.dart';
@@ -65,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 : (_passwordController.text.isEmpty
                     ? l10n.passwordRequired
                     : (_passwordController.text.length < 6 ? l10n.passwordTooShort : null));
-            final showCredentialError = state.submitError != null && !_hasFieldErrors;
+            final showAuthError = state.submitError != null && !_hasFieldErrors;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(24, 30, 24, 24),
@@ -110,9 +111,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: true,
                     errorText: passwordError,
                   ),
-                  if (showCredentialError) ...[
+                  if (showAuthError) ...[
                     const SizedBox(height: 18),
-                    _CredentialErrorCard(message: l10n.loginCredentialError),
+                    _AuthErrorCard(message: describeFailure(l10n, state.submitError!)),
                   ],
                   const SizedBox(height: 18),
                   PrimaryButton(
@@ -181,8 +182,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class _CredentialErrorCard extends StatelessWidget {
-  const _CredentialErrorCard({required this.message});
+class _AuthErrorCard extends StatelessWidget {
+  const _AuthErrorCard({required this.message});
   final String message;
 
   @override

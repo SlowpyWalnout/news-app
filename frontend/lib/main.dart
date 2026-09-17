@@ -10,6 +10,7 @@ import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'firebase_options.dart';
 import 'injection_container.dart';
 import 'l10n/app_localizations.dart';
+import 'shared/presentation/connectivity_cubit.dart';
 import 'shared/settings/domain/entities/app_settings_entity.dart';
 import 'shared/settings/presentation/cubit/settings_cubit.dart';
 
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<SettingsCubit>.value(value: sl<SettingsCubit>()),
         BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()),
+        BlocProvider<ConnectivityCubit>.value(value: sl<ConnectivityCubit>()),
       ],
       child: BlocBuilder<SettingsCubit, AppSettingsEntity>(
         builder: (context, settings) {

@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:floor/floor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:firebase_storage/firebase_storage.dart';
@@ -60,6 +61,7 @@ import 'shared/settings/domain/repository/settings_repository.dart';
 import 'shared/settings/domain/use_cases/load_settings_use_case.dart';
 import 'shared/settings/domain/use_cases/save_settings_use_case.dart';
 import 'shared/settings/presentation/cubit/settings_cubit.dart';
+import 'shared/presentation/connectivity_cubit.dart';
 import 'shared/app_shell_controller.dart';
 import 'shared/article_changes_notifier.dart';
 
@@ -175,4 +177,7 @@ Future<void> initializeDependencies() async {
   sl.registerFactory<ReviewQueueCubit>(() => ReviewQueueCubit(sl()));
 
   sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit(sl(), sl()));
+
+  sl.registerSingleton<Connectivity>(Connectivity());
+  sl.registerLazySingleton<ConnectivityCubit>(() => ConnectivityCubit(sl()));
 }

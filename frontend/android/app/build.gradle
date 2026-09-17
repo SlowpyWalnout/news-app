@@ -25,6 +25,19 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+// Release signing: reads android/key.properties, which is gitignored and
+// never committed. Falls back to the debug key when it's absent so
+// `flutter run --release` keeps working on machines without it (e.g. CI).
+// See android/key.properties.example for the format.
+def keystorePropertiesFile = rootProject.file('key.properties')
+def keystoreProperties = new Properties()
+def hasReleaseKeystore = keystorePropertiesFile.exists()
+if (hasReleaseKeystore) {
+    keystorePropertiesFile.withReader('UTF-8') { reader ->
+        keystoreProperties.load(reader)
+    }
+}
+
 
 android {
     namespace "com.trikedevs.news_app"
@@ -55,11 +68,25 @@ android {
 
     }
 
+    signingConfigs {
+        release {
+            if (hasReleaseKeystore) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            // Falls back to the debug key when android/key.properties is
+            // absent (see comment above) so unsigned/CI builds don't fail.
+            signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }

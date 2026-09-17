@@ -63,6 +63,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'That email and password don\'t match. Try again or reset your password.';
 
   @override
+  String get authErrorNetwork =>
+      'No internet connection. Check your connection and try again.';
+
+  @override
+  String get authErrorEmailInUse =>
+      'An account with this email already exists.';
+
+  @override
+  String get authErrorWeakPassword =>
+      'That password is too weak. Use at least 6 characters.';
+
+  @override
+  String get authErrorGeneric => 'Something went wrong. Please try again.';
+
+  @override
   String get emailRequired => 'Email is required.';
 
   @override
@@ -444,6 +459,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navProfile => 'Profile';
+
+  @override
+  String get offlineBannerTitle => 'You\'re offline';
+
+  @override
+  String get offlineBannerBody =>
+      'Some features may not work until your internet connection is back.';
 
   @override
   String get readLaterTitle => 'Read it later';

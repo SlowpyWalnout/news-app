@@ -64,6 +64,20 @@ class AppLocalizationsEs extends AppLocalizations {
       'El correo o la contraseña no coinciden. Inténtalo de nuevo o restablece tu contraseña.';
 
   @override
+  String get authErrorNetwork =>
+      'No hay conexión a internet. Verifica tu conexión e inténtalo de nuevo.';
+
+  @override
+  String get authErrorEmailInUse => 'Ya existe una cuenta con este email.';
+
+  @override
+  String get authErrorWeakPassword =>
+      'La contraseña es demasiado débil. Usa al menos 6 caracteres.';
+
+  @override
+  String get authErrorGeneric => 'Ocurrió un error. Inténtalo de nuevo.';
+
+  @override
   String get emailRequired => 'Te falta el correo.';
 
   @override
@@ -446,6 +460,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get navProfile => 'Perfil';
+
+  @override
+  String get offlineBannerTitle => 'Sin conexión';
+
+  @override
+  String get offlineBannerBody =>
+      'Algunas funciones pueden no estar disponibles hasta que se restablezca tu conexión a internet.';
 
   @override
   String get readLaterTitle => 'Leer después';

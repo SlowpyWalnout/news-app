@@ -10,11 +10,20 @@ Failure mapFirebaseAuthExceptionToFailure(FirebaseAuthException exception) {
     case 'user-not-found':
     case 'wrong-password':
     case 'invalid-credential':
-      return AuthFailure(exception.message ?? 'Email o contraseña incorrectos.');
+      return AuthFailure(
+        exception.message ?? 'Email o contraseña incorrectos.',
+        code: FailureCode.invalidCredentials,
+      );
     case 'email-already-in-use':
-      return AuthFailure(exception.message ?? 'Ya existe una cuenta con este email.');
+      return AuthFailure(
+        exception.message ?? 'Ya existe una cuenta con este email.',
+        code: FailureCode.emailAlreadyInUse,
+      );
     case 'weak-password':
-      return AuthFailure(exception.message ?? 'La contraseña es demasiado débil.');
+      return AuthFailure(
+        exception.message ?? 'La contraseña es demasiado débil.',
+        code: FailureCode.weakPassword,
+      );
     default:
       return AuthFailure(exception.message ?? 'Error de autenticación.');
   }

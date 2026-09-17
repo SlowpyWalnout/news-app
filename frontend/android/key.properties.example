@@ -1,0 +1,9 @@
+# Copy this file to android/key.properties (same directory) and fill in your
+# own values. That file is gitignored and must never be committed.
+#
+# storeFile is resolved relative to android/app/, so keeping the .jks in
+# android/app/ and writing just its filename here is the simplest layout.
+storePassword=
+keyPassword=
+keyAlias=upload
+storeFile=upload-keystore.jks

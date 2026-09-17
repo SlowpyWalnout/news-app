@@ -200,6 +200,30 @@ abstract class AppLocalizations {
   /// **'El correo o la contraseña no coinciden. Inténtalo de nuevo o restablece tu contraseña.'**
   String get loginCredentialError;
 
+  /// No description provided for @authErrorNetwork.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay conexión a internet. Verifica tu conexión e inténtalo de nuevo.'**
+  String get authErrorNetwork;
+
+  /// No description provided for @authErrorEmailInUse.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya existe una cuenta con este email.'**
+  String get authErrorEmailInUse;
+
+  /// No description provided for @authErrorWeakPassword.
+  ///
+  /// In es, this message translates to:
+  /// **'La contraseña es demasiado débil. Usa al menos 6 caracteres.'**
+  String get authErrorWeakPassword;
+
+  /// No description provided for @authErrorGeneric.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un error. Inténtalo de nuevo.'**
+  String get authErrorGeneric;
+
   /// No description provided for @emailRequired.
   ///
   /// In es, this message translates to:
@@ -919,6 +943,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Perfil'**
   String get navProfile;
+
+  /// No description provided for @offlineBannerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión'**
+  String get offlineBannerTitle;
+
+  /// No description provided for @offlineBannerBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Algunas funciones pueden no estar disponibles hasta que se restablezca tu conexión a internet.'**
+  String get offlineBannerBody;
 
   /// No description provided for @readLaterTitle.
   ///
