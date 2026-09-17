@@ -89,3 +89,27 @@ flutter:
     - family: Space Grotesk
       fonts:
         - asset: assets/fonts/space_grotesk/SpaceGrotesk.ttf
+
+# App icon: generated from assets/branding/icon.png (opaque) +
+# icon_foreground.png (Android adaptive foreground). See ROADMAP.md, Fase 7.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/branding/icon.png"
+  adaptive_icon_background: "#0B0A07"
+  adaptive_icon_foreground: "assets/branding/icon_foreground.png"
+  remove_alpha_ios: true
+
+# Native splash: light/dark backgrounds match config/theme/app_colors.dart
+# (stageLight/stageDark). android_12 uses the icon foreground because
+# Android 12+ ignores the classic splash image API. See ROADMAP.md, Fase 7.
+flutter_native_splash:
+  color: "#F1F0ED"
+  color_dark: "#050403"
+  image: assets/branding/splash.png
+  image_dark: assets/branding/splash_dark.png
+  android_12:
+    image: assets/branding/icon_foreground.png
+    icon_background_color: "#0B0A07"
+    image_dark: assets/branding/icon_foreground.png
+    icon_background_color_dark: "#0B0A07"
