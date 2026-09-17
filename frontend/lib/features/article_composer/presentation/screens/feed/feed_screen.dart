@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -115,45 +116,54 @@ class _FeedViewState extends State<_FeedView>
                   ),
                 ),
                 automaticallyImplyLeading: false,
-                toolbarHeight: 58,
-                titleSpacing: 20,
-                centerTitle: false,
-                title: RichText(
-                  text: TextSpan(
-                    style: TextStyle(
-                      fontFamily: 'Space Grotesk',
-                      fontWeight: FontWeight.w700,
-                      fontSize: dims.fLg,
-                      letterSpacing: -0.8,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    children: [
-                      TextSpan(text: l10n.appWordmark),
-                      TextSpan(
-                          text: '.',
-                          style: TextStyle(color: palette.accentInk)),
-                    ],
-                  ),
-                ),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: GestureDetector(
-                      onTap: () => sl<AppShellController>().goToTab(2),
-                      child: InitialsAvatar(initials: userInitials, size: 46),
-                    ),
-                  ),
-                ],
+                toolbarHeight: 0,
+                titleSpacing: 0,
+                title: const SizedBox.shrink(),
                 bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(150),
+                  preferredSize:
+                      Size.fromHeight(164 + math.max(46, dims.fH * 1.3)),
                   child: Container(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
                     decoration: BoxDecoration(
                         border: Border(
                             bottom:
                                 BorderSide(color: palette.line, width: 1.5))),
                     child: Column(
                       children: [
+                        SizedBox(
+                          height: math.max(46, dims.fH * 1.3),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontFamily: 'Space Grotesk',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: dims.fH,
+                                    letterSpacing: -0.8,
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  children: [
+                                    TextSpan(text: l10n.appWordmark),
+                                    TextSpan(
+                                        text: '.',
+                                        style:
+                                            TextStyle(color: palette.accentInk)),
+                                  ],
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () =>
+                                    sl<AppShellController>().goToTab(2),
+                                child: InitialsAvatar(
+                                    initials: userInitials, size: 46),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 14),
                         Container(
                           constraints: const BoxConstraints(minHeight: 52),
                           padding: const EdgeInsets.symmetric(horizontal: 16),
