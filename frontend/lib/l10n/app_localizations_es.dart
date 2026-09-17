@@ -453,4 +453,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get readLaterAlreadyRead => 'Ya lo leí';
+
+  @override
+  String get readLaterErrorTitle => 'No se pudo cargar tu lista';
+
+  @override
+  String get readLaterErrorBody =>
+      'Algo falló al cargar Leer después. Tus artículos guardados siguen en el teléfono.';
 }

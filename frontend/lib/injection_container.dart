@@ -51,11 +51,13 @@ import 'shared/settings/domain/use_cases/load_settings_use_case.dart';
 import 'shared/settings/domain/use_cases/save_settings_use_case.dart';
 import 'shared/settings/presentation/cubit/settings_cubit.dart';
 import 'shared/app_shell_controller.dart';
+import 'shared/article_changes_notifier.dart';
 
 final sl = GetIt.instance;
 
 Future<void> initializeDependencies() async {
   sl.registerLazySingleton<AppShellController>(() => AppShellController());
+  sl.registerLazySingleton<ArticleChangesNotifier>(() => ArticleChangesNotifier());
 
   final database = await $FloorAppDatabase
       .databaseBuilder('app_database.db')

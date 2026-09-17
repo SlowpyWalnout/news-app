@@ -931,6 +931,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ya lo leí'**
   String get readLaterAlreadyRead;
+
+  /// No description provided for @readLaterErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar tu lista'**
+  String get readLaterErrorTitle;
+
+  /// No description provided for @readLaterErrorBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Algo falló al cargar Leer después. Tus artículos guardados siguen en el teléfono.'**
+  String get readLaterErrorBody;
 }
 
 class _AppLocalizationsDelegate

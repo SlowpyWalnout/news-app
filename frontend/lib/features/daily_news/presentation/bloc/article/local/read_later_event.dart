@@ -15,6 +15,10 @@ class ReadLaterRequested extends ReadLaterEvent {
   const ReadLaterRequested();
 }
 
+class ReadLaterRefreshed extends ReadLaterEvent {
+  const ReadLaterRefreshed();
+}
+
 class ReadLaterRemoved extends ReadLaterEvent {
   const ReadLaterRemoved(ArticleEntity article) : super(article: article);
 }

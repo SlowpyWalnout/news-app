@@ -23,6 +23,7 @@ class ReadLaterBloc extends Bloc<ReadLaterEvent, ReadLaterState> {
     this._markReadLaterArticleAsReadUseCase,
   ) : super(const ReadLaterLoading()) {
     on<ReadLaterRequested>(onRequested);
+    on<ReadLaterRefreshed>(onRefreshed);
     on<ReadLaterRemoved>(onRemoved);
     on<ReadLaterAdded>(onAdded);
     on<ReadLaterMarkedRead>(onMarkedRead);
@@ -32,13 +33,24 @@ class ReadLaterBloc extends Bloc<ReadLaterEvent, ReadLaterState> {
     await _refresh(emit);
   }
 
+  Future<void> onRefreshed(ReadLaterRefreshed event, Emitter<ReadLaterState> emit) async {
+    emit(const ReadLaterLoading());
+    // Deliberate delay so the skeleton loader is visible on pull-to-refresh,
+    // same pattern as FeedBloc/MyArticlesBloc.
+    await Future.delayed(const Duration(seconds: 1));
+    if (isClosed) return;
+    await _refresh(emit);
+  }
+
   Future<void> onRemoved(ReadLaterRemoved event, Emitter<ReadLaterState> emit) async {
     try {
       await _removeFromReadLaterUseCase(event.article!);
     } catch (e) {
+      if (isClosed) return;
       emit(ReadLaterError(StorageFailure(e.toString())));
       return;
     }
+    if (isClosed) return;
     await _refresh(emit);
   }
 
@@ -46,9 +58,11 @@ class ReadLaterBloc extends Bloc<ReadLaterEvent, ReadLaterState> {
     try {
       await _addToReadLaterUseCase(event.article!);
     } catch (e) {
+      if (isClosed) return;
       emit(ReadLaterError(StorageFailure(e.toString())));
       return;
     }
+    if (isClosed) return;
     await _refresh(emit);
   }
 
@@ -56,17 +70,21 @@ class ReadLaterBloc extends Bloc<ReadLaterEvent, ReadLaterState> {
     try {
       await _markReadLaterArticleAsReadUseCase(event.id);
     } catch (e) {
+      if (isClosed) return;
       emit(ReadLaterError(StorageFailure(e.toString())));
       return;
     }
+    if (isClosed) return;
     await _refresh(emit);
   }
 
   Future<void> _refresh(Emitter<ReadLaterState> emit) async {
     try {
       final articles = await _getReadLaterArticlesUseCase(const NoParams());
+      if (isClosed) return;
       emit(ReadLaterLoaded(_sortUnreadFirst(articles)));
     } catch (e) {
+      if (isClosed) return;
       emit(ReadLaterError(StorageFailure(e.toString())));
     }
   }

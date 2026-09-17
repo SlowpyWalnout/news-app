@@ -8,14 +8,11 @@ import 'package:flutter/foundation.dart';
 /// article editor) can't just navigate to a
 /// fresh, standalone copy of a tab screen after a save — that both loses the
 /// bottom nav bar (the fresh screen isn't hosted by the shell) and leaves
-/// the shell's own "My articles" bloc unaware anything changed. This lets
-/// that route ask the shell to switch tab and refresh instead.
+/// the shell on whatever tab it was on. This lets that route ask the shell
+/// to switch tab. Refreshing a tab's own bloc after a save is a separate
+/// concern, handled by `ArticleChangesNotifier`.
 class AppShellController extends ChangeNotifier {
   int? _pendingTabIndex;
-  int _myArticlesRefreshTick = 0;
-  String? _myArticlesSubTab;
-
-  int get myArticlesRefreshTick => _myArticlesRefreshTick;
 
   int? consumePendingTabIndex() {
     final index = _pendingTabIndex;
@@ -23,26 +20,8 @@ class AppShellController extends ChangeNotifier {
     return index;
   }
 
-  /// Switches the shell to [tabIndex] without touching the "My articles"
-  /// refresh state (e.g. the Feed's profile avatar jumping to the Profile
-  /// tab).
   void goToTab(int tabIndex) {
     _pendingTabIndex = tabIndex;
-    notifyListeners();
-  }
-
-  String? consumeMyArticlesSubTab() {
-    final tab = _myArticlesSubTab;
-    _myArticlesSubTab = null;
-    return tab;
-  }
-
-  /// [subTab] is one of 'all' / 'drafts' / 'published', the same values
-  /// `MyArticlesScreen.initialTab` already accepts.
-  void notifyMyArticlesChanged({required int tabIndex, String? subTab}) {
-    _pendingTabIndex = tabIndex;
-    _myArticlesSubTab = subTab;
-    _myArticlesRefreshTick++;
     notifyListeners();
   }
 }

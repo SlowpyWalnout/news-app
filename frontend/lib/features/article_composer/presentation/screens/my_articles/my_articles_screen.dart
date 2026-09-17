@@ -8,7 +8,7 @@ import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
-import '../../../../../shared/app_shell_controller.dart';
+import '../../../../../shared/article_changes_notifier.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_toast.dart';
 import '../../../../../shared/widgets/confirm_delete_sheet.dart';
@@ -41,7 +41,8 @@ class MyArticlesScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) {
         final bloc = sl<MyArticlesBloc>()..add(MyArticlesRequested(authorId));
-        final tab = switch (initialTab) {
+        final resolvedTab = initialTab ?? sl<ArticleChangesNotifier>().lastSubTab;
+        final tab = switch (resolvedTab) {
           'drafts' => MyArticlesTab.drafts,
           'published' => MyArticlesTab.published,
           _ => null,
@@ -64,8 +65,8 @@ class _MyArticlesView extends StatefulWidget {
 class _MyArticlesViewState extends State<_MyArticlesView>
     with AutomaticKeepAliveClientMixin {
   String? _openMenuId;
-  final _shellController = sl<AppShellController>();
-  late int _lastSeenRefreshTick = _shellController.myArticlesRefreshTick;
+  final _articleChanges = sl<ArticleChangesNotifier>();
+  late int _lastSeenRevision = _articleChanges.revision;
 
   @override
   bool get wantKeepAlive => true;
@@ -73,23 +74,24 @@ class _MyArticlesViewState extends State<_MyArticlesView>
   @override
   void initState() {
     super.initState();
-    _shellController.addListener(_onShellControllerChanged);
+    _articleChanges.addListener(_onArticlesChanged);
   }
 
   @override
   void dispose() {
-    _shellController.removeListener(_onShellControllerChanged);
+    _articleChanges.removeListener(_onArticlesChanged);
     super.dispose();
   }
 
-  void _onShellControllerChanged() {
-    final tick = _shellController.myArticlesRefreshTick;
-    final subTab = _shellController.consumeMyArticlesSubTab();
-    if (tick == _lastSeenRefreshTick || !mounted) return;
-    _lastSeenRefreshTick = tick;
+  void _onArticlesChanged() {
+    if (!mounted) return;
+    final revision = _articleChanges.revision;
+    if (revision == _lastSeenRevision) return;
+    _lastSeenRevision = revision;
 
     final bloc = context.read<MyArticlesBloc>();
-    final tab = switch (subTab) {
+    if (bloc.isClosed) return;
+    final tab = switch (_articleChanges.lastSubTab) {
       'drafts' => MyArticlesTab.drafts,
       'published' => MyArticlesTab.published,
       _ => null,

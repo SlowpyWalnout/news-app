@@ -156,5 +156,7 @@
 
   "readLaterTitle": "Read it later",
   "readLaterEmpty": "You haven't marked any articles Read it later yet.",
-  "readLaterAlreadyRead": "Already read"
+  "readLaterAlreadyRead": "Already read",
+  "readLaterErrorTitle": "Couldn't load your list",
+  "readLaterErrorBody": "Something went wrong loading Read it later. Your saved articles are still on this phone."
 }

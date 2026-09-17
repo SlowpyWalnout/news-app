@@ -5,6 +5,8 @@ import '../../../../../config/theme/app_palette.dart';
 import '../../../../../core/resources/data_state.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../shared/widgets/skeleton_block.dart';
+import '../../../../../shared/widgets/state_cards.dart';
 import '../../../../article_composer/domain/entities/authored_article_entity.dart';
 import '../../../../article_composer/domain/use_cases/get_article_by_id_use_case.dart';
 import '../../../../article_composer/presentation/screens/article_detail/article_detail_screen.dart';
@@ -74,6 +76,7 @@ class _ReadLaterViewState extends State<_ReadLaterView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final palette = context.palette;
 
     return Scaffold(
       appBar: AppBar(
@@ -82,41 +85,116 @@ class _ReadLaterViewState extends State<_ReadLaterView> {
       ),
       body: Stack(
         children: [
-          BlocBuilder<ReadLaterBloc, ReadLaterState>(
-            builder: (context, state) {
-              if (state is ReadLaterLoading) {
-                return const Center(child: CircularProgressIndicator());
+          RefreshIndicator(
+            color: palette.accentInk,
+            onRefresh: () async {
+              final bloc = context.read<ReadLaterBloc>();
+              if (bloc.isClosed) return;
+              bloc.add(const ReadLaterRefreshed());
+              try {
+                await bloc.stream.firstWhere((s) => s is! ReadLaterLoading);
+              } on StateError {
+                // Pantalla cerrada a mitad del refresh: el bloc se cerró
+                // antes de un estado terminal. No hay nada que mostrar.
               }
-              if (state is ReadLaterError) {
-                return Center(child: Text(state.error?.message ?? ''));
-              }
-              final articles = state.articles ?? const <ArticleEntity>[];
-              if (articles.isEmpty) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      l10n.readLaterEmpty,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: context.palette.ink2),
-                    ),
-                  ),
-                );
-              }
-              return ListView.builder(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
-                itemCount: articles.length,
-                itemBuilder: (context, index) {
-                  final article = articles[index];
-                  return ArticleWidget(
-                    article: article,
-                    isRemovable: true,
-                    onArticlePressed: _openArticle,
-                    onRemove: (a) => context.read<ReadLaterBloc>().add(ReadLaterRemoved(a)),
-                  );
-                },
-              );
             },
+            child: BlocBuilder<ReadLaterBloc, ReadLaterState>(
+              builder: (context, state) {
+                if (state is ReadLaterLoading) {
+                  return CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
+                        sliver: SliverList.list(
+                          children: [
+                            SkeletonBlock(
+                                height: MediaQuery.sizeOf(context).width / 2.2,
+                                borderRadius: 20),
+                            const SizedBox(height: 12),
+                            SkeletonBlock(
+                                height: MediaQuery.sizeOf(context).width / 2.2,
+                                borderRadius: 20,
+                                delay: const Duration(milliseconds: 200)),
+                            const SizedBox(height: 12),
+                            SkeletonBlock(
+                                height: MediaQuery.sizeOf(context).width / 2.2,
+                                borderRadius: 20,
+                                delay: const Duration(milliseconds: 400)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                if (state is ReadLaterError) {
+                  return CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
+                        sliver: SliverList.list(
+                          children: [
+                            ErrorStateCard(
+                              title: l10n.readLaterErrorTitle,
+                              body: l10n.readLaterErrorBody,
+                              retryLabel: l10n.retry,
+                              onRetryPressed: () => context
+                                  .read<ReadLaterBloc>()
+                                  .add(const ReadLaterRequested()),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                final articles = state.articles ?? const <ArticleEntity>[];
+                if (articles.isEmpty) {
+                  return CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              l10n.readLaterEmpty,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: context.palette.ink2),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final article = articles[index];
+                            return ArticleWidget(
+                              article: article,
+                              isRemovable: true,
+                              onArticlePressed: _openArticle,
+                              onRemove: (a) =>
+                                  context.read<ReadLaterBloc>().add(ReadLaterRemoved(a)),
+                            );
+                          },
+                          childCount: articles.length,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
           if (_opening) const Center(child: CircularProgressIndicator()),
         ],

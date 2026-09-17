@@ -157,5 +157,7 @@
 
   "readLaterTitle": "Leer después",
   "readLaterEmpty": "Todavía no marcaste ningún artículo para leer después.",
-  "readLaterAlreadyRead": "Ya lo leí"
+  "readLaterAlreadyRead": "Ya lo leí",
+  "readLaterErrorTitle": "No se pudo cargar tu lista",
+  "readLaterErrorBody": "Algo falló al cargar Leer después. Tus artículos guardados siguen en el teléfono."
 }

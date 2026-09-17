@@ -26,6 +26,7 @@ import '../../bloc/article_editor/article_editor_bloc.dart';
 import '../../bloc/article_editor/article_editor_event.dart';
 import '../../bloc/article_editor/article_editor_state.dart';
 import '../../../../../shared/app_shell_controller.dart';
+import '../../../../../shared/article_changes_notifier.dart';
 import '../../widgets/category_label.dart';
 import 'markdown_editing_controller.dart';
 import 'markdown_toolbar.dart';
@@ -99,10 +100,10 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
           final wasDraft = _lastAction == _EditorAction.draft;
           showAppToast(
               context, wasDraft ? l10n.draftSavedToast : l10n.publishedToast);
-          sl<AppShellController>().notifyMyArticlesChanged(
-            tabIndex: 1,
+          sl<ArticleChangesNotifier>().notifyArticleSaved(
             subTab: wasDraft ? 'drafts' : 'published',
           );
+          sl<AppShellController>().goToTab(1);
           Navigator.of(context).popUntil((route) => route.isFirst);
         }
       },

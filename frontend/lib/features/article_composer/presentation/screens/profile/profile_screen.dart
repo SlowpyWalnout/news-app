@@ -6,6 +6,7 @@ import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/app_shell_controller.dart';
+import '../../../../../shared/article_changes_notifier.dart';
 import '../../../../../shared/settings/presentation/cubit/settings_cubit.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
@@ -29,8 +30,39 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-class _ProfileView extends StatelessWidget {
+class _ProfileView extends StatefulWidget {
   const _ProfileView();
+
+  @override
+  State<_ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<_ProfileView> {
+  final _articleChanges = sl<ArticleChangesNotifier>();
+  late int _lastSeenRevision = _articleChanges.revision;
+
+  @override
+  void initState() {
+    super.initState();
+    _articleChanges.addListener(_onArticlesChanged);
+  }
+
+  @override
+  void dispose() {
+    _articleChanges.removeListener(_onArticlesChanged);
+    super.dispose();
+  }
+
+  void _onArticlesChanged() {
+    if (!mounted) return;
+    final revision = _articleChanges.revision;
+    if (revision == _lastSeenRevision) return;
+    _lastSeenRevision = revision;
+    final bloc = context.read<MyArticlesBloc>();
+    if (bloc.isClosed) return;
+    final authorId = context.read<AuthBloc>().state.user?.uid ?? '';
+    bloc.add(MyArticlesRequested(authorId));
+  }
 
   String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
@@ -98,7 +130,7 @@ class _ProfileView extends StatelessWidget {
                 label: l10n.myArticlesRow,
                 leading: Icons.article_outlined,
                 trailing: const Icon(Icons.arrow_forward, size: 18),
-                onTap: () => sl<AppShellController>().notifyMyArticlesChanged(tabIndex: 1),
+                onTap: () => sl<AppShellController>().goToTab(1),
               ),
               const SizedBox(height: 11),
               _SettingsRow(

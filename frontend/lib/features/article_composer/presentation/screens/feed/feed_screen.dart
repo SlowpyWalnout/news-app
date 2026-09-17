@@ -9,6 +9,7 @@ import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/app_shell_controller.dart';
+import '../../../../../shared/article_changes_notifier.dart';
 import '../../../../../shared/widgets/category_chip.dart';
 import '../../../../../shared/widgets/edge_fade_scroll.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
@@ -48,14 +49,33 @@ class _FeedView extends StatefulWidget {
 class _FeedViewState extends State<_FeedView>
     with AutomaticKeepAliveClientMixin {
   final _searchController = TextEditingController();
+  final _articleChanges = sl<ArticleChangesNotifier>();
+  late int _lastSeenRevision = _articleChanges.revision;
 
   @override
   bool get wantKeepAlive => true;
 
   @override
+  void initState() {
+    super.initState();
+    _articleChanges.addListener(_onArticlesChanged);
+  }
+
+  @override
   void dispose() {
+    _articleChanges.removeListener(_onArticlesChanged);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onArticlesChanged() {
+    if (!mounted) return;
+    final revision = _articleChanges.revision;
+    if (revision == _lastSeenRevision) return;
+    _lastSeenRevision = revision;
+    final bloc = context.read<FeedBloc>();
+    if (bloc.isClosed) return;
+    bloc.add(const FeedRequested());
   }
 
   void _openDetail(AuthoredArticleEntity article) {
