@@ -214,6 +214,27 @@ class _FeedViewState extends State<_FeedView>
                                       fontSize: dims.fMd),
                                 ),
                               ),
+                              ValueListenableBuilder<TextEditingValue>(
+                                valueListenable: _searchController,
+                                builder: (context, value, _) {
+                                  if (value.text.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return IconButton(
+                                    icon: Icon(Icons.close,
+                                        color: palette.ink3, size: 18),
+                                    tooltip: l10n.searchClear,
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      context
+                                          .read<FeedBloc>()
+                                          .add(const FeedQueryChanged(''));
+                                    },
+                                  );
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -298,7 +319,7 @@ class _FeedViewState extends State<_FeedView>
                     );
                   }
                   final visible = state.visibleArticles;
-                  if (state.status == FeedStatus.success && visible.isEmpty) {
+                  if (state.isEmpty) {
                     final hasQuery = state.query.trim().isNotEmpty;
                     return SliverPadding(
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
@@ -326,9 +347,45 @@ class _FeedViewState extends State<_FeedView>
                   return SliverPadding(
                     padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
                     sliver: SliverList.separated(
-                      itemCount: visible.length,
+                      itemCount: visible.length + 1,
                       separatorBuilder: (_, __) => const SizedBox(height: 16),
                       itemBuilder: (context, index) {
+                        if (index == visible.length) {
+                          if (!state.hasMore) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Center(
+                              child: state.isLoadingMore
+                                  ? const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 13),
+                                      child: SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2.5),
+                                      ),
+                                    )
+                                  : OutlinedButton(
+                                      onPressed: () => context
+                                          .read<FeedBloc>()
+                                          .add(const FeedMoreRequested()),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(0, 50),
+                                        side: BorderSide(color: palette.edge),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(14)),
+                                      ),
+                                      child: Text(
+                                        l10n.loadMore,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
+                            ),
+                          );
+                        }
                         final article = visible[index];
                         final card = index == 0
                             ? FeaturedArticleCard(
@@ -338,8 +395,7 @@ class _FeedViewState extends State<_FeedView>
                                 article: article,
                                 onTap: () => _openDetail(article));
                         return StaggeredFadeIn(
-                          key: ValueKey(
-                              '${state.category}_${state.query}_${article.id}'),
+                          key: ValueKey('${state.category}_${article.id}'),
                           index: index,
                           child: card,
                         );

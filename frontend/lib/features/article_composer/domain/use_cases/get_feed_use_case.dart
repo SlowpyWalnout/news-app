@@ -4,6 +4,7 @@ import 'package:news_app/core/usecase/usecase.dart';
 import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
 import 'package:news_app/features/article_composer/domain/params/get_feed_params.dart';
 import 'package:news_app/features/article_composer/domain/repository/authored_article_repository.dart';
+import 'package:news_app/shared/utils/search_keywords.dart';
 
 class GetFeedUseCase
     implements
@@ -20,6 +21,7 @@ class GetFeedUseCase
     return _repository.getFeed(
       cursor: params.cursor,
       category: params.category,
+      searchToken: primarySearchToken(params.query ?? ''),
     );
   }
 }

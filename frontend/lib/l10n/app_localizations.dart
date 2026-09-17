@@ -302,6 +302,12 @@ abstract class AppLocalizations {
   /// **'Buscar en News'**
   String get searchPlaceholder;
 
+  /// No description provided for @searchClear.
+  ///
+  /// In es, this message translates to:
+  /// **'Limpiar búsqueda'**
+  String get searchClear;
+
   /// No description provided for @categoryAll.
   ///
   /// In es, this message translates to:

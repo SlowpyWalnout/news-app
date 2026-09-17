@@ -39,7 +39,8 @@ class MyArticlesBloc extends Bloc<MyArticlesEvent, MyArticlesState> {
       emit(state.copyWith(
         status: MyArticlesStatus.success,
         articles: result.data!.items,
-        hasMore: result.data!.hasMore,
+        nextCursor: result.data!.nextCursor,
+        clearCursor: result.data!.nextCursor == null,
       ));
     } else if (result is DataFailed) {
       emit(state.copyWith(
@@ -55,13 +56,23 @@ class MyArticlesBloc extends Bloc<MyArticlesEvent, MyArticlesState> {
   Future<void> onMoreRequested(
       MyArticlesMoreRequested event, Emitter<MyArticlesState> emit) async {
     final authorId = _authorId;
-    if (authorId == null || !state.hasMore) return;
-    final result =
-        await _listMyArticlesUseCase(ListMyArticlesParams(authorId: authorId));
+    if (authorId == null || state.isLoadingMore || !state.hasMore) return;
+    final cursor = state.nextCursor;
+    emit(state.copyWith(isLoadingMore: true));
+    final result = await _listMyArticlesUseCase(
+        ListMyArticlesParams(authorId: authorId, cursor: cursor));
     if (isClosed) return;
     if (result is DataSuccess && result.data != null) {
       emit(state.copyWith(
-          articles: result.data!.items, hasMore: result.data!.hasMore));
+        articles: [...state.articles, ...result.data!.items],
+        nextCursor: result.data!.nextCursor,
+        clearCursor: result.data!.nextCursor == null,
+        isLoadingMore: false,
+      ));
+    } else {
+      // Don't strand the "Cargar más" spinner on a failed page — keep the
+      // articles already shown and let the user retry.
+      emit(state.copyWith(isLoadingMore: false));
     }
   }
 
@@ -76,7 +87,11 @@ class MyArticlesBloc extends Bloc<MyArticlesEvent, MyArticlesState> {
     if (isClosed) return;
     if (result is DataSuccess && result.data != null) {
       emit(state.copyWith(
-          status: MyArticlesStatus.success, articles: result.data!.items));
+        status: MyArticlesStatus.success,
+        articles: result.data!.items,
+        nextCursor: result.data!.nextCursor,
+        clearCursor: result.data!.nextCursor == null,
+      ));
     }
   }
 }

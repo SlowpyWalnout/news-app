@@ -35,3 +35,7 @@ class FeedQueryChanged extends FeedEvent {
   @override
   List<Object?> get props => [query];
 }
+
+class FeedMoreRequested extends FeedEvent {
+  const FeedMoreRequested();
+}

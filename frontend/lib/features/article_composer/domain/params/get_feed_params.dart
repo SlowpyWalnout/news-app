@@ -5,8 +5,12 @@ class GetFeedParams extends Equatable {
   final String? cursor;
   final ArticleCategory? category;
 
-  const GetFeedParams({this.cursor, this.category});
+  /// The raw text the user typed — tokenized into a single array-contains
+  /// token by [GetFeedUseCase], never passed to Firestore as-is.
+  final String? query;
+
+  const GetFeedParams({this.cursor, this.category, this.query});
 
   @override
-  List<Object?> get props => [cursor, category];
+  List<Object?> get props => [cursor, category, query];
 }

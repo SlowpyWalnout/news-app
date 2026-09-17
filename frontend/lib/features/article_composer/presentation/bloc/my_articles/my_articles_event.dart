@@ -36,9 +36,6 @@ class MyArticlesTabChanged extends MyArticlesEvent {
   List<Object?> get props => [tab];
 }
 
-/// The mock repository ignores the cursor and always returns
-/// `nextCursor: null`, so this always resolves to "No hay más" — that is
-/// the correct behaviour for Fase 5, not a bug to hide.
 class MyArticlesMoreRequested extends MyArticlesEvent {
   const MyArticlesMoreRequested();
 }

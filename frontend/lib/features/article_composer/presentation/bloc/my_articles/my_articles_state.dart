@@ -12,15 +12,19 @@ class MyArticlesState extends Equatable {
     this.status = MyArticlesStatus.initial,
     this.articles = const [],
     this.tab = MyArticlesTab.all,
-    this.hasMore = false,
+    this.nextCursor,
+    this.isLoadingMore = false,
     this.error,
   });
 
   final MyArticlesStatus status;
   final List<AuthoredArticleEntity> articles;
   final MyArticlesTab tab;
-  final bool hasMore;
+  final String? nextCursor;
+  final bool isLoadingMore;
   final Failure? error;
+
+  bool get hasMore => nextCursor != null;
 
   List<AuthoredArticleEntity> get visibleArticles {
     switch (tab) {
@@ -42,18 +46,22 @@ class MyArticlesState extends Equatable {
     MyArticlesStatus? status,
     List<AuthoredArticleEntity>? articles,
     MyArticlesTab? tab,
-    bool? hasMore,
+    String? nextCursor,
+    bool clearCursor = false,
+    bool? isLoadingMore,
     Failure? error,
   }) {
     return MyArticlesState(
       status: status ?? this.status,
       articles: articles ?? this.articles,
       tab: tab ?? this.tab,
-      hasMore: hasMore ?? this.hasMore,
+      nextCursor: clearCursor ? null : (nextCursor ?? this.nextCursor),
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       error: error,
     );
   }
 
   @override
-  List<Object?> get props => [status, articles, tab, hasMore, error];
+  List<Object?> get props =>
+      [status, articles, tab, nextCursor, isLoadingMore, error];
 }

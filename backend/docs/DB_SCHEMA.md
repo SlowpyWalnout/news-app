@@ -88,10 +88,22 @@ puede volver a borrar. El error `object-not-found` de Storage se trata como
 
 ## Índices
 
-`firestore.indexes.json` empieza vacío. Índices compuestos esperados una vez
-haya datos reales (Firestore los pedirá con un link directo al fallar la
-query, ahí se agregan):
+`firestore.indexes.json` tiene 5 índices compuestos desplegados sobre
+`articles`:
 
-- `status ASC, publishedAt DESC` (feed publicado, orden cronológico).
-- `authorId ASC, updatedAt DESC` ("mis artículos", incluye borradores).
-- `category ASC, status ASC, publishedAt DESC` (feed filtrado por categoría).
+- `authorId ASC, updatedAt DESC, __name__ DESC` ("mis artículos", incluye
+  borradores).
+- `status ASC, publishedAt DESC, __name__ DESC` (feed publicado, orden
+  cronológico).
+- `status ASC, category ASC, publishedAt DESC, __name__ DESC` (feed filtrado
+  por categoría).
+- `status ASC, searchKeywords CONTAINS, publishedAt DESC, __name__ DESC`
+  (búsqueda por token, sin filtro de categoría).
+- `status ASC, category ASC, searchKeywords CONTAINS, publishedAt DESC,
+  __name__ DESC` (búsqueda por token con categoría a la vez).
+
+El emulador crea índices al vuelo, así que los tests contra el emulador
+(`backend/tests/`) no detectan un índice mal escrito o faltante en este
+archivo — solo se verifica con `firebase deploy --only firestore:indexes` o
+con el `FAILED_PRECONDITION` (con link directo a la consola) que Firestore
+devuelve en producción si falta uno.

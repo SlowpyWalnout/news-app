@@ -15,6 +15,8 @@ class AuthoredArticleEntity extends Equatable {
   final ArticleCategory category;
   final String? thumbnailURL;
   final String? thumbnailPath;
+  // Derived server-write-side (see AuthoredArticleFirestoreDataSource._upsert)
+  // from title/authorName/category — never trust a value set here by a caller.
   final List<String> searchKeywords;
   final DateTime createdAt;
   final DateTime updatedAt;

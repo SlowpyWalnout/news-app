@@ -278,23 +278,30 @@ class _MyArticlesViewState extends State<_MyArticlesView>
                                       color: palette.ink3),
                                 ),
                                 if (state.hasMore)
-                                  OutlinedButton(
-                                    onPressed: () => context
-                                        .read<MyArticlesBloc>()
-                                        .add(const MyArticlesMoreRequested()),
-                                    style: OutlinedButton.styleFrom(
-                                      minimumSize: const Size(0, 50),
-                                      side: BorderSide(color: palette.edge),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(14)),
-                                    ),
-                                    child: Text(
-                                      l10n.loadMore,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w700),
-                                    ),
-                                  ),
+                                  state.isLoadingMore
+                                      ? const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2.5),
+                                        )
+                                      : OutlinedButton(
+                                          onPressed: () => context
+                                              .read<MyArticlesBloc>()
+                                              .add(const MyArticlesMoreRequested()),
+                                          style: OutlinedButton.styleFrom(
+                                            minimumSize: const Size(0, 50),
+                                            side: BorderSide(color: palette.edge),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(14)),
+                                          ),
+                                          child: Text(
+                                            l10n.loadMore,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                        ),
                               ],
                             ),
                           );

@@ -4,6 +4,7 @@ import 'package:news_app/features/article_composer/data/models/authored_article_
 import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_status.dart';
 import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
+import 'package:news_app/shared/utils/search_keywords.dart';
 
 const int kFeedPageSize = 15;
 
@@ -18,6 +19,7 @@ class AuthoredArticleFirestoreDataSource {
   Future<PaginatedResult<AuthoredArticleModel>> getFeed({
     String? cursor,
     ArticleCategory? category,
+    String? searchToken,
   }) async {
     Query<Map<String, dynamic>> query = _articles
         .where('status', isEqualTo: ArticleStatus.published.name)
@@ -25,6 +27,9 @@ class AuthoredArticleFirestoreDataSource {
         .orderBy(FieldPath.documentId, descending: true);
     if (category != null) {
       query = query.where('category', isEqualTo: category.name);
+    }
+    if (searchToken != null) {
+      query = query.where('searchKeywords', arrayContains: searchToken);
     }
     final snapshot = await _applyCursor(query, cursor).limit(kFeedPageSize).get();
     return _toPage(snapshot);
@@ -93,6 +98,13 @@ class AuthoredArticleFirestoreDataSource {
     final data = AuthoredArticleModel.fromEntity(article).toFirestore();
     data['status'] = status.name;
     data['updatedAt'] = FieldValue.serverTimestamp();
+    // Always derived server-write-side from the current content — never
+    // trust searchKeywords coming from the caller (see ROADMAP.md, Fase 6b).
+    data['searchKeywords'] = buildSearchKeywords(
+      title: article.title,
+      authorName: article.authorName,
+      categoryName: article.category.name,
+    );
 
     if (existing != null && existing.exists) {
       data['createdAt'] = existing.get('createdAt');

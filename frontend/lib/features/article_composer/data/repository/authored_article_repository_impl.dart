@@ -19,9 +19,14 @@ class AuthoredArticleRepositoryImpl implements AuthoredArticleRepository {
   Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getFeed({
     String? cursor,
     ArticleCategory? category,
+    String? searchToken,
   }) async {
     try {
-      final page = await _dataSource.getFeed(cursor: cursor, category: category);
+      final page = await _dataSource.getFeed(
+        cursor: cursor,
+        category: category,
+        searchToken: searchToken,
+      );
       return DataSuccess(PaginatedResult(items: page.items, nextCursor: page.nextCursor));
     } on FirebaseException catch (e) {
       return DataFailed(mapFirebaseExceptionToFailure(e));

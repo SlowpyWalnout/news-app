@@ -118,6 +118,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get searchPlaceholder => 'Buscar en News';
 
   @override
+  String get searchClear => 'Limpiar búsqueda';
+
+  @override
   String get categoryAll => 'Todas';
 
   @override

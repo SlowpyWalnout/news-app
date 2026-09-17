@@ -205,6 +205,57 @@ describe('articles: borrado', () => {
   });
 });
 
+describe('articles: searchKeywords', () => {
+  it('permite hasta 30 tokens', async () => {
+    const owner = testEnv.authenticatedContext('author-1');
+    const keywords = Array.from({ length: 30 }, (_, i) => `token${i}`);
+    await assertSucceeds(
+      setDoc(doc(owner.firestore(), 'articles', 'a1'), {
+        ...validArticle({ authorId: 'author-1', searchKeywords: keywords }),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        publishedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('rechaza más de 30 tokens', async () => {
+    const owner = testEnv.authenticatedContext('author-1');
+    const keywords = Array.from({ length: 31 }, (_, i) => `token${i}`);
+    await assertFails(
+      setDoc(doc(owner.firestore(), 'articles', 'a1'), {
+        ...validArticle({ authorId: 'author-1', searchKeywords: keywords }),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        publishedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('rechaza searchKeywords como string en vez de lista', async () => {
+    const owner = testEnv.authenticatedContext('author-1');
+    await assertFails(
+      setDoc(doc(owner.firestore(), 'articles', 'a1'), {
+        ...validArticle({ authorId: 'author-1', searchKeywords: 'flutter' }),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        publishedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('rechaza el fan-out de rename si además toca searchKeywords', async () => {
+    await seedArticle('a1', { authorId: 'author-1', authorName: 'Nombre viejo' });
+    const owner = testEnv.authenticatedContext('author-1');
+    await assertFails(
+      updateDoc(doc(owner.firestore(), 'articles', 'a1'), {
+        authorName: 'Nombre nuevo',
+        searchKeywords: ['nombre', 'nuevo'],
+      }),
+    );
+  });
+});
+
 describe('users', () => {
   it('cualquiera puede leer un perfil', async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {

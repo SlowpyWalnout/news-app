@@ -34,14 +34,20 @@ class _FakeAuthoredArticleRepository implements AuthoredArticleRepository {
   _FakeAuthoredArticleRepository({this.result});
 
   DataState<PaginatedResult<AuthoredArticleEntity>>? result;
+  final List<String?> calledCursors = [];
 
   @override
-  Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getFeed({String? cursor, ArticleCategory? category}) async {
+  Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getFeed({
+    String? cursor,
+    ArticleCategory? category,
+    String? searchToken,
+  }) async {
     throw UnimplementedError();
   }
 
   @override
   Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getMyArticles(String authorId, {String? cursor}) async {
+    calledCursors.add(cursor);
     return result ?? DataSuccess(const PaginatedResult(items: []));
   }
 
@@ -107,6 +113,46 @@ void main() {
       await pumpEventQueue();
 
       expect(uncaught, isNull);
+    });
+
+    test('MyArticlesMoreRequested concatena y arrastra el cursor', () async {
+      final repo = _FakeAuthoredArticleRepository(
+        result: DataSuccess(PaginatedResult(items: [_article('1')], nextCursor: 'c1')),
+      );
+      final bloc = _bloc(repo);
+
+      bloc.add(const MyArticlesRequested('author-1'));
+      await Future.delayed(Duration.zero);
+      expect(bloc.state.hasMore, isTrue);
+
+      repo.result = DataSuccess(PaginatedResult(items: [_article('2')]));
+      bloc.add(const MyArticlesMoreRequested());
+      await Future.delayed(Duration.zero);
+
+      expect(bloc.state.articles.map((a) => a.id), ['1', '2']);
+      expect(bloc.state.hasMore, isFalse);
+      expect(bloc.state.isLoadingMore, isFalse);
+      expect(repo.calledCursors, [null, 'c1']);
+
+      await bloc.close();
+    });
+
+    test('MyArticlesMoreRequested es no-op sin hasMore', () async {
+      final repo = _FakeAuthoredArticleRepository(
+        result: DataSuccess(PaginatedResult(items: [_article('1')])),
+      );
+      final bloc = _bloc(repo);
+
+      bloc.add(const MyArticlesRequested('author-1'));
+      await Future.delayed(Duration.zero);
+      expect(bloc.state.hasMore, isFalse);
+
+      bloc.add(const MyArticlesMoreRequested());
+      await Future.delayed(Duration.zero);
+
+      expect(bloc.state.articles.map((a) => a.id), ['1']);
+
+      await bloc.close();
     });
   });
 }

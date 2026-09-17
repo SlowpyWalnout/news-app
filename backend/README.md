@@ -81,3 +81,31 @@ Be careful becasuse it will overwrite the existing firestore.rules file of your 
 To run the application locally, use the following command:
 
 ```firebase emulators:start```
+
+## Backfill de `searchKeywords` (Fase 6b)
+
+Los artículos publicados antes de Fase 6b tienen `searchKeywords: []` (nadie
+generaba tokens). `backend/scripts/backfill-search-keywords.mjs` los
+recalcula con las mismas reglas que usa el cliente al publicar/editar.
+
+```
+cd backend/scripts
+npm install
+```
+
+1. **Ensayo contra el emulador** (no toca datos reales):
+   ```
+   FIRESTORE_EMULATOR_HOST=localhost:8080 node backfill-search-keywords.mjs --project=news-app-f979a --apply
+   ```
+2. **Dry run contra producción** (por defecto, no escribe nada — imprime
+   escaneados/cambiarían/sin cambios y los primeros 10 diffs):
+   ```
+   GOOGLE_APPLICATION_CREDENTIALS=<ruta a tu service account> node backfill-search-keywords.mjs --project=news-app-f979a
+   ```
+3. **Aplicar de verdad**, agregando `--apply` al comando anterior.
+
+**Antes de aplicar en producción**, desplegar los índices nuevos
+(`firebase deploy --only firestore:indexes`) para que la búsqueda funcione
+apenas los tokens queden escritos. El script es idempotente — una segunda
+corrida no reescribe nada — así que una pasada interrumpida se retoma
+volviendo a correrlo.

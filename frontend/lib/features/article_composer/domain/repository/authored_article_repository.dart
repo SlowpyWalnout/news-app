@@ -8,6 +8,7 @@ abstract class AuthoredArticleRepository {
   Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getFeed({
     String? cursor,
     ArticleCategory? category,
+    String? searchToken,
   });
 
   Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getMyArticles(
