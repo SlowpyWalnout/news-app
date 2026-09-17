@@ -949,6 +949,156 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Algo falló al cargar Leer después. Tus artículos guardados siguen en el teléfono.'**
   String get readLaterErrorBody;
+
+  /// No description provided for @reportAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Reportar'**
+  String get reportAction;
+
+  /// No description provided for @reportAlreadyDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya reportaste'**
+  String get reportAlreadyDone;
+
+  /// No description provided for @reportSheetTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Por qué reportas este artículo?'**
+  String get reportSheetTitle;
+
+  /// No description provided for @reportSheetBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu reporte es anónimo para el autor. Revisamos los artículos con varios reportes.'**
+  String get reportSheetBody;
+
+  /// No description provided for @reportReasonSexual.
+  ///
+  /// In es, this message translates to:
+  /// **'Contenido sexual'**
+  String get reportReasonSexual;
+
+  /// No description provided for @reportReasonViolence.
+  ///
+  /// In es, this message translates to:
+  /// **'Violencia'**
+  String get reportReasonViolence;
+
+  /// No description provided for @reportReasonHate.
+  ///
+  /// In es, this message translates to:
+  /// **'Discurso de odio'**
+  String get reportReasonHate;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In es, this message translates to:
+  /// **'Spam'**
+  String get reportReasonSpam;
+
+  /// No description provided for @reportReasonMisinformation.
+  ///
+  /// In es, this message translates to:
+  /// **'Desinformación'**
+  String get reportReasonMisinformation;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In es, this message translates to:
+  /// **'Otro motivo'**
+  String get reportReasonOther;
+
+  /// No description provided for @reportNoteLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalle (opcional)'**
+  String get reportNoteLabel;
+
+  /// No description provided for @reportSubmit.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar reporte'**
+  String get reportSubmit;
+
+  /// No description provided for @reportCancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get reportCancel;
+
+  /// No description provided for @reportSentToast.
+  ///
+  /// In es, this message translates to:
+  /// **'Reporte enviado'**
+  String get reportSentToast;
+
+  /// No description provided for @reportErrorToast.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo enviar el reporte'**
+  String get reportErrorToast;
+
+  /// No description provided for @statusSuspended.
+  ///
+  /// In es, this message translates to:
+  /// **'Suspendido'**
+  String get statusSuspended;
+
+  /// No description provided for @suspendedBannerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Este artículo fue suspendido'**
+  String get suspendedBannerTitle;
+
+  /// No description provided for @suspendedBannerBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Recibió varios reportes de la comunidad. Edítalo para corregir lo que haga falta y volver a publicarlo.'**
+  String get suspendedBannerBody;
+
+  /// No description provided for @staffReviewRow.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisión de reportes'**
+  String get staffReviewRow;
+
+  /// No description provided for @staffReviewQueueTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Artículos suspendidos'**
+  String get staffReviewQueueTitle;
+
+  /// No description provided for @staffReviewQueueEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay artículos suspendidos para revisar.'**
+  String get staffReviewQueueEmpty;
+
+  /// No description provided for @staffApprove.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobar'**
+  String get staffApprove;
+
+  /// No description provided for @staffRemove.
+  ///
+  /// In es, this message translates to:
+  /// **'Retirar'**
+  String get staffRemove;
+
+  /// No description provided for @staffDecisionApprovedToast.
+  ///
+  /// In es, this message translates to:
+  /// **'Artículo republicado'**
+  String get staffDecisionApprovedToast;
+
+  /// No description provided for @staffDecisionRemovedToast.
+  ///
+  /// In es, this message translates to:
+  /// **'Artículo retirado'**
+  String get staffDecisionRemovedToast;
 }
 
 class _AppLocalizationsDelegate

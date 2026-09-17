@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import '../../config/theme/app_dimensions.dart';
 import '../../config/theme/app_palette.dart';
 
-/// Draft/published pill for "Mis artículos" cards.
+enum ArticlePillVariant { published, draft, suspended }
+
+/// Publicado/borrador/suspendido pill for "Mis artículos" cards.
 class StatusPill extends StatelessWidget {
-  const StatusPill({super.key, required this.label, required this.published});
+  const StatusPill({super.key, required this.label, required this.variant});
 
   final String label;
-  final bool published;
+  final ArticlePillVariant variant;
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +18,23 @@ class StatusPill extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final dims = Theme.of(context).extension<AppDimensions>()!;
 
-    final Color bg = published ? scheme.primary : palette.warnSoft;
-    final Color border = published ? scheme.primary : palette.warn;
-    final Color fg = published ? scheme.onPrimary : palette.warn;
+    final Color bg;
+    final Color border;
+    final Color fg;
+    switch (variant) {
+      case ArticlePillVariant.published:
+        bg = scheme.primary;
+        border = scheme.primary;
+        fg = scheme.onPrimary;
+      case ArticlePillVariant.draft:
+        bg = palette.warnSoft;
+        border = palette.warn;
+        fg = palette.warn;
+      case ArticlePillVariant.suspended:
+        bg = palette.dangerSoft;
+        border = scheme.error;
+        fg = scheme.error;
+    }
 
     return Container(
       constraints: const BoxConstraints(minHeight: 28),

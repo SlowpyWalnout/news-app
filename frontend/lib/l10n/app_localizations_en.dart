@@ -461,4 +461,81 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get readLaterErrorBody =>
       'Something went wrong loading Read it later. Your saved articles are still on this phone.';
+
+  @override
+  String get reportAction => 'Report';
+
+  @override
+  String get reportAlreadyDone => 'Already reported';
+
+  @override
+  String get reportSheetTitle => 'Why are you reporting this article?';
+
+  @override
+  String get reportSheetBody =>
+      'Your report is anonymous to the author. We review articles with multiple reports.';
+
+  @override
+  String get reportReasonSexual => 'Sexual content';
+
+  @override
+  String get reportReasonViolence => 'Violence';
+
+  @override
+  String get reportReasonHate => 'Hate speech';
+
+  @override
+  String get reportReasonSpam => 'Spam';
+
+  @override
+  String get reportReasonMisinformation => 'Misinformation';
+
+  @override
+  String get reportReasonOther => 'Other reason';
+
+  @override
+  String get reportNoteLabel => 'Details (optional)';
+
+  @override
+  String get reportSubmit => 'Send report';
+
+  @override
+  String get reportCancel => 'Cancel';
+
+  @override
+  String get reportSentToast => 'Report sent';
+
+  @override
+  String get reportErrorToast => 'Couldn\'t send the report';
+
+  @override
+  String get statusSuspended => 'Suspended';
+
+  @override
+  String get suspendedBannerTitle => 'This article was suspended';
+
+  @override
+  String get suspendedBannerBody =>
+      'It received multiple reports from the community. Edit it to fix what\'s needed and publish it again.';
+
+  @override
+  String get staffReviewRow => 'Report review';
+
+  @override
+  String get staffReviewQueueTitle => 'Suspended articles';
+
+  @override
+  String get staffReviewQueueEmpty => 'No suspended articles to review.';
+
+  @override
+  String get staffApprove => 'Approve';
+
+  @override
+  String get staffRemove => 'Remove';
+
+  @override
+  String get staffDecisionApprovedToast => 'Article republished';
+
+  @override
+  String get staffDecisionRemovedToast => 'Article removed';
 }

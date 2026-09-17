@@ -118,7 +118,11 @@ class AuthoredArticleFirestoreDataSource {
           status == ArticleStatus.published ? FieldValue.serverTimestamp() : null;
     }
 
-    await ref.set(data);
+    // merge: true — un set() completo borraría los campos de moderación
+    // (reportCount, moderationState, ...) que solo el servidor escribe (ver
+    // Fase 6e, backend/docs/DB_SCHEMA.md), dando un reinicio de contador
+    // gratis en cada edición del autor.
+    await ref.set(data, SetOptions(merge: true));
     final snapshot = await ref.get();
     return AuthoredArticleModel.fromFirestore(snapshot);
   }

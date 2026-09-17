@@ -256,6 +256,219 @@ describe('articles: searchKeywords', () => {
   });
 });
 
+async function seedStaff(uid) {
+  await testEnv.withSecurityRulesDisabled(async (ctx) => {
+    await setDoc(doc(ctx.firestore(), 'users', uid), {
+      displayName: 'Staff',
+      photoURL: null,
+      createdAt: new Date(),
+      role: 'staff',
+    });
+  });
+}
+
+describe('articles: campos de moderación', () => {
+  it('el autor no puede escribir reportCount al editar contenido', async () => {
+    await seedArticle('a1', { authorId: 'author-1' });
+    const owner = testEnv.authenticatedContext('author-1');
+    await assertFails(
+      updateDoc(doc(owner.firestore(), 'articles', 'a1'), {
+        title: 'Editado',
+        updatedAt: serverTimestamp(),
+        reportCount: 0,
+      }),
+    );
+  });
+
+  it('el autor no puede limpiar moderationState al editar', async () => {
+    await seedArticle('a1', { authorId: 'author-1' });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await updateDoc(doc(ctx.firestore(), 'articles', 'a1'), { moderationState: 'suspended', reportCount: 2 });
+    });
+    const owner = testEnv.authenticatedContext('author-1');
+    await assertFails(
+      updateDoc(doc(owner.firestore(), 'articles', 'a1'), {
+        title: 'Editado',
+        updatedAt: serverTimestamp(),
+        moderationState: 'approved',
+      }),
+    );
+  });
+
+  it('un usuario normal no puede usar la rama de staff', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'draft', publishedAt: null });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await updateDoc(doc(ctx.firestore(), 'articles', 'a1'), { moderationState: 'suspended', reportCount: 2 });
+    });
+    const other = testEnv.authenticatedContext('author-2');
+    await assertFails(
+      updateDoc(doc(other.firestore(), 'articles', 'a1'), {
+        status: 'published',
+        moderationState: 'approved',
+        approvedAt: serverTimestamp(),
+        approvedBy: 'author-2',
+      }),
+    );
+  });
+
+  it('staff puede aprobar un artículo suspendido', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'draft', publishedAt: null });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await updateDoc(doc(ctx.firestore(), 'articles', 'a1'), { moderationState: 'suspended', reportCount: 2 });
+    });
+    await seedStaff('staff-1');
+    const staff = testEnv.authenticatedContext('staff-1');
+    await assertSucceeds(
+      updateDoc(doc(staff.firestore(), 'articles', 'a1'), {
+        status: 'published',
+        moderationState: 'approved',
+        approvedAt: serverTimestamp(),
+        approvedBy: 'staff-1',
+      }),
+    );
+  });
+
+  it('staff no puede tocar título al aprobar', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'draft', publishedAt: null });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await updateDoc(doc(ctx.firestore(), 'articles', 'a1'), { moderationState: 'suspended', reportCount: 2 });
+    });
+    await seedStaff('staff-1');
+    const staff = testEnv.authenticatedContext('staff-1');
+    await assertFails(
+      updateDoc(doc(staff.firestore(), 'articles', 'a1'), {
+        status: 'published',
+        moderationState: 'approved',
+        approvedAt: serverTimestamp(),
+        approvedBy: 'staff-1',
+        title: 'Título retocado por staff',
+      }),
+    );
+  });
+
+  it('staff no puede suplantar approvedBy con otro uid', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'draft', publishedAt: null });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await updateDoc(doc(ctx.firestore(), 'articles', 'a1'), { moderationState: 'suspended', reportCount: 2 });
+    });
+    await seedStaff('staff-1');
+    const staff = testEnv.authenticatedContext('staff-1');
+    await assertFails(
+      updateDoc(doc(staff.firestore(), 'articles', 'a1'), {
+        status: 'published',
+        moderationState: 'approved',
+        approvedAt: serverTimestamp(),
+        approvedBy: 'otro-uid',
+      }),
+    );
+  });
+
+  it('staff sí puede leer un artículo suspendido (draft)', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'draft', publishedAt: null });
+    await seedStaff('staff-1');
+    const staff = testEnv.authenticatedContext('staff-1');
+    await assertSucceeds(getDoc(doc(staff.firestore(), 'articles', 'a1')));
+  });
+});
+
+describe('articles/{id}/reports', () => {
+  it('un usuario puede reportar un artículo publicado de otro', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'published' });
+    const reporter = testEnv.authenticatedContext('reporter-1');
+    await assertSucceeds(
+      setDoc(doc(reporter.firestore(), 'articles', 'a1', 'reports', 'reporter-1'), {
+        reason: 'sexual',
+        createdAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('rechaza reportar el propio artículo', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'published' });
+    const owner = testEnv.authenticatedContext('author-1');
+    await assertFails(
+      setDoc(doc(owner.firestore(), 'articles', 'a1', 'reports', 'author-1'), {
+        reason: 'spam',
+        createdAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('rechaza un segundo reporte del mismo usuario (mismo doc-id ya existe)', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'published' });
+    const reporter = testEnv.authenticatedContext('reporter-1');
+    await assertSucceeds(
+      setDoc(doc(reporter.firestore(), 'articles', 'a1', 'reports', 'reporter-1'), {
+        reason: 'spam',
+        createdAt: serverTimestamp(),
+      }),
+    );
+    await assertFails(
+      updateDoc(doc(reporter.firestore(), 'articles', 'a1', 'reports', 'reporter-1'), {
+        reason: 'hate',
+      }),
+    );
+  });
+
+  it('rechaza motivo fuera del enum', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'published' });
+    const reporter = testEnv.authenticatedContext('reporter-1');
+    await assertFails(
+      setDoc(doc(reporter.firestore(), 'articles', 'a1', 'reports', 'reporter-1'), {
+        reason: 'me-cae-mal',
+        createdAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('rechaza reportar sin sesión', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'published' });
+    const anon = testEnv.unauthenticatedContext();
+    await assertFails(
+      setDoc(doc(anon.firestore(), 'articles', 'a1', 'reports', 'anon'), {
+        reason: 'spam',
+        createdAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('rechaza reportar un borrador', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'draft', publishedAt: null });
+    const reporter = testEnv.authenticatedContext('reporter-1');
+    await assertFails(
+      setDoc(doc(reporter.firestore(), 'articles', 'a1', 'reports', 'reporter-1'), {
+        reason: 'spam',
+        createdAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('un usuario normal no puede leer los reportes', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'published' });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'articles', 'a1', 'reports', 'reporter-1'), {
+        reason: 'spam',
+        createdAt: new Date(),
+      });
+    });
+    const other = testEnv.authenticatedContext('reporter-2');
+    await assertFails(getDoc(doc(other.firestore(), 'articles', 'a1', 'reports', 'reporter-1')));
+  });
+
+  it('staff sí puede leer los reportes', async () => {
+    await seedArticle('a1', { authorId: 'author-1', status: 'published' });
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'articles', 'a1', 'reports', 'reporter-1'), {
+        reason: 'spam',
+        createdAt: new Date(),
+      });
+    });
+    await seedStaff('staff-1');
+    const staff = testEnv.authenticatedContext('staff-1');
+    await assertSucceeds(getDoc(doc(staff.firestore(), 'articles', 'a1', 'reports', 'reporter-1')));
+  });
+});
+
 describe('users', () => {
   it('cualquiera puede leer un perfil', async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {

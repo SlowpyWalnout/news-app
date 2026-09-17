@@ -12,6 +12,8 @@ import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../../../auth/presentation/bloc/auth/auth_event.dart';
 import '../../../../daily_news/presentation/screens/read_later/read_later_screen.dart';
+import '../../../../moderation/presentation/screens/review_queue/review_queue_screen.dart';
+import '../../../../moderation/presentation/staff_gate.dart';
 import '../../bloc/my_articles/my_articles_bloc.dart';
 import '../../bloc/my_articles/my_articles_event.dart';
 import '../../bloc/my_articles/my_articles_state.dart';
@@ -40,11 +42,15 @@ class _ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<_ProfileView> {
   final _articleChanges = sl<ArticleChangesNotifier>();
   late int _lastSeenRevision = _articleChanges.revision;
+  bool _isStaff = false;
 
   @override
   void initState() {
     super.initState();
     _articleChanges.addListener(_onArticlesChanged);
+    sl<StaffGate>().isStaff.then((value) {
+      if (mounted) setState(() => _isStaff = value);
+    });
   }
 
   @override
@@ -146,6 +152,15 @@ class _ProfileViewState extends State<_ProfileView> {
                 trailing: const Icon(Icons.arrow_forward, size: 18),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ReadLaterScreen())),
               ),
+              if (_isStaff) ...[
+                const SizedBox(height: 11),
+                _SettingsRow(
+                  label: l10n.staffReviewRow,
+                  leading: Icons.shield_outlined,
+                  trailing: const Icon(Icons.arrow_forward, size: 18),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ReviewQueueScreen())),
+                ),
+              ],
               const SizedBox(height: 11),
               _SettingsRow(
                 label: l10n.appearanceRow,

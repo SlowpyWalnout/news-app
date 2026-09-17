@@ -13,6 +13,7 @@ Este documento describe el esquema tal y como lo aplican `firestore.rules` y
 | `displayName` | `string` (1–60) | Nombre público del autor. |
 | `photoURL` | `string \| null` | Foto de perfil. |
 | `createdAt` | `timestamp` | Fijado por el servidor (`request.time`), inmutable. |
+| `role` | `'staff'` \| ausente | Fase 6e. Nunca lo escribe el propio usuario — `users/{uid}` ya restringe `create`/`update` a `hasOnly(['displayName','photoURL'(,'createdAt')])`, así que `role` solo lo puede poner alguien con acceso directo a la consola de Firebase (Admin SDK/consola). Ausente equivale a usuario normal. |
 
 El documento existe para el perfil propio del usuario. Los artículos **no**
 leen este documento en cada render del feed: guardan una copia de
@@ -36,6 +37,18 @@ artículo.
 | `createdAt` | `timestamp` | Fijado por el servidor al crear, inmutable. |
 | `updatedAt` | `timestamp` | Fijado por el servidor en cada edición de contenido. Ver excepción de rename. |
 | `publishedAt` | `timestamp \| null` | `null` mientras `status == 'draft'`. Se fija al publicar y no vuelve a tocarse. |
+| `reportCount` | `number` \| ausente | Fase 6e. Escrito solo por la Cloud Function `onReportCreated`. Ausente equivale a 0 — no se hizo backfill sobre artículos existentes. |
+| `moderationState` | `'suspended' \| 'approved' \| 'removed'` \| ausente | Fase 6e. Escrito por la Cloud Function (`'suspended'`) o por staff vía `firestore.rules` (`'approved'`/`'removed'`). Ausente equivale a "nunca moderado". |
+| `suspendedAt` | `timestamp \| null` | Fase 6e. Escrito por la Cloud Function al suspender. |
+| `approvedAt` | `timestamp \| null` | Fase 6e. Escrito por staff al aprobar. Se compara contra `updatedAt` para derivar el umbral de re-suspensión (ver más abajo). |
+| `approvedBy` | `string` (uid) `\| null` | Fase 6e. UID del staff que aprobó; `firestore.rules` exige que coincida con `request.auth.uid`, así que no se puede falsear. |
+| `suspensionCount` | `number` \| ausente | Fase 6e. Escrito por la Cloud Function, **nunca se reinicia** (ni al editar ni al aprobar) — es la memoria de reincidencia del artículo. |
+
+Los siete campos de moderación son opcionales y solo los escribe el servidor
+(Admin SDK) o la rama de staff de `firestore.rules` — nunca el autor, ni
+siquiera al editar. `firestore.rules` lo hace explícito: la rama de edición
+del autor exige
+`!diff(resource.data).affectedKeys().hasAny(moderationFields())`.
 
 **Categorías permitidas:** `general`, `business`, `entertainment`, `health`,
 `science`, `sports`, `technology`, `politics`, `other`. Las primeras ocho
@@ -63,6 +76,70 @@ null`, Firestore los excluye del índice usado por esa query. Aunque las
 rules tuvieran un fallo, un borrador no podría aparecer ahí. Aun así, la
 regla de lectura exige `published` o ser el dueño, como defensa en
 profundidad.
+
+### `articles/{articleId}/reports/{reporterUid}` (Fase 6e)
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `reason` | enum: `sexual`, `violence`, `hate`, `spam`, `misinformation`, `other` | Obligatorio. |
+| `note` | `string` (≤300) \| ausente | Detalle libre opcional. |
+| `createdAt` | `timestamp` | Fijado por el servidor (`request.time`). |
+
+El id del documento es el UID del reportero: hace el doble reporte
+estructuralmente imposible (un `create` sobre un id que ya existe falla,
+`firestore.rules` no necesita contar nada). Solo se puede crear sobre un
+artículo `published` y nunca sobre el propio (`authorId != request.auth.uid`).
+Lectura restringida a staff — ni el propio autor ve quién lo reportó.
+`update`/`delete` son `if false`: la Cloud Function `onArticleContentEdited`
+los borra con el Admin SDK, que bypasa las rules.
+
+### Moderación: umbral de suspensión (Fase 6e)
+
+Dos Cloud Functions (`backend/functions/`) mantienen `reportCount` y
+`moderationState`:
+
+- **`onReportCreated`** (trigger `onDocumentCreated` sobre `.../reports/{uid}`):
+  incrementa `reportCount` en transacción y, si `status == 'published'` y
+  `reportCount` alcanza el umbral, pone `status: 'draft'`,
+  `moderationState: 'suspended'`, `suspendedAt: now`,
+  `suspensionCount: increment(1)`.
+- **`onArticleContentEdited`** (trigger `onDocumentUpdated` sobre `articles/{id}`):
+  si el autor cambió contenido real (`title`/`body`/`category`/`thumbnailURL`),
+  reinicia `reportCount: 0`, limpia `moderationState`/`suspendedAt` y borra la
+  subcolección `reports` en lote. `suspensionCount` no se toca — es memoria
+  permanente de reincidencia.
+
+El umbral no se cuenta aparte, se deriva del historial que ya existe:
+
+```js
+const threshold = (approvedAt && approvedAt >= updatedAt) ? 10 : 2;
+```
+
+Sin aprobación de staff, o con el artículo editado después de la última
+aprobación (`updatedAt` adelantó a `approvedAt`), el umbral es 2. Un artículo
+aprobado por staff y no vuelto a editar necesita 10 reportes para
+re-suspenderse. La aprobación cubre *la versión revisada*, no el artículo para
+siempre — editar reinicia la protección sin que la Function necesite llevar
+la cuenta de ediciones por separado.
+
+**Por qué un umbral de 2 es un riesgo aceptado, no ideal:** dos cuentas
+bastan para tumbar cualquier artículo nuevo. Se acepta porque cada mitigación
+más fuerte (límite de reportes por usuario/día, ponderar por reputación del
+reportero) exige almacenamiento y lógica que no caben en el presupuesto de
+esta fase — quedan documentadas como diseño propuesto para `docs/REPORT.md`,
+no construidas. Lo que sí está construido: deduplicación por UID, prohibición
+de auto-reporte, reportes ilegibles para el autor, y `suspensionCount` que
+nunca se reinicia (una re-suspensión repetida queda visible para staff aunque
+el contador de reportes vuelva a cero en cada edición).
+
+**Por qué la decisión de staff no usa una Cloud Function callable:** aprobar/
+retirar es una escritura directa a Firestore autorizada por `isStaff()` en
+`firestore.rules`, no una función invocable desde el cliente. Evita añadir el
+paquete `cloud_functions` a `pubspec.yaml` — cada dependencia nueva en este
+repo ha sido fuente de conflictos de resolución (`ionicons`, el pin de
+`analyzer ^6.4.1` por `floor_generator`). Una callable sería la forma más
+canónica en un proyecto con más superficie de moderación; documentado como
+alternativa, no como pendiente.
 
 ## Storage
 
@@ -101,6 +178,10 @@ puede volver a borrar. El error `object-not-found` de Storage se trata como
   (búsqueda por token, sin filtro de categoría).
 - `status ASC, category ASC, searchKeywords CONTAINS, publishedAt DESC,
   __name__ DESC` (búsqueda por token con categoría a la vez).
+- `moderationState ASC, suspendedAt DESC, __name__ DESC` (Fase 6e, cola de
+  revisión de staff — el único índice nuevo de la fase; los 6 campos de
+  moderación restantes no necesitan ninguno porque toda otra query de
+  moderación pasa por `articleId`, que ya es la clave del documento).
 
 El emulador crea índices al vuelo, así que los tests contra el emulador
 (`backend/tests/`) no detectan un índice mal escrito o faltante en este

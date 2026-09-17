@@ -19,6 +19,7 @@ import '../../../../../shared/widgets/state_cards.dart';
 import '../../../../../shared/widgets/status_pill.dart';
 import '../../../../../shared/widgets/striped_image_placeholder.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
+import '../../../../moderation/domain/entities/moderation_state.dart';
 import '../../../domain/entities/article_status.dart';
 import '../../../domain/entities/authored_article_entity.dart';
 import '../../bloc/my_articles/my_articles_bloc.dart';
@@ -377,6 +378,7 @@ class _MyArticleCard extends StatelessWidget {
     final palette = context.palette;
     final dims = Theme.of(context).extension<AppDimensions>()!;
     final published = article.status == ArticleStatus.published;
+    final suspended = article.moderationState == ModerationState.suspended;
     final dateLabel = DateFormat.MMMd(l10n.localeName).format(published
         ? article.publishedAt ?? article.updatedAt
         : article.updatedAt);
@@ -413,10 +415,12 @@ class _MyArticleCard extends StatelessWidget {
                         Row(
                           children: [
                             StatusPill(
-                                label: published
-                                    ? l10n.publishedPill
-                                    : l10n.draftPill,
-                                published: published),
+                                label: suspended
+                                    ? l10n.statusSuspended
+                                    : (published ? l10n.publishedPill : l10n.draftPill),
+                                variant: suspended
+                                    ? ArticlePillVariant.suspended
+                                    : (published ? ArticlePillVariant.published : ArticlePillVariant.draft)),
                             const SizedBox(width: 8),
                             Flexible(
                               child: Text(dateLabel,

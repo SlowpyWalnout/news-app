@@ -12,6 +12,13 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    // Solo lee users/{uid}.role — nunca lo escribe (users/{uid} ya prohíbe
+    // que el propio usuario se ponga un role vía hasOnly en create/update).
+    function isStaff() {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'staff';
+    }
+
     match /users/{uid} {
       allow read: if true;
 
@@ -56,7 +63,13 @@ service cloud.firestore {
                 : data.publishedAt is timestamp);
       }
 
-      allow read: if resource.data.status == 'published' || isOwner(resource.data.authorId);
+      // Campos de moderación: escritos solo por Cloud Functions (Admin SDK,
+      // bypassa rules) o por la rama de staff de abajo — nunca por el autor.
+      function moderationFields() {
+        return ['reportCount', 'moderationState', 'suspendedAt', 'approvedAt', 'approvedBy', 'suspensionCount'];
+      }
+
+      allow read: if resource.data.status == 'published' || isOwner(resource.data.authorId) || isStaff();
 
       allow create: if isOwner(request.resource.data.authorId)
         && request.resource.data.keys().hasOnly([
@@ -68,23 +81,60 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
 
-      allow update: if isOwner(resource.data.authorId)
-        && request.resource.data.authorId == resource.data.authorId
-        && request.resource.data.createdAt == resource.data.createdAt
-        && (
-             // Edición normal de contenido: updatedAt debe avanzar a ahora.
-             (isValidArticle(request.resource.data)
-               && request.resource.data.updatedAt == request.time)
-             ||
-             // Fan-out de rename de autor: solo estos dos campos, sin tocar updatedAt.
-             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['authorName', 'authorPhotoURL'])
-               && request.resource.data.authorName is string
-               && request.resource.data.authorName.size() > 0
-               && request.resource.data.authorName.size() <= 60
-               && (request.resource.data.authorPhotoURL == null || request.resource.data.authorPhotoURL is string))
-           );
+      allow update: if
+        (
+          // Autor: contenido o fan-out de rename, nunca campos de moderación.
+          isOwner(resource.data.authorId)
+          && request.resource.data.authorId == resource.data.authorId
+          && request.resource.data.createdAt == resource.data.createdAt
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(moderationFields())
+          && (
+               // Edición normal de contenido: updatedAt debe avanzar a ahora.
+               (isValidArticle(request.resource.data)
+                 && request.resource.data.updatedAt == request.time)
+               ||
+               // Fan-out de rename de autor: solo estos dos campos, sin tocar updatedAt.
+               (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['authorName', 'authorPhotoURL'])
+                 && request.resource.data.authorName is string
+                 && request.resource.data.authorName.size() > 0
+                 && request.resource.data.authorName.size() <= 60
+                 && (request.resource.data.authorPhotoURL == null || request.resource.data.authorPhotoURL is string))
+             )
+        )
+        ||
+        (
+          // Staff: aprobar o retirar un artículo suspendido, nada más.
+          isStaff()
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'moderationState', 'approvedAt', 'approvedBy', 'reportCount'])
+          && request.resource.data.moderationState in ['approved', 'removed']
+          && request.resource.data.approvedBy == request.auth.uid
+          && request.resource.data.approvedAt == request.time
+        );
 
       allow delete: if isOwner(resource.data.authorId);
+
+      // Un reporte por usuario (uid como id de doc, evita el doble reporte).
+      // Solo staff puede leerlos — ni el autor ve quién reportó. El trigger
+      // de Cloud Functions los borra con el Admin SDK (bypassa estas rules).
+      match /reports/{reporterUid} {
+        function allowedReasons() {
+          return ['sexual', 'violence', 'hate', 'spam', 'misinformation', 'other'];
+        }
+
+        allow read: if isStaff();
+
+        allow create: if isOwner(reporterUid)
+          && get(/databases/$(database)/documents/articles/$(articleId)).data.authorId != request.auth.uid
+          && get(/databases/$(database)/documents/articles/$(articleId)).data.status == 'published'
+          && request.resource.data.keys().hasOnly(['reason', 'note', 'createdAt'])
+          && request.resource.data.reason in allowedReasons()
+          && (!('note' in request.resource.data) || (request.resource.data.note is string && request.resource.data.note.size() <= 300))
+          && request.resource.data.createdAt == request.time;
+
+        allow update: if false;
+        allow delete: if false;
+      }
     }
   }
 }

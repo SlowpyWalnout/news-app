@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_status.dart';
 import 'package:news_app/features/daily_news/domain/entities/article.dart';
+import 'package:news_app/features/moderation/domain/entities/moderation_state.dart';
 import 'package:news_app/shared/utils/markdown.dart';
 
 class AuthoredArticleEntity extends Equatable {
@@ -21,6 +22,13 @@ class AuthoredArticleEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? publishedAt;
+  // Fase 6e — solo los escribe el servidor (Cloud Functions/staff), nunca el
+  // cliente. Ausentes en Firestore == "nunca moderado". No van en copyWith:
+  // igual que id/authorId/createdAt, el cliente no los muta directamente.
+  final int reportCount;
+  final ModerationState? moderationState;
+  final DateTime? suspendedAt;
+  final DateTime? approvedAt;
 
   const AuthoredArticleEntity({
     required this.id,
@@ -37,6 +45,10 @@ class AuthoredArticleEntity extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.publishedAt,
+    this.reportCount = 0,
+    this.moderationState,
+    this.suspendedAt,
+    this.approvedAt,
   });
 
   // Adapts to the existing NewsAPI entity so favorites, the article tile and
@@ -124,6 +136,10 @@ class AuthoredArticleEntity extends Equatable {
       createdAt,
       updatedAt,
       publishedAt,
+      reportCount,
+      moderationState,
+      suspendedAt,
+      approvedAt,
     ];
   }
 }

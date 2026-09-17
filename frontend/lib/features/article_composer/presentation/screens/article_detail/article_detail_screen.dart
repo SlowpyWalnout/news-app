@@ -10,6 +10,7 @@ import '../../../../../shared/utils/reading_time.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_toast.dart';
 import '../../../../../shared/widgets/confirm_delete_sheet.dart';
+import '../../../../../shared/widgets/inline_banner.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../../shared/widgets/markdown_text.dart';
 import '../../../../../shared/widgets/scrim_overlay.dart';
@@ -19,6 +20,12 @@ import '../../../../daily_news/domain/entities/article.dart';
 import '../../../../daily_news/presentation/bloc/article/local/read_later_bloc.dart';
 import '../../../../daily_news/presentation/bloc/article/local/read_later_event.dart';
 import '../../../../daily_news/presentation/bloc/article/local/read_later_state.dart';
+import '../../../../moderation/domain/entities/moderation_state.dart' as moderation;
+import '../../../../moderation/domain/params/decide_params.dart';
+import '../../../../moderation/domain/params/report_article_params.dart';
+import '../../../../moderation/presentation/bloc/moderation_cubit.dart';
+import '../../../../moderation/presentation/staff_gate.dart';
+import '../../../../moderation/presentation/widgets/report_sheet.dart';
 import '../../../domain/entities/authored_article_entity.dart';
 import '../../bloc/article_actions/article_actions_cubit.dart';
 import '../../widgets/category_label.dart';
@@ -38,17 +45,40 @@ class ArticleDetailScreen extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => sl<ReadLaterBloc>()..add(const ReadLaterRequested())),
         BlocProvider(create: (_) => sl<ArticleActionsCubit>()),
+        BlocProvider(create: (_) => sl<ModerationCubit>()),
       ],
       child: _ArticleDetailView(article: article, forcePermissionDenied: forcePermissionDenied),
     );
   }
 }
 
-class _ArticleDetailView extends StatelessWidget {
+class _ArticleDetailView extends StatefulWidget {
   const _ArticleDetailView({required this.article, required this.forcePermissionDenied});
 
   final AuthoredArticleEntity article;
   final bool forcePermissionDenied;
+
+  @override
+  State<_ArticleDetailView> createState() => _ArticleDetailViewState();
+}
+
+class _ArticleDetailViewState extends State<_ArticleDetailView> {
+  AuthoredArticleEntity get article => widget.article;
+  bool get forcePermissionDenied => widget.forcePermissionDenied;
+
+  bool _alreadyReported = false;
+  bool _isStaff = false;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<ModerationCubit>().hasReported(article.id).then((value) {
+      if (mounted) setState(() => _alreadyReported = value);
+    });
+    sl<StaffGate>().isStaff.then((value) {
+      if (mounted) setState(() => _isStaff = value);
+    });
+  }
 
   String _initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
@@ -82,6 +112,32 @@ class _ArticleDetailView extends StatelessWidget {
       showAppToast(context, l10n.articleDeletedToast);
       Navigator.of(context).pop(true);
     }
+  }
+
+  Future<void> _handleReport(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final result = await showReportSheet(context);
+    if (result == null || !context.mounted) return;
+    final (reason, note) = result;
+    final ok = await context.read<ModerationCubit>().report(
+      ReportArticleParams(articleId: article.id, reason: reason, note: note?.isEmpty == true ? null : note),
+    );
+    if (!context.mounted) return;
+    showAppToast(context, ok ? l10n.reportSentToast : l10n.reportErrorToast);
+    if (ok) setState(() => _alreadyReported = true);
+  }
+
+  Future<void> _handleDecide(BuildContext context, ModerationDecision decision) async {
+    final l10n = AppLocalizations.of(context)!;
+    final ok = await context.read<ModerationCubit>().decide(DecideParams(articleId: article.id, decision: decision));
+    if (!context.mounted) return;
+    showAppToast(
+      context,
+      ok
+          ? (decision == ModerationDecision.approve ? l10n.staffDecisionApprovedToast : l10n.staffDecisionRemovedToast)
+          : l10n.reportErrorToast,
+    );
+    if (ok) Navigator.of(context).pop(true);
   }
 
   @override
@@ -215,6 +271,14 @@ class _ArticleDetailView extends StatelessWidget {
                             ),
                           ),
                           if (isMine) ...[
+                            if (article.moderationState == moderation.ModerationState.suspended) ...[
+                              const SizedBox(height: 20),
+                              InlineBanner(
+                                title: l10n.suspendedBannerTitle,
+                                body: l10n.suspendedBannerBody,
+                                variant: BannerVariant.warn,
+                              ),
+                            ],
                             const SizedBox(height: 20),
                             Row(
                               children: [
@@ -249,6 +313,33 @@ class _ArticleDetailView extends StatelessWidget {
                                   Text(l10n.notYoursBody(article.authorName), style: TextStyle(fontSize: dims.fSm, height: 1.5, color: palette.ink2)),
                                 ],
                               ),
+                            ),
+                            const SizedBox(height: 11),
+                            SecondaryButton(
+                              label: _alreadyReported ? l10n.reportAlreadyDone : l10n.reportAction,
+                              icon: const Icon(Icons.flag_outlined, size: 16),
+                              expand: true,
+                              onPressed: _alreadyReported ? null : () => _handleReport(context),
+                            ),
+                          ],
+                          if (_isStaff && article.moderationState == moderation.ModerationState.suspended) ...[
+                            const SizedBox(height: 11),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SecondaryButton(
+                                    label: l10n.staffApprove,
+                                    onPressed: () => _handleDecide(context, ModerationDecision.approve),
+                                  ),
+                                ),
+                                const SizedBox(width: 11),
+                                Expanded(
+                                  child: DestructiveButton(
+                                    label: l10n.staffRemove,
+                                    onPressed: () => _handleDecide(context, ModerationDecision.remove),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                           const SizedBox(height: 22),

@@ -45,6 +45,16 @@ import 'features/article_composer/presentation/bloc/article_editor/article_edito
 import 'features/article_composer/presentation/bloc/feed/feed_bloc.dart';
 import 'features/article_composer/presentation/bloc/my_articles/my_articles_bloc.dart';
 
+import 'features/moderation/data/data_sources/remote/moderation_firestore_data_source.dart';
+import 'features/moderation/data/repository/moderation_repository_impl.dart';
+import 'features/moderation/domain/repository/moderation_repository.dart';
+import 'features/moderation/domain/use_cases/decide_on_article_use_case.dart';
+import 'features/moderation/domain/use_cases/list_suspended_articles_use_case.dart';
+import 'features/moderation/domain/use_cases/report_article_use_case.dart';
+import 'features/moderation/presentation/bloc/moderation_cubit.dart';
+import 'features/moderation/presentation/bloc/review_queue_cubit.dart';
+import 'features/moderation/presentation/staff_gate.dart';
+
 import 'shared/settings/data/repository/settings_repository_impl.dart';
 import 'shared/settings/domain/repository/settings_repository.dart';
 import 'shared/settings/domain/use_cases/load_settings_use_case.dart';
@@ -106,6 +116,11 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<AuthoredArticleRepository>(
     AuthoredArticleRepositoryImpl(sl(), sl()),
   );
+  sl.registerSingleton<ModerationFirestoreDataSource>(
+    ModerationFirestoreDataSource(sl(), sl()),
+  );
+  sl.registerSingleton<ModerationRepository>(ModerationRepositoryImpl(sl()));
+  sl.registerLazySingleton<StaffGate>(() => StaffGate(sl(), sl()));
   sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl()));
 
   //UseCases
@@ -134,6 +149,10 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<UploadThumbnailUseCase>(UploadThumbnailUseCase(sl()));
   sl.registerSingleton<GetArticleByIdUseCase>(GetArticleByIdUseCase(sl()));
 
+  sl.registerSingleton<ReportArticleUseCase>(ReportArticleUseCase(sl()));
+  sl.registerSingleton<DecideOnArticleUseCase>(DecideOnArticleUseCase(sl()));
+  sl.registerSingleton<ListSuspendedArticlesUseCase>(ListSuspendedArticlesUseCase(sl()));
+
   sl.registerSingleton<LoadSettingsUseCase>(LoadSettingsUseCase(sl()));
   sl.registerSingleton<SaveSettingsUseCase>(SaveSettingsUseCase(sl()));
 
@@ -151,6 +170,9 @@ Future<void> initializeDependencies() async {
   sl.registerFactory<ArticleEditorBloc>(() => ArticleEditorBloc(sl(), sl(), sl(), sl()));
 
   sl.registerFactory<ArticleActionsCubit>(() => ArticleActionsCubit(sl()));
+
+  sl.registerFactory<ModerationCubit>(() => ModerationCubit(sl(), sl(), sl()));
+  sl.registerFactory<ReviewQueueCubit>(() => ReviewQueueCubit(sl()));
 
   sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit(sl(), sl()));
 }

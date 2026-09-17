@@ -463,4 +463,82 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get readLaterErrorBody =>
       'Algo falló al cargar Leer después. Tus artículos guardados siguen en el teléfono.';
+
+  @override
+  String get reportAction => 'Reportar';
+
+  @override
+  String get reportAlreadyDone => 'Ya reportaste';
+
+  @override
+  String get reportSheetTitle => '¿Por qué reportas este artículo?';
+
+  @override
+  String get reportSheetBody =>
+      'Tu reporte es anónimo para el autor. Revisamos los artículos con varios reportes.';
+
+  @override
+  String get reportReasonSexual => 'Contenido sexual';
+
+  @override
+  String get reportReasonViolence => 'Violencia';
+
+  @override
+  String get reportReasonHate => 'Discurso de odio';
+
+  @override
+  String get reportReasonSpam => 'Spam';
+
+  @override
+  String get reportReasonMisinformation => 'Desinformación';
+
+  @override
+  String get reportReasonOther => 'Otro motivo';
+
+  @override
+  String get reportNoteLabel => 'Detalle (opcional)';
+
+  @override
+  String get reportSubmit => 'Enviar reporte';
+
+  @override
+  String get reportCancel => 'Cancelar';
+
+  @override
+  String get reportSentToast => 'Reporte enviado';
+
+  @override
+  String get reportErrorToast => 'No se pudo enviar el reporte';
+
+  @override
+  String get statusSuspended => 'Suspendido';
+
+  @override
+  String get suspendedBannerTitle => 'Este artículo fue suspendido';
+
+  @override
+  String get suspendedBannerBody =>
+      'Recibió varios reportes de la comunidad. Edítalo para corregir lo que haga falta y volver a publicarlo.';
+
+  @override
+  String get staffReviewRow => 'Revisión de reportes';
+
+  @override
+  String get staffReviewQueueTitle => 'Artículos suspendidos';
+
+  @override
+  String get staffReviewQueueEmpty =>
+      'No hay artículos suspendidos para revisar.';
+
+  @override
+  String get staffApprove => 'Aprobar';
+
+  @override
+  String get staffRemove => 'Retirar';
+
+  @override
+  String get staffDecisionApprovedToast => 'Artículo republicado';
+
+  @override
+  String get staffDecisionRemovedToast => 'Artículo retirado';
 }
