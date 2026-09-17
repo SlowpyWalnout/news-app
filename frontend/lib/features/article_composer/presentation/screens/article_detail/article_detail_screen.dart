@@ -11,6 +11,7 @@ import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_toast.dart';
 import '../../../../../shared/widgets/confirm_delete_sheet.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
+import '../../../../../shared/widgets/markdown_text.dart';
 import '../../../../../shared/widgets/scrim_overlay.dart';
 import '../../../../../shared/widgets/striped_image_placeholder.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
@@ -251,12 +252,7 @@ class _ArticleDetailView extends StatelessWidget {
                             ),
                           ],
                           const SizedBox(height: 22),
-                          for (final paragraph in article.body.split(RegExp(r'\n{2,}')))
-                            if (paragraph.trim().isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 18),
-                                child: Text(paragraph.trim(), style: TextStyle(fontSize: dims.fMd, height: 1.68)),
-                              ),
+                          MarkdownText(article.body),
                         ],
                       ),
                     ),

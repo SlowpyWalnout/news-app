@@ -269,6 +269,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bodyEmptyError => 'The story body is missing.';
 
   @override
+  String get writeTab => 'Write';
+
+  @override
+  String get previewTab => 'Preview';
+
+  @override
+  String get previewEmpty => 'Nothing to preview yet.';
+
+  @override
+  String get markdownBold => 'Bold';
+
+  @override
+  String get markdownItalic => 'Italic';
+
+  @override
+  String get markdownHeading2 => 'Heading';
+
+  @override
+  String get markdownHeading3 => 'Subheading';
+
+  @override
+  String get markdownQuote => 'Quote';
+
+  @override
+  String get markdownBullet => 'Bullet list';
+
+  @override
+  String get markdownPlaceholder => 'text';
+
+  @override
   String get saveDraft => 'Save';
 
   @override

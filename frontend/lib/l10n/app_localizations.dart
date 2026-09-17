@@ -578,6 +578,66 @@ abstract class AppLocalizations {
   /// **'Falta el cuerpo de la nota.'**
   String get bodyEmptyError;
 
+  /// No description provided for @writeTab.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribir'**
+  String get writeTab;
+
+  /// No description provided for @previewTab.
+  ///
+  /// In es, this message translates to:
+  /// **'Vista previa'**
+  String get previewTab;
+
+  /// No description provided for @previewEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Nada que previsualizar todavía.'**
+  String get previewEmpty;
+
+  /// No description provided for @markdownBold.
+  ///
+  /// In es, this message translates to:
+  /// **'Negrita'**
+  String get markdownBold;
+
+  /// No description provided for @markdownItalic.
+  ///
+  /// In es, this message translates to:
+  /// **'Cursiva'**
+  String get markdownItalic;
+
+  /// No description provided for @markdownHeading2.
+  ///
+  /// In es, this message translates to:
+  /// **'Subtítulo'**
+  String get markdownHeading2;
+
+  /// No description provided for @markdownHeading3.
+  ///
+  /// In es, this message translates to:
+  /// **'Subtítulo pequeño'**
+  String get markdownHeading3;
+
+  /// No description provided for @markdownQuote.
+  ///
+  /// In es, this message translates to:
+  /// **'Cita'**
+  String get markdownQuote;
+
+  /// No description provided for @markdownBullet.
+  ///
+  /// In es, this message translates to:
+  /// **'Lista'**
+  String get markdownBullet;
+
+  /// No description provided for @markdownPlaceholder.
+  ///
+  /// In es, this message translates to:
+  /// **'texto'**
+  String get markdownPlaceholder;
+
   /// No description provided for @saveDraft.
   ///
   /// In es, this message translates to:

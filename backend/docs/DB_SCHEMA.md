@@ -27,7 +27,7 @@ artículo.
 | `authorName` | `string` (1–60) | Denormalizado desde `users/{uid}.displayName`. |
 | `authorPhotoURL` | `string \| null` | Denormalizado desde `users/{uid}.photoURL`. |
 | `title` | `string` (1–120) | |
-| `body` | `string` (1–20000) | Texto plano por ahora; editor rico (Fase 6b) decidirá si pasa a Markdown/Delta. |
+| `body` | `string` (1–20000) | Markdown (Fase 6b): subconjunto cerrado — negrita/cursiva (`**`/`*`), `##`/`###`, cita (`> `), lista (`- `). Sin campo de formato: texto plano ya es Markdown válido, así que artículos previos a Fase 6b se renderizan igual. El límite de 20000 cuenta los caracteres de sintaxis (`size()` corre sobre el string crudo). |
 | `status` | `'draft' \| 'published'` | Controla visibilidad. |
 | `category` | enum, ver abajo | Para filtros del feed. |
 | `thumbnailURL` | `string \| null` | URL de descarga pública de Storage, para pintar. |

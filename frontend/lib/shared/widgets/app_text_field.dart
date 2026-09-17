@@ -8,7 +8,7 @@ import '../../config/theme/app_palette.dart';
 class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
-    required this.label,
+    this.label,
     required this.controller,
     this.placeholder,
     this.errorText,
@@ -18,9 +18,10 @@ class AppTextField extends StatelessWidget {
     this.keyboardType,
     this.onChanged,
     this.fontFamily = 'Figtree',
+    this.focusNode,
   });
 
-  final String label;
+  final String? label;
   final TextEditingController controller;
   final String? placeholder;
   final String? errorText;
@@ -30,6 +31,7 @@ class AppTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final ValueChanged<String>? onChanged;
   final String fontFamily;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -40,19 +42,22 @@ class AppTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: dims.fSm,
-            color: Theme.of(context).colorScheme.onSurface,
+        if (label != null && label!.isNotEmpty) ...[
+          Text(
+            label!,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: dims.fSm,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        ],
         ConstrainedBox(
           constraints: BoxConstraints(minHeight: dims.tap),
           child: TextField(
             controller: controller,
+            focusNode: focusNode,
             obscureText: obscureText,
             maxLines: obscureText ? 1 : maxLines,
             keyboardType: keyboardType,

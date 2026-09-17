@@ -270,6 +270,36 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bodyEmptyError => 'Falta el cuerpo de la nota.';
 
   @override
+  String get writeTab => 'Escribir';
+
+  @override
+  String get previewTab => 'Vista previa';
+
+  @override
+  String get previewEmpty => 'Nada que previsualizar todavía.';
+
+  @override
+  String get markdownBold => 'Negrita';
+
+  @override
+  String get markdownItalic => 'Cursiva';
+
+  @override
+  String get markdownHeading2 => 'Subtítulo';
+
+  @override
+  String get markdownHeading3 => 'Subtítulo pequeño';
+
+  @override
+  String get markdownQuote => 'Cita';
+
+  @override
+  String get markdownBullet => 'Lista';
+
+  @override
+  String get markdownPlaceholder => 'texto';
+
+  @override
   String get saveDraft => 'Guardar';
 
   @override

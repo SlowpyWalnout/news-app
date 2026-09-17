@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_status.dart';
 import 'package:news_app/features/daily_news/domain/entities/article.dart';
+import 'package:news_app/shared/utils/markdown.dart';
 
 class AuthoredArticleEntity extends Equatable {
   final String id;
@@ -39,11 +40,12 @@ class AuthoredArticleEntity extends Equatable {
   // Adapts to the existing NewsAPI entity so favorites, the article tile and
   // the detail screen can be reused without touching them or Floor's schema.
   ArticleEntity toFeedArticle() {
+    final plainBody = stripMarkdown(body);
     return ArticleEntity(
       sourceId: id,
       author: authorName,
       title: title,
-      description: body.length > 200 ? body.substring(0, 200) : body,
+      description: plainBody.length > 200 ? plainBody.substring(0, 200) : plainBody,
       url: null,
       urlToImage: thumbnailURL,
       publishedAt: publishedAt?.toIso8601String(),

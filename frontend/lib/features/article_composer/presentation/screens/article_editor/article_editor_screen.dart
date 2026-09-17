@@ -15,7 +15,9 @@ import '../../../../../shared/widgets/app_toast.dart';
 import '../../../../../shared/widgets/category_chip.dart';
 import '../../../../../shared/widgets/dashed_border_box.dart';
 import '../../../../../shared/widgets/inline_banner.dart';
+import '../../../../../shared/widgets/markdown_text.dart';
 import '../../../../../shared/widgets/scrim_overlay.dart';
+import '../../../../../shared/widgets/segmented_tabs.dart';
 import '../../../../../shared/widgets/striped_image_placeholder.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../../domain/entities/article_category.dart';
@@ -25,6 +27,8 @@ import '../../bloc/article_editor/article_editor_event.dart';
 import '../../bloc/article_editor/article_editor_state.dart';
 import '../../../../../shared/app_shell_controller.dart';
 import '../../widgets/category_label.dart';
+import 'markdown_editing_controller.dart';
+import 'markdown_toolbar.dart';
 
 class ArticleEditorScreen extends StatelessWidget {
   const ArticleEditorScreen({super.key, this.article});
@@ -57,14 +61,17 @@ enum _EditorAction { none, draft, publish }
 
 class _ArticleEditorViewState extends State<_ArticleEditorView> {
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _bodyController = TextEditingController();
+  final MarkdownEditingController _bodyController = MarkdownEditingController();
+  final FocusNode _bodyFocusNode = FocusNode();
   String? _syncedArticleId;
   _EditorAction _lastAction = _EditorAction.none;
+  String _bodyTab = 'write';
 
   @override
   void dispose() {
     _titleController.dispose();
     _bodyController.dispose();
+    _bodyFocusNode.dispose();
     super.dispose();
   }
 
@@ -235,18 +242,57 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                             style: TextStyle(
                                 fontSize: dims.fXs, color: palette.ink3)),
                         const SizedBox(height: 22),
-                        AppTextField(
-                          label: l10n.bodyLabel,
-                          controller: _bodyController,
-                          placeholder: l10n.bodyPlaceholder,
-                          maxLines: 9,
-                          errorText: state.bodyError,
-                          counterText:
-                              l10n.bodyCounter(state.body.length.toString()),
-                          onChanged: (v) => context
-                              .read<ArticleEditorBloc>()
-                              .add(EditorBodyChanged(v)),
+                        Text(l10n.bodyLabel,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: dims.fSm)),
+                        const SizedBox(height: 8),
+                        SegmentedTabs(
+                          items: [
+                            SegmentedTabItem(label: l10n.writeTab, value: 'write'),
+                            SegmentedTabItem(label: l10n.previewTab, value: 'preview'),
+                          ],
+                          selected: _bodyTab,
+                          onSelected: (v) => setState(() => _bodyTab = v),
                         ),
+                        const SizedBox(height: 10),
+                        if (_bodyTab == 'write') ...[
+                          MarkdownToolbar(
+                            controller: _bodyController,
+                            focusNode: _bodyFocusNode,
+                            onChanged: (v) => context
+                                .read<ArticleEditorBloc>()
+                                .add(EditorBodyChanged(v)),
+                          ),
+                          const SizedBox(height: 10),
+                          AppTextField(
+                            controller: _bodyController,
+                            focusNode: _bodyFocusNode,
+                            placeholder: l10n.bodyPlaceholder,
+                            maxLines: 9,
+                            errorText: state.bodyError,
+                            counterText:
+                                l10n.bodyCounter(state.body.length.toString()),
+                            onChanged: (v) => context
+                                .read<ArticleEditorBloc>()
+                                .add(EditorBodyChanged(v)),
+                          ),
+                        ] else
+                          Container(
+                            width: double.infinity,
+                            constraints: BoxConstraints(minHeight: dims.tap * 2),
+                            padding: const EdgeInsets.all(17),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AppRadii.r15),
+                              border: Border.all(color: palette.edge, width: dims.borderWidth),
+                            ),
+                            child: state.body.trim().isEmpty
+                                ? Text(
+                                    l10n.previewEmpty,
+                                    style: TextStyle(fontSize: dims.fSm, color: palette.ink3),
+                                  )
+                                : MarkdownText(state.body),
+                          ),
                       ],
                     ),
                   ),
