@@ -18,29 +18,39 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
 
   Future<void> onFeedRequested(FeedEvent event, Emitter<FeedState> emit) async {
     emit(state.copyWith(status: FeedStatus.loading));
-    final result = await _getFeedUseCase(GetFeedParams(category: state.category));
+    if (event is FeedRefreshed) {
+      // Deliberate delay so the skeleton loader is visible on pull-to-refresh.
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    final result =
+        await _getFeedUseCase(GetFeedParams(category: state.category));
     if (result is DataSuccess && result.data != null) {
-      emit(state.copyWith(status: FeedStatus.success, articles: result.data!.items));
+      emit(state.copyWith(
+          status: FeedStatus.success, articles: result.data!.items));
     } else if (result is DataFailed) {
       emit(state.copyWith(status: FeedStatus.failure, error: result.error));
     }
   }
 
-  Future<void> onCategorySelected(FeedCategorySelected event, Emitter<FeedState> emit) async {
+  Future<void> onCategorySelected(
+      FeedCategorySelected event, Emitter<FeedState> emit) async {
     emit(state.copyWith(
       category: event.category,
       clearCategory: event.category == null,
       status: FeedStatus.loading,
     ));
-    final result = await _getFeedUseCase(GetFeedParams(category: event.category));
+    final result =
+        await _getFeedUseCase(GetFeedParams(category: event.category));
     if (result is DataSuccess && result.data != null) {
-      emit(state.copyWith(status: FeedStatus.success, articles: result.data!.items));
+      emit(state.copyWith(
+          status: FeedStatus.success, articles: result.data!.items));
     } else if (result is DataFailed) {
       emit(state.copyWith(status: FeedStatus.failure, error: result.error));
     }
   }
 
-  Future<void> onQueryChanged(FeedQueryChanged event, Emitter<FeedState> emit) async {
+  Future<void> onQueryChanged(
+      FeedQueryChanged event, Emitter<FeedState> emit) async {
     emit(state.copyWith(query: event.query));
   }
 }

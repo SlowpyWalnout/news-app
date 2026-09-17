@@ -48,6 +48,7 @@
   "categorySports": "Sports",
   "categoryTechnology": "Technology",
   "categoryPolitics": "Politics",
+  "categoryOther": "Other",
   "feedLoadingCaption": "Fetching the latest news…",
   "feedNetworkErrorTitle": "The server isn't responding",
   "feedNetworkErrorBody": "Error 503 requesting the feed. Your drafts are still saved on this phone.",
@@ -94,6 +95,7 @@
   "saveDraft": "Save",
   "publish": "Publish",
   "publishing": "Publishing…",
+  "emptyDraftToast": "Write a title or body before saving",
   "draftSavedToast": "Draft saved on this phone",
   "publishedToast": "Published! It's live on the feed",
 

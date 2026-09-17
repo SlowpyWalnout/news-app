@@ -49,6 +49,7 @@
   "categorySports": "Deportes",
   "categoryTechnology": "Tecnología",
   "categoryPolitics": "Política",
+  "categoryOther": "Otro",
   "feedLoadingCaption": "Buscando las últimas noticias…",
   "feedNetworkErrorTitle": "El servidor no responde",
   "feedNetworkErrorBody": "Error 503 al pedir el feed. Tus borradores siguen guardados en el teléfono.",
@@ -95,6 +96,7 @@
   "saveDraft": "Guardar",
   "publish": "Publicar",
   "publishing": "Publicando…",
+  "emptyDraftToast": "Escribe un título o el cuerpo antes de guardar",
   "draftSavedToast": "Borrador guardado en este teléfono",
   "publishedToast": "¡Publicado! Ya está en el feed",
 

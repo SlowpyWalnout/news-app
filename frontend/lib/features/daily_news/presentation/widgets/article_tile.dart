@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../config/theme/app_dimensions.dart';
 import '../../../../config/theme/app_palette.dart';
@@ -143,13 +144,27 @@ class ArticleWidget extends StatelessWidget {
                 children: [
                   Icon(Icons.timeline_outlined, size: 16, color: palette.ink3),
                   const SizedBox(width: 4),
-                  Text(article.publishedAt!, style: TextStyle(fontSize: dims.fXs, color: palette.ink3)),
+                  Flexible(
+                    child: Text(
+                      _formatPublishedAt(context, article.publishedAt!),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: dims.fXs, color: palette.ink3),
+                    ),
+                  ),
                 ],
               ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatPublishedAt(BuildContext context, String rawDate) {
+    final parsed = DateTime.tryParse(rawDate);
+    if (parsed == null) return rawDate;
+    final locale = Localizations.localeOf(context).toString();
+    return DateFormat.yMMMd(locale).add_Hm().format(parsed.toLocal());
   }
 
   Widget _buildRemovableArea() {

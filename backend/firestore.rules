@@ -35,7 +35,7 @@ service cloud.firestore {
 
     match /articles/{articleId} {
       function allowedCategories() {
-        return ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'politics'];
+        return ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'politics', 'other'];
       }
 
       function isValidArticle(data) {

@@ -356,6 +356,12 @@ abstract class AppLocalizations {
   /// **'Política'**
   String get categoryPolitics;
 
+  /// No description provided for @categoryOther.
+  ///
+  /// In es, this message translates to:
+  /// **'Otro'**
+  String get categoryOther;
+
   /// No description provided for @feedLoadingCaption.
   ///
   /// In es, this message translates to:
@@ -589,6 +595,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Publicando…'**
   String get publishing;
+
+  /// No description provided for @emptyDraftToast.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe un título o el cuerpo antes de guardar'**
+  String get emptyDraftToast;
 
   /// No description provided for @draftSavedToast.
   ///

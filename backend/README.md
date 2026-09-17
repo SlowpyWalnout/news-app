@@ -25,7 +25,7 @@ Detalle completo y justificación de cada decisión en
 | `title` | `string` (1–120) |
 | `body` | `string` (1–20000) |
 | `status` | `'draft' \| 'published'` |
-| `category` | `general \| business \| entertainment \| health \| science \| sports \| technology \| politics` |
+| `category` | `general \| business \| entertainment \| health \| science \| sports \| technology \| politics \| other` |
 | `thumbnailURL` | `string \| null` |
 | `thumbnailPath` | `string \| null` |
 | `searchKeywords` | `array<string>` (≤30) |

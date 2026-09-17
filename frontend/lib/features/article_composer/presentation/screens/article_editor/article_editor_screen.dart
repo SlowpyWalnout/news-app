@@ -56,9 +56,9 @@ class _ArticleEditorView extends StatefulWidget {
 enum _EditorAction { none, draft, publish }
 
 class _ArticleEditorViewState extends State<_ArticleEditorView> {
-  late final TextEditingController _titleController;
-  late final TextEditingController _bodyController;
-  bool _initialized = false;
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _bodyController = TextEditingController();
+  String? _syncedArticleId;
   _EditorAction _lastAction = _EditorAction.none;
 
   @override
@@ -69,11 +69,14 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
   }
 
   Future<void> _pickCover(BuildContext context) async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 90);
+    final picked = await ImagePicker()
+        .pickImage(source: ImageSource.gallery, imageQuality: 90);
     if (picked == null || !context.mounted) return;
     final size = await File(picked.path).length();
     if (!context.mounted) return;
-    context.read<ArticleEditorBloc>().add(EditorCoverPicked(picked.path, size, picked.name));
+    context
+        .read<ArticleEditorBloc>()
+        .add(EditorCoverPicked(picked.path, size, picked.name));
   }
 
   @override
@@ -87,7 +90,8 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
       listener: (context, state) {
         if (state.submitStatus == EditorSubmitStatus.success) {
           final wasDraft = _lastAction == _EditorAction.draft;
-          showAppToast(context, wasDraft ? l10n.draftSavedToast : l10n.publishedToast);
+          showAppToast(
+              context, wasDraft ? l10n.draftSavedToast : l10n.publishedToast);
           sl<AppShellController>().notifyMyArticlesChanged(
             tabIndex: 1,
             subTab: wasDraft ? 'drafts' : 'published',
@@ -96,10 +100,10 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
         }
       },
       builder: (context, state) {
-        if (!_initialized) {
-          _titleController = TextEditingController(text: state.title);
-          _bodyController = TextEditingController(text: state.body);
-          _initialized = true;
+        if (_syncedArticleId != state.articleId) {
+          _titleController.text = state.title;
+          _bodyController.text = state.body;
+          _syncedArticleId = state.articleId;
         }
 
         return Scaffold(
@@ -107,19 +111,29 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
             child: Column(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.line, width: 1.5))),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(color: palette.line, width: 1.5))),
                   child: Row(
                     children: [
-                      BackPillButton(label: l10n.exit, onPressed: () => Navigator.of(context).maybePop()),
+                      BackPillButton(
+                          label: l10n.exit,
+                          onPressed: () => Navigator.of(context).maybePop()),
                       Expanded(
                         child: Text(
-                          state.isEditing ? l10n.editArticleTitle : l10n.newArticleTitle,
+                          state.isEditing
+                              ? l10n.editArticleTitle
+                              : l10n.newArticleTitle,
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           softWrap: false,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fMd),
+                          style: TextStyle(
+                              fontFamily: 'Space Grotesk',
+                              fontWeight: FontWeight.w600,
+                              fontSize: dims.fMd),
                         ),
                       ),
                       const SizedBox(width: 44),
@@ -140,10 +154,15 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                           fontFamily: 'Space Grotesk',
                           errorText: state.titleError,
                           counterText: l10n.titleCounter(state.title.length),
-                          onChanged: (v) => context.read<ArticleEditorBloc>().add(EditorTitleChanged(v)),
+                          onChanged: (v) => context
+                              .read<ArticleEditorBloc>()
+                              .add(EditorTitleChanged(v)),
                         ),
                         const SizedBox(height: 22),
-                        Text(l10n.categoryLabel, style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fSm)),
+                        Text(l10n.categoryLabel,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: dims.fSm)),
                         const SizedBox(height: 10),
                         Wrap(
                           spacing: 8,
@@ -154,12 +173,17 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                                 label: categoryLabel(l10n, category),
                                 icon: categoryIcon(category),
                                 active: state.category == category,
-                                onTap: () => context.read<ArticleEditorBloc>().add(EditorCategorySelected(category)),
+                                onTap: () => context
+                                    .read<ArticleEditorBloc>()
+                                    .add(EditorCategorySelected(category)),
                               ),
                           ],
                         ),
                         const SizedBox(height: 22),
-                        Text(l10n.coverLabel, style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fSm)),
+                        Text(l10n.coverLabel,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: dims.fSm)),
                         const SizedBox(height: 10),
                         if (state.hasCover)
                           _CoverPreview(state: state)
@@ -174,18 +198,24 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  borderRadius: BorderRadius.circular(AppRadii.r15),
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadii.r15),
                                   onTap: () => _pickCover(context),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.add_photo_alternate_outlined, color: Theme.of(context).colorScheme.onSurface),
+                                      Icon(Icons.add_photo_alternate_outlined,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface),
                                       const SizedBox(width: 10),
                                       Text(
                                         l10n.chooseCoverImage,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w700,
-                                          color: Theme.of(context).colorScheme.onSurface,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
                                         ),
                                       ),
                                     ],
@@ -196,10 +226,14 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                           ),
                         if (state.coverError != null) ...[
                           const SizedBox(height: 10),
-                          InlineBanner(title: '', body: l10n.coverTooLarge(state.coverError!)),
+                          InlineBanner(
+                              title: '',
+                              body: l10n.coverTooLarge(state.coverError!)),
                         ],
                         const SizedBox(height: 10),
-                        Text(l10n.coverHint, style: TextStyle(fontSize: dims.fXs, color: palette.ink3)),
+                        Text(l10n.coverHint,
+                            style: TextStyle(
+                                fontSize: dims.fXs, color: palette.ink3)),
                         const SizedBox(height: 22),
                         AppTextField(
                           label: l10n.bodyLabel,
@@ -207,8 +241,11 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                           placeholder: l10n.bodyPlaceholder,
                           maxLines: 9,
                           errorText: state.bodyError,
-                          counterText: l10n.bodyCounter(state.body.length.toString()),
-                          onChanged: (v) => context.read<ArticleEditorBloc>().add(EditorBodyChanged(v)),
+                          counterText:
+                              l10n.bodyCounter(state.body.length.toString()),
+                          onChanged: (v) => context
+                              .read<ArticleEditorBloc>()
+                              .add(EditorBodyChanged(v)),
                         ),
                       ],
                     ),
@@ -216,7 +253,9 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                 ),
                 Container(
                   padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: palette.line, width: 1.5))),
+                  decoration: BoxDecoration(
+                      border: Border(
+                          top: BorderSide(color: palette.line, width: 1.5))),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -224,7 +263,9 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
-                            value: state.uploadProgress! > 0 ? state.uploadProgress : null,
+                            value: state.uploadProgress! > 0
+                                ? state.uploadProgress
+                                : null,
                             minHeight: 4,
                             backgroundColor: palette.line,
                           ),
@@ -237,22 +278,32 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                             child: SecondaryButton(
                               label: l10n.saveDraft,
                               onPressed: () {
+                                if (_titleController.text.trim().isEmpty &&
+                                    _bodyController.text.trim().isEmpty) {
+                                  showAppToast(context, l10n.emptyDraftToast);
+                                }
                                 _lastAction = _EditorAction.draft;
-                                context.read<ArticleEditorBloc>().add(const EditorDraftSaved());
+                                context
+                                    .read<ArticleEditorBloc>()
+                                    .add(const EditorDraftSaved());
                               },
                             ),
                           ),
                           const SizedBox(width: 11),
                           Expanded(
                             child: PrimaryButton(
-                              label: state.submitStatus == EditorSubmitStatus.publishing
+                              label: state.submitStatus ==
+                                      EditorSubmitStatus.publishing
                                   ? l10n.publishing
                                   : l10n.publish,
-                              loading: state.submitStatus == EditorSubmitStatus.publishing,
+                              loading: state.submitStatus ==
+                                  EditorSubmitStatus.publishing,
                               enabled: state.isValid,
                               onPressed: () {
                                 _lastAction = _EditorAction.publish;
-                                context.read<ArticleEditorBloc>().add(const EditorPublishRequested());
+                                context
+                                    .read<ArticleEditorBloc>()
+                                    .add(const EditorPublishRequested());
                               },
                             ),
                           ),
@@ -289,7 +340,9 @@ class _CoverPreview extends StatelessWidget {
 
     return Container(
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(border: Border.all(color: palette.line), borderRadius: BorderRadius.circular(18)),
+      decoration: BoxDecoration(
+          border: Border.all(color: palette.line),
+          borderRadius: BorderRadius.circular(18)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -312,10 +365,12 @@ class _CoverPreview extends StatelessWidget {
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 11, vertical: 7),
                           color: palette.glass,
                           child: Text(
-                            _coverBadgeLabel(state.coverFileName!, state.coverFileSizeBytes),
+                            _coverBadgeLabel(
+                                state.coverFileName!, state.coverFileSizeBytes),
                             style: const TextStyle(
                               fontFamily: 'monospace',
                               fontSize: 10.5,
@@ -330,14 +385,21 @@ class _CoverPreview extends StatelessWidget {
             ),
           ),
           InkWell(
-            onTap: () => context.read<ArticleEditorBloc>().add(const EditorCoverRemoved()),
+            onTap: () => context
+                .read<ArticleEditorBloc>()
+                .add(const EditorCoverRemoved()),
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 13),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: palette.line, width: 1.5))),
+              decoration: BoxDecoration(
+                  border:
+                      Border(top: BorderSide(color: palette.line, width: 1.5))),
               alignment: Alignment.center,
               child: Text(
                 l10n.removeCoverImage,
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fSm, color: Theme.of(context).colorScheme.error),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: dims.fSm,
+                    color: Theme.of(context).colorScheme.error),
               ),
             ),
           ),

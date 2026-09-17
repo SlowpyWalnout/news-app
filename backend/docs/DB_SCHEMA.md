@@ -38,8 +38,10 @@ artículo.
 | `publishedAt` | `timestamp \| null` | `null` mientras `status == 'draft'`. Se fija al publicar y no vuelve a tocarse. |
 
 **Categorías permitidas:** `general`, `business`, `entertainment`, `health`,
-`science`, `sports`, `technology`, `politics` (mismo set que usa el feed de
-NewsAPI existente en la app, para no introducir un segundo vocabulario).
+`science`, `sports`, `technology`, `politics`, `other`. Las primeras ocho
+coinciden con el feed de NewsAPI existente en la app (para no introducir un
+segundo vocabulario); `other` es una categoría propia de la app, sin
+equivalente en NewsAPI.
 
 **Por qué `articles` es colección raíz y no subcolección de `users`:** el feed
 global (query dominante) necesitaría `collectionGroup` sobre una

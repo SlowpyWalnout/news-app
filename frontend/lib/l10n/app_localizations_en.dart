@@ -144,6 +144,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryPolitics => 'Politics';
 
   @override
+  String get categoryOther => 'Other';
+
+  @override
   String get feedLoadingCaption => 'Fetching the latest news…';
 
   @override
@@ -273,6 +276,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get publishing => 'Publishing…';
+
+  @override
+  String get emptyDraftToast => 'Write a title or body before saving';
 
   @override
   String get draftSavedToast => 'Draft saved on this phone';

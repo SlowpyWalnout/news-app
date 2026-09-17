@@ -54,13 +54,19 @@ class CompactArticleCard extends StatelessWidget {
                     const Positioned.fill(child: ScrimOverlay(opacityTop: 0.82)),
                     Positioned(
                       left: 8,
+                      right: 8,
                       bottom: 8,
-                      child: GlassPill(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        borderRadius: 7,
-                        child: Text(
-                          categoryLabel(l10n, article.category).toUpperCase(),
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 9.5, letterSpacing: 0.7, color: Colors.white),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: GlassPill(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          borderRadius: 7,
+                          child: Text(
+                            categoryLabel(l10n, article.category).toUpperCase(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 9.5, letterSpacing: 0.7, color: Colors.white),
+                          ),
                         ),
                       ),
                     ),

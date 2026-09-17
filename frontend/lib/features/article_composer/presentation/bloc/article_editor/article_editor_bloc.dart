@@ -37,7 +37,8 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
   final EditArticleUseCase _editArticleUseCase;
   final UploadThumbnailUseCase _uploadThumbnailUseCase;
 
-  Future<void> onStarted(EditorStarted event, Emitter<ArticleEditorState> emit) async {
+  Future<void> onStarted(
+      EditorStarted event, Emitter<ArticleEditorState> emit) async {
     final article = event.article;
     emit(ArticleEditorState(
       articleId: article?.id ?? '',
@@ -50,19 +51,23 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
     ));
   }
 
-  Future<void> onTitleChanged(EditorTitleChanged event, Emitter<ArticleEditorState> emit) async {
+  Future<void> onTitleChanged(
+      EditorTitleChanged event, Emitter<ArticleEditorState> emit) async {
     emit(state.copyWith(title: event.title));
   }
 
-  Future<void> onBodyChanged(EditorBodyChanged event, Emitter<ArticleEditorState> emit) async {
+  Future<void> onBodyChanged(
+      EditorBodyChanged event, Emitter<ArticleEditorState> emit) async {
     emit(state.copyWith(body: event.body));
   }
 
-  Future<void> onCategorySelected(EditorCategorySelected event, Emitter<ArticleEditorState> emit) async {
+  Future<void> onCategorySelected(
+      EditorCategorySelected event, Emitter<ArticleEditorState> emit) async {
     emit(state.copyWith(category: event.category));
   }
 
-  Future<void> onCoverPicked(EditorCoverPicked event, Emitter<ArticleEditorState> emit) async {
+  Future<void> onCoverPicked(
+      EditorCoverPicked event, Emitter<ArticleEditorState> emit) async {
     if (event.fileSizeBytes > kMaxCoverSizeBytes) {
       final sizeMb = (event.fileSizeBytes / (1024 * 1024)).toStringAsFixed(1);
       emit(state.copyWith(coverError: sizeMb, clearCover: true));
@@ -76,21 +81,33 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
     ));
   }
 
-  Future<void> onCoverRemoved(EditorCoverRemoved event, Emitter<ArticleEditorState> emit) async {
-    emit(state.copyWith(clearCover: true, thumbnailURL: '', clearCoverError: true));
+  Future<void> onCoverRemoved(
+      EditorCoverRemoved event, Emitter<ArticleEditorState> emit) async {
+    emit(state.copyWith(
+        clearCover: true, thumbnailURL: '', clearCoverError: true));
   }
 
-  Future<void> onDraftSaved(EditorDraftSaved event, Emitter<ArticleEditorState> emit) async {
-    emit(state.copyWith(submitStatus: EditorSubmitStatus.savingDraft, clearError: true));
-    final result = await _saveDraftUseCase(_buildEntity(status: ArticleStatus.draft));
+  Future<void> onDraftSaved(
+      EditorDraftSaved event, Emitter<ArticleEditorState> emit) async {
+    if (state.title.trim().isEmpty && state.body.trim().isEmpty) {
+      emit(state.copyWith(touched: true));
+      return;
+    }
+    emit(state.copyWith(
+        submitStatus: EditorSubmitStatus.savingDraft, clearError: true));
+    final result =
+        await _saveDraftUseCase(_buildEntity(status: ArticleStatus.draft));
     await _finishSubmit(result, emit);
   }
 
-  Future<void> onPublishRequested(EditorPublishRequested event, Emitter<ArticleEditorState> emit) async {
+  Future<void> onPublishRequested(
+      EditorPublishRequested event, Emitter<ArticleEditorState> emit) async {
     emit(state.copyWith(touched: true));
     if (!state.isValid) return;
-    emit(state.copyWith(submitStatus: EditorSubmitStatus.publishing, clearError: true));
-    final result = await _publishArticleUseCase(_buildEntity(status: ArticleStatus.published));
+    emit(state.copyWith(
+        submitStatus: EditorSubmitStatus.publishing, clearError: true));
+    final result = await _publishArticleUseCase(
+        _buildEntity(status: ArticleStatus.published));
     await _finishSubmit(result, emit);
   }
 
@@ -115,7 +132,8 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
     Emitter<ArticleEditorState> emit,
   ) async {
     if (result is DataFailed) {
-      emit(state.copyWith(submitStatus: EditorSubmitStatus.failure, error: result.error));
+      emit(state.copyWith(
+          submitStatus: EditorSubmitStatus.failure, error: result.error));
       return;
     }
     if (result is! DataSuccess || result.data == null) return;
@@ -126,7 +144,8 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
       emit(state.copyWith(uploadProgress: 0));
       final uploadResult = await _uploadThumbnailUseCase(
         UploadThumbnailParams(articleId: saved.id, filePath: coverPath),
-        onProgress: (progress) => emit(state.copyWith(uploadProgress: progress)),
+        onProgress: (progress) =>
+            emit(state.copyWith(uploadProgress: progress)),
       );
       if (uploadResult is DataSuccess && uploadResult.data != null) {
         final withThumbnail = saved.copyWith(

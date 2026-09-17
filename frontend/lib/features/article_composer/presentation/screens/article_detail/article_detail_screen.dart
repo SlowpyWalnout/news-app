@@ -191,15 +191,24 @@ class _ArticleDetailView extends StatelessWidget {
                               children: [
                                 InitialsAvatar(initials: _initials(article.authorName), size: 48),
                                 const SizedBox(width: 13),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(article.authorName, style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd)),
-                                    Text(
-                                      dateLabel.isEmpty ? readLabel : '$dateLabel · $readLabel',
-                                      style: TextStyle(fontSize: dims.fSm, color: palette.ink3),
-                                    ),
-                                  ],
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        article.authorName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd),
+                                      ),
+                                      Text(
+                                        dateLabel.isEmpty ? readLabel : '$dateLabel · $readLabel',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(fontSize: dims.fSm, color: palette.ink3),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

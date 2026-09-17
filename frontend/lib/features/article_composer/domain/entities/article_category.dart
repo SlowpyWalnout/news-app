@@ -6,7 +6,8 @@ enum ArticleCategory {
   science,
   sports,
   technology,
-  politics;
+  politics,
+  other;
 
   String get value => name;
 }

@@ -49,10 +49,16 @@ class FeaturedArticleCard extends StatelessWidget {
             Positioned(
               top: 14,
               left: 14,
-              child: GlassPill(
-                child: Text(
-                  categoryLabel(l10n, article.category).toUpperCase(),
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fXs, letterSpacing: 1.1, color: Colors.white),
+              right: 14,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: GlassPill(
+                  child: Text(
+                    categoryLabel(l10n, article.category).toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fXs, letterSpacing: 1.1, color: Colors.white),
+                  ),
                 ),
               ),
             ),

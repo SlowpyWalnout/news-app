@@ -104,6 +104,7 @@ class _ReadLaterViewState extends State<_ReadLaterView> {
                 );
               }
               return ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
                 itemCount: articles.length,
                 itemBuilder: (context, index) {
                   final article = articles[index];

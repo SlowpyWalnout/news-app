@@ -18,6 +18,15 @@ class MyArticlesRequested extends MyArticlesEvent {
   List<Object?> get props => [authorId];
 }
 
+class MyArticlesRefreshed extends MyArticlesEvent {
+  const MyArticlesRefreshed(this.authorId);
+
+  final String authorId;
+
+  @override
+  List<Object?> get props => [authorId];
+}
+
 class MyArticlesTabChanged extends MyArticlesEvent {
   const MyArticlesTabChanged(this.tab);
 

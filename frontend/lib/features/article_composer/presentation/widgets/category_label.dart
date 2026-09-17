@@ -22,6 +22,8 @@ String categoryLabel(AppLocalizations l10n, ArticleCategory category) {
       return l10n.categoryTechnology;
     case ArticleCategory.politics:
       return l10n.categoryPolitics;
+    case ArticleCategory.other:
+      return l10n.categoryOther;
   }
 }
 
@@ -44,5 +46,7 @@ IconData categoryIcon(ArticleCategory category) {
       return Icons.memory;
     case ArticleCategory.politics:
       return Icons.account_balance_outlined;
+    case ArticleCategory.other:
+      return Icons.more_horiz;
   }
 }

@@ -14,6 +14,7 @@ import '../../../../../shared/widgets/app_toast.dart';
 import '../../../../../shared/widgets/confirm_delete_sheet.dart';
 import '../../../../../shared/widgets/segmented_tabs.dart';
 import '../../../../../shared/widgets/skeleton_block.dart';
+import '../../../../../shared/widgets/staggered_fade_in.dart';
 import '../../../../../shared/widgets/state_cards.dart';
 import '../../../../../shared/widgets/status_pill.dart';
 import '../../../../../shared/widgets/striped_image_placeholder.dart';
@@ -102,165 +103,231 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
 
     return Scaffold(
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              pinned: false,
-              floating: true,
-              snap: true,
-              elevation: 0,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.82),
-              surfaceTintColor: Colors.transparent,
-              flexibleSpace: ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                  child: const SizedBox.expand(),
-                ),
-              ),
-              automaticallyImplyLeading: false,
-              toolbarHeight: 0,
-              titleSpacing: 0,
-              title: const SizedBox.shrink(),
-              bottom: PreferredSize(
-                preferredSize: Size.fromHeight(14 + dims.fH * 1.3 + 14 + 56 + 12 + 8),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
-                  decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.line, width: 1.5))),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(l10n.myArticlesTitle, style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fH)),
-                      const SizedBox(height: 14),
-                      BlocBuilder<MyArticlesBloc, MyArticlesState>(
-                        buildWhen: (a, b) => a.tab != b.tab,
-                        builder: (context, state) => SegmentedTabs(
-                          items: [
-                            SegmentedTabItem(label: l10n.tabAll, value: MyArticlesTab.all.name),
-                            SegmentedTabItem(label: l10n.tabDrafts, value: MyArticlesTab.drafts.name),
-                            SegmentedTabItem(label: l10n.tabPublished, value: MyArticlesTab.published.name),
-                          ],
-                          selected: state.tab.name,
-                          onSelected: (v) => context.read<MyArticlesBloc>().add(
-                                MyArticlesTabChanged(MyArticlesTab.values.byName(v)),
-                              ),
-                        ),
-                      ),
-                    ],
+        child: RefreshIndicator(
+          color: palette.accentInk,
+          onRefresh: () {
+            final authorId = context.read<AuthBloc>().state.user?.uid ?? '';
+            final bloc = context.read<MyArticlesBloc>();
+            bloc.add(MyArticlesRefreshed(authorId));
+            return bloc.stream
+                .firstWhere((s) => s.status != MyArticlesStatus.loading);
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                pinned: false,
+                floating: true,
+                snap: true,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                backgroundColor: Theme.of(context)
+                    .scaffoldBackgroundColor
+                    .withValues(alpha: 0.82),
+                surfaceTintColor: Colors.transparent,
+                flexibleSpace: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                    child: const SizedBox.expand(),
                   ),
                 ),
-              ),
-            ),
-            BlocBuilder<MyArticlesBloc, MyArticlesState>(
-              builder: (context, state) {
-                if (state.status == MyArticlesStatus.loading) {
-                  return SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
-                    sliver: SliverList.list(
-                      children: const [
-                        SkeletonBlock(height: 110),
-                        SizedBox(height: 13),
-                        SkeletonBlock(height: 110, delay: Duration(milliseconds: 200)),
-                        SizedBox(height: 13),
-                        SkeletonBlock(height: 110, delay: Duration(milliseconds: 400)),
-                      ],
-                    ),
-                  );
-                }
-                if (state.status == MyArticlesStatus.failure) {
-                  return SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
-                    sliver: SliverList.list(
+                automaticallyImplyLeading: false,
+                toolbarHeight: 0,
+                titleSpacing: 0,
+                title: const SizedBox.shrink(),
+                bottom: PreferredSize(
+                  preferredSize:
+                      Size.fromHeight(14 + dims.fH * 1.3 + 14 + 56 + 12 + 8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+                    decoration: BoxDecoration(
+                        border: Border(
+                            bottom:
+                                BorderSide(color: palette.line, width: 1.5))),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ErrorStateCard(
-                          title: l10n.myArticlesNetErrorTitle,
-                          body: l10n.myArticlesNetErrorBody,
-                          retryLabel: l10n.retry,
-                          onRetryPressed: () {
-                            final authorId = context.read<AuthBloc>().state.user?.uid ?? '';
-                            context.read<MyArticlesBloc>().add(MyArticlesRequested(authorId));
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                if (state.isEmpty) {
-                  final isDrafts = state.tab == MyArticlesTab.drafts;
-                  return SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
-                    sliver: SliverList.list(
-                      children: [
-                        EmptyStateCard(
-                          title: isDrafts ? l10n.myArticlesEmptyDraftTitle : l10n.myArticlesEmptyTitle,
-                          body: isDrafts ? l10n.myArticlesEmptyDraftBody : l10n.myArticlesEmptyBody,
-                          ctaLabel: l10n.writeFirstArticle,
-                          onCtaPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const ArticleEditorScreen()),
+                        Text(l10n.myArticlesTitle,
+                            style: TextStyle(
+                                fontFamily: 'Space Grotesk',
+                                fontWeight: FontWeight.w600,
+                                fontSize: dims.fH)),
+                        const SizedBox(height: 14),
+                        BlocBuilder<MyArticlesBloc, MyArticlesState>(
+                          buildWhen: (a, b) => a.tab != b.tab,
+                          builder: (context, state) => SegmentedTabs(
+                            items: [
+                              SegmentedTabItem(
+                                  label: l10n.tabAll,
+                                  value: MyArticlesTab.all.name),
+                              SegmentedTabItem(
+                                  label: l10n.tabDrafts,
+                                  value: MyArticlesTab.drafts.name),
+                              SegmentedTabItem(
+                                  label: l10n.tabPublished,
+                                  value: MyArticlesTab.published.name),
+                            ],
+                            selected: state.tab.name,
+                            onSelected: (v) =>
+                                context.read<MyArticlesBloc>().add(
+                                      MyArticlesTabChanged(
+                                          MyArticlesTab.values.byName(v)),
+                                    ),
                           ),
                         ),
                       ],
                     ),
-                  );
-                }
-                final visible = state.visibleArticles;
-                return SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
-                  sliver: SliverList.separated(
-                    itemCount: visible.length + 1,
-                    separatorBuilder: (_, __) => const SizedBox(height: 13),
-                    itemBuilder: (context, index) {
-                      if (index == visible.length) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                '${l10n.tabAll} · ${visible.length}',
-                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: dims.fSm, color: palette.ink3),
-                              ),
-                              if (state.hasMore)
-                                OutlinedButton(
-                                  onPressed: () => context.read<MyArticlesBloc>().add(const MyArticlesMoreRequested()),
-                                  style: OutlinedButton.styleFrom(
-                                    minimumSize: const Size(0, 50),
-                                    side: BorderSide(color: palette.edge),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                  ),
-                                  child: Text(
-                                    l10n.loadMore,
-                                    style: const TextStyle(fontWeight: FontWeight.w700),
-                                  ),
+                  ),
+                ),
+              ),
+              BlocBuilder<MyArticlesBloc, MyArticlesState>(
+                builder: (context, state) {
+                  if (state.status == MyArticlesStatus.loading) {
+                    return SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                      sliver: SliverList.list(
+                        children: const [
+                          SkeletonBlock(height: 110),
+                          SizedBox(height: 13),
+                          SkeletonBlock(
+                              height: 110, delay: Duration(milliseconds: 200)),
+                          SizedBox(height: 13),
+                          SkeletonBlock(
+                              height: 110, delay: Duration(milliseconds: 400)),
+                        ],
+                      ),
+                    );
+                  }
+                  if (state.status == MyArticlesStatus.failure) {
+                    return SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                      sliver: SliverList.list(
+                        children: [
+                          ErrorStateCard(
+                            title: l10n.myArticlesNetErrorTitle,
+                            body: l10n.myArticlesNetErrorBody,
+                            retryLabel: l10n.retry,
+                            onRetryPressed: () {
+                              final authorId =
+                                  context.read<AuthBloc>().state.user?.uid ??
+                                      '';
+                              context
+                                  .read<MyArticlesBloc>()
+                                  .add(MyArticlesRequested(authorId));
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  if (state.isEmpty) {
+                    final isDrafts = state.tab == MyArticlesTab.drafts;
+                    return SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                      sliver: SliverList.list(
+                        children: [
+                          EmptyStateCard(
+                            title: isDrafts
+                                ? l10n.myArticlesEmptyDraftTitle
+                                : l10n.myArticlesEmptyTitle,
+                            body: isDrafts
+                                ? l10n.myArticlesEmptyDraftBody
+                                : l10n.myArticlesEmptyBody,
+                            ctaLabel: l10n.writeFirstArticle,
+                            onCtaPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) => const ArticleEditorScreen()),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  final visible = state.visibleArticles;
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                    sliver: SliverList.separated(
+                      itemCount: visible.length + 1,
+                      separatorBuilder: (_, __) => const SizedBox(height: 13),
+                      itemBuilder: (context, index) {
+                        if (index == visible.length) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${l10n.tabAll} · ${visible.length}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: dims.fSm,
+                                      color: palette.ink3),
                                 ),
-                            ],
+                                if (state.hasMore)
+                                  OutlinedButton(
+                                    onPressed: () => context
+                                        .read<MyArticlesBloc>()
+                                        .add(const MyArticlesMoreRequested()),
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: const Size(0, 50),
+                                      side: BorderSide(color: palette.edge),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(14)),
+                                    ),
+                                    child: Text(
+                                      l10n.loadMore,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        }
+                        final article = visible[index];
+                        return StaggeredFadeIn(
+                          key: ValueKey('${state.tab}_${article.id}'),
+                          index: index,
+                          child: _MyArticleCard(
+                            article: article,
+                            menuOpen: _openMenuId == article.id,
+                            onToggleMenu: () => setState(() => _openMenuId =
+                                _openMenuId == article.id
+                                    ? null
+                                    : article.id),
+                            onEdit: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      ArticleEditorScreen(article: article)),
+                            ),
+                            onDelete: () async {
+                              final confirmed = await showConfirmDeleteSheet(
+                                  context,
+                                  articleTitle: article.title);
+                              if (confirmed != true || !context.mounted) {
+                                return;
+                              }
+                              context
+                                  .read<MyArticlesBloc>()
+                                  .add(MyArticleDeleted(article.id));
+                              showAppToast(context, l10n.articleDeletedToast);
+                            },
+                            onOpen: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      ArticleDetailScreen(article: article)),
+                            ),
                           ),
                         );
-                      }
-                      final article = visible[index];
-                      return _MyArticleCard(
-                        article: article,
-                        menuOpen: _openMenuId == article.id,
-                        onToggleMenu: () => setState(() => _openMenuId = _openMenuId == article.id ? null : article.id),
-                        onEdit: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => ArticleEditorScreen(article: article)),
-                        ),
-                        onDelete: () async {
-                          final confirmed = await showConfirmDeleteSheet(context, articleTitle: article.title);
-                          if (confirmed != true || !context.mounted) return;
-                          context.read<MyArticlesBloc>().add(MyArticleDeleted(article.id));
-                          showAppToast(context, l10n.articleDeletedToast);
-                        },
-                        onOpen: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => ArticleDetailScreen(article: article)),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
+                      },
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -290,7 +357,9 @@ class _MyArticleCard extends StatelessWidget {
     final palette = context.palette;
     final dims = Theme.of(context).extension<AppDimensions>()!;
     final published = article.status == ArticleStatus.published;
-    final dateLabel = DateFormat.MMMd(l10n.localeName).format(published ? article.publishedAt ?? article.updatedAt : article.updatedAt);
+    final dateLabel = DateFormat.MMMd(l10n.localeName).format(published
+        ? article.publishedAt ?? article.updatedAt
+        : article.updatedAt);
     final categoryText = categoryLabel(l10n, article.category);
 
     return Container(
@@ -312,7 +381,9 @@ class _MyArticleCard extends StatelessWidget {
                   SizedBox(
                     width: 78,
                     height: 78,
-                    child: StripedImagePlaceholder(imageUrl: article.thumbnailURL, borderRadius: BorderRadius.circular(13)),
+                    child: StripedImagePlaceholder(
+                        imageUrl: article.thumbnailURL,
+                        borderRadius: BorderRadius.circular(13)),
                   ),
                   const SizedBox(width: 13),
                   Expanded(
@@ -321,9 +392,20 @@ class _MyArticleCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            StatusPill(label: published ? l10n.publishedPill : l10n.draftPill, published: published),
+                            StatusPill(
+                                label: published
+                                    ? l10n.publishedPill
+                                    : l10n.draftPill,
+                                published: published),
                             const SizedBox(width: 8),
-                            Text(dateLabel, style: TextStyle(fontSize: dims.fXs, color: palette.ink3)),
+                            Flexible(
+                              child: Text(dateLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: dims.fXs,
+                                      color: palette.ink3)),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -331,14 +413,21 @@ class _MyArticleCard extends StatelessWidget {
                           article.title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fMd),
+                          style: TextStyle(
+                              fontFamily: 'Space Grotesk',
+                              fontWeight: FontWeight.w600,
+                              fontSize: dims.fMd),
                         ),
                         const SizedBox(height: 6),
-                        Text(categoryText, style: TextStyle(fontSize: dims.fXs, color: palette.ink3)),
+                        Text(categoryText,
+                            style: TextStyle(
+                                fontSize: dims.fXs, color: palette.ink3)),
                       ],
                     ),
                   ),
-                  IconButton(onPressed: onToggleMenu, icon: const Icon(Icons.more_horiz)),
+                  IconButton(
+                      onPressed: onToggleMenu,
+                      icon: const Icon(Icons.more_horiz)),
                 ],
               ),
             ),
