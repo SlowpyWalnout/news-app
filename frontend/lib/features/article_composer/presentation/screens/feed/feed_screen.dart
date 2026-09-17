@@ -44,8 +44,12 @@ class _FeedView extends StatefulWidget {
   State<_FeedView> createState() => _FeedViewState();
 }
 
-class _FeedViewState extends State<_FeedView> {
+class _FeedViewState extends State<_FeedView>
+    with AutomaticKeepAliveClientMixin {
   final _searchController = TextEditingController();
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void dispose() {
@@ -61,6 +65,7 @@ class _FeedViewState extends State<_FeedView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
     final dims = Theme.of(context).extension<AppDimensions>()!;
@@ -78,11 +83,17 @@ class _FeedViewState extends State<_FeedView> {
       body: SafeArea(
         child: RefreshIndicator(
           color: palette.accentInk,
-          onRefresh: () {
+          onRefresh: () async {
             final bloc = context.read<FeedBloc>();
+            if (bloc.isClosed) return;
             bloc.add(const FeedRefreshed());
-            return bloc.stream
-                .firstWhere((s) => s.status != FeedStatus.loading);
+            try {
+              await bloc.stream
+                  .firstWhere((s) => s.status != FeedStatus.loading);
+            } on StateError {
+              // Tab cerrada a mitad del refresh: el bloc se cerró antes de
+              // un estado terminal. No hay nada que mostrar ni que fallar.
+            }
           },
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),

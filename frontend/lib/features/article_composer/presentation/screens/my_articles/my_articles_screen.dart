@@ -61,10 +61,14 @@ class _MyArticlesView extends StatefulWidget {
   State<_MyArticlesView> createState() => _MyArticlesViewState();
 }
 
-class _MyArticlesViewState extends State<_MyArticlesView> {
+class _MyArticlesViewState extends State<_MyArticlesView>
+    with AutomaticKeepAliveClientMixin {
   String? _openMenuId;
   final _shellController = sl<AppShellController>();
   late int _lastSeenRefreshTick = _shellController.myArticlesRefreshTick;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -97,6 +101,7 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
     final dims = Theme.of(context).extension<AppDimensions>()!;
@@ -105,12 +110,18 @@ class _MyArticlesViewState extends State<_MyArticlesView> {
       body: SafeArea(
         child: RefreshIndicator(
           color: palette.accentInk,
-          onRefresh: () {
+          onRefresh: () async {
             final authorId = context.read<AuthBloc>().state.user?.uid ?? '';
             final bloc = context.read<MyArticlesBloc>();
+            if (bloc.isClosed) return;
             bloc.add(MyArticlesRefreshed(authorId));
-            return bloc.stream
-                .firstWhere((s) => s.status != MyArticlesStatus.loading);
+            try {
+              await bloc.stream
+                  .firstWhere((s) => s.status != MyArticlesStatus.loading);
+            } on StateError {
+              // Tab cerrada a mitad del refresh: el bloc se cerró antes de
+              // un estado terminal. No hay nada que mostrar ni que fallar.
+            }
           },
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),

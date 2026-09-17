@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app/core/resources/data_state.dart';
 import 'package:news_app/core/resources/failure.dart';
@@ -141,6 +143,27 @@ void main() {
       expect(bloc.state.visibleArticles.first.id, '1');
 
       await bloc.close();
+    });
+
+    test('cerrar el bloc a mitad de un FeedRefreshed no lanza error', () async {
+      final repo = _FakeAuthoredArticleRepository(
+        result: DataSuccess(PaginatedResult(items: [_article('1')])),
+      );
+      final bloc = FeedBloc(GetFeedUseCase(repo));
+
+      Object? uncaught;
+      runZonedGuarded(() {
+        bloc.add(const FeedRefreshed());
+      }, (error, stack) => uncaught = error);
+
+      // El handler está en medio del Future.delayed(1s) del refresh cuando
+      // el bloc se cierra, simulando el tab siendo descartado por el
+      // PageView del AppShell.
+      await Future.delayed(const Duration(milliseconds: 10));
+      await bloc.close();
+      await pumpEventQueue();
+
+      expect(uncaught, isNull);
     });
   });
 }

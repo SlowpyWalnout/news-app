@@ -30,9 +30,11 @@ class MyArticlesBloc extends Bloc<MyArticlesEvent, MyArticlesState> {
     if (isRefresh) {
       // Deliberate delay so the skeleton loader is visible on pull-to-refresh.
       await Future.delayed(const Duration(seconds: 1));
+      if (isClosed) return;
     }
     final result =
         await _listMyArticlesUseCase(ListMyArticlesParams(authorId: authorId));
+    if (isClosed) return;
     if (result is DataSuccess && result.data != null) {
       emit(state.copyWith(
         status: MyArticlesStatus.success,
@@ -56,6 +58,7 @@ class MyArticlesBloc extends Bloc<MyArticlesEvent, MyArticlesState> {
     if (authorId == null || !state.hasMore) return;
     final result =
         await _listMyArticlesUseCase(ListMyArticlesParams(authorId: authorId));
+    if (isClosed) return;
     if (result is DataSuccess && result.data != null) {
       emit(state.copyWith(
           articles: result.data!.items, hasMore: result.data!.hasMore));
@@ -65,10 +68,12 @@ class MyArticlesBloc extends Bloc<MyArticlesEvent, MyArticlesState> {
   Future<void> onDeleted(
       MyArticleDeleted event, Emitter<MyArticlesState> emit) async {
     await _deleteArticleUseCase(event.articleId);
+    if (isClosed) return;
     final authorId = _authorId;
     if (authorId == null) return;
     final result =
         await _listMyArticlesUseCase(ListMyArticlesParams(authorId: authorId));
+    if (isClosed) return;
     if (result is DataSuccess && result.data != null) {
       emit(state.copyWith(
           status: MyArticlesStatus.success, articles: result.data!.items));

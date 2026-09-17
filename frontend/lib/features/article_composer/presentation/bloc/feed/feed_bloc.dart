@@ -21,9 +21,11 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     if (event is FeedRefreshed) {
       // Deliberate delay so the skeleton loader is visible on pull-to-refresh.
       await Future.delayed(const Duration(seconds: 1));
+      if (isClosed) return;
     }
     final result =
         await _getFeedUseCase(GetFeedParams(category: state.category));
+    if (isClosed) return;
     if (result is DataSuccess && result.data != null) {
       emit(state.copyWith(
           status: FeedStatus.success, articles: result.data!.items));
@@ -41,6 +43,7 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     ));
     final result =
         await _getFeedUseCase(GetFeedParams(category: event.category));
+    if (isClosed) return;
     if (result is DataSuccess && result.data != null) {
       emit(state.copyWith(
           status: FeedStatus.success, articles: result.data!.items));

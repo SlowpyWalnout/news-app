@@ -51,7 +51,9 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _goToIndex(int index) {
+    if (index == _index) return;
     setState(() => _index = index);
+    if (!_pageController.hasClients) return;
     _pageController.animateToPage(index, duration: const Duration(milliseconds: 280), curve: Curves.easeOutCubic);
   }
 
