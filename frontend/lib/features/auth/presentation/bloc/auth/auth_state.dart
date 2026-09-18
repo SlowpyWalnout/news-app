@@ -2,7 +2,11 @@ import 'package:equatable/equatable.dart';
 import 'package:news_app/core/resources/failure.dart';
 import 'package:news_app/features/auth/domain/entities/user_entity.dart';
 
-enum AuthStatus { initial, loading, authenticated, unauthenticated }
+// signingIn/signingOut are distinct from loading (not reused by
+// login/register form submission) so AuthGate can show a splash for these
+// two transitions specifically, without touching the "stay on Login while
+// it submits" behavior loading already has.
+enum AuthStatus { initial, loading, authenticated, unauthenticated, signingIn, signingOut }
 
 class AuthState extends Equatable {
   const AuthState({

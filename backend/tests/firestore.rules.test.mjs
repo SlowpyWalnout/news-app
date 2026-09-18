@@ -493,3 +493,81 @@ describe('users', () => {
     );
   });
 });
+
+// Los artículos de noticias externas (Guardian/GNews) los escribe solo el
+// Admin SDK (syncGuardianNews/syncGnewsHeadlines), que bypasa estas rules.
+// Estos tests fijan que un cliente normal NO puede fabricar uno: el badge de
+// "Titular" debe ser estructuralmente infalsificable, no solo por convención.
+describe('articles: noticias externas', () => {
+  it('rechaza que un cliente cree un artículo con el campo source', async () => {
+    const attacker = testEnv.authenticatedContext('attacker');
+    await assertFails(
+      setDoc(doc(attacker.firestore(), 'articles', 'fake-headline'), {
+        ...validArticle({ authorId: 'attacker' }),
+        source: 'guardian',
+        sourceName: 'The Guardian',
+        sourceUrl: 'https://www.theguardian.com/fake',
+        hasFullBody: true,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        publishedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('rechaza que un cliente añada source a un artículo propio ya existente', async () => {
+    await seedArticle('a1', { status: 'published', authorId: 'author-1' });
+    const owner = testEnv.authenticatedContext('author-1');
+    await assertFails(
+      updateDoc(doc(owner.firestore(), 'articles', 'a1'), {
+        source: 'gnews',
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('nadie puede editar un artículo externo (authorId sintético, sin dueño real)', async () => {
+    await seedArticle('headline-1', {
+      status: 'published',
+      authorId: 'external:guardian',
+      authorName: 'The Guardian',
+    });
+    const someone = testEnv.authenticatedContext('author-1');
+    await assertFails(
+      updateDoc(doc(someone.firestore(), 'articles', 'headline-1'), {
+        title: 'Título alterado',
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('nadie puede borrar un artículo externo', async () => {
+    await seedArticle('headline-1', {
+      status: 'published',
+      authorId: 'external:gnews',
+      authorName: 'Example News',
+    });
+    const someone = testEnv.authenticatedContext('author-1');
+    await assertFails(deleteDoc(doc(someone.firestore(), 'articles', 'headline-1')));
+  });
+
+  it('cualquier autenticado puede leer un artículo externo publicado', async () => {
+    await seedArticle('headline-1', {
+      status: 'published',
+      authorId: 'external:guardian',
+      authorName: 'The Guardian',
+    });
+    const someone = testEnv.authenticatedContext('author-1');
+    await assertSucceeds(getDoc(doc(someone.firestore(), 'articles', 'headline-1')));
+  });
+
+  it('un anónimo también puede leer un artículo externo publicado', async () => {
+    await seedArticle('headline-1', {
+      status: 'published',
+      authorId: 'external:gnews',
+      authorName: 'Example News',
+    });
+    const anon = testEnv.unauthenticatedContext();
+    await assertSucceeds(getDoc(doc(anon.firestore(), 'articles', 'headline-1')));
+  });
+});

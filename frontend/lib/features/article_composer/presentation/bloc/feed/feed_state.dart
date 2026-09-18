@@ -16,6 +16,7 @@ class FeedState extends Equatable {
     this.error,
     this.nextCursor,
     this.isLoadingMore = false,
+    this.preferredLang,
   });
 
   final FeedStatus status;
@@ -30,6 +31,12 @@ class FeedState extends Equatable {
   final String? nextCursor;
   final bool isLoadingMore;
 
+  /// UI locale's language code (`'es'`/`'en'`), or `null` before the first
+  /// [FeedPreferredLanguageChanged]. Only reorders external headlines within
+  /// the page(s) already loaded — never filters, and community articles
+  /// (whose `lang` is always `null`) never move relative to each other.
+  final String? preferredLang;
+
   bool get hasMore => nextCursor != null;
 
   /// The server already applies the single (most selective) token via
@@ -39,10 +46,25 @@ class FeedState extends Equatable {
   /// "matches" means.
   List<AuthoredArticleEntity> get visibleArticles {
     final tokens = searchTokensFor(query);
-    if (tokens.length <= 1) return articles;
-    return articles
-        .where((a) => tokens.every(a.searchKeywords.contains))
-        .toList();
+    final filtered = tokens.length <= 1
+        ? articles
+        : articles
+            .where((a) => tokens.every(a.searchKeywords.contains))
+            .toList();
+    return _prioritizedByLanguage(filtered);
+  }
+
+  // Same shape as ReadLaterBloc._sortUnreadFirst: partition instead of sort
+  // (List.sort isn't stable), each group keeps the order it arrived in.
+  // Matching-language headlines float to the top; everything else — the
+  // other language's headlines AND every community article — stays grouped
+  // together in its existing relative order.
+  List<AuthoredArticleEntity> _prioritizedByLanguage(
+      List<AuthoredArticleEntity> source) {
+    if (preferredLang == null) return source;
+    final matching = source.where((a) => a.lang == preferredLang).toList();
+    final rest = source.where((a) => a.lang != preferredLang).toList();
+    return [...matching, ...rest];
   }
 
   bool get isEmpty =>
@@ -58,6 +80,7 @@ class FeedState extends Equatable {
     String? nextCursor,
     bool clearCursor = false,
     bool? isLoadingMore,
+    String? preferredLang,
   }) {
     return FeedState(
       status: status ?? this.status,
@@ -67,10 +90,19 @@ class FeedState extends Equatable {
       error: error,
       nextCursor: clearCursor ? null : (nextCursor ?? this.nextCursor),
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      preferredLang: preferredLang ?? this.preferredLang,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [status, articles, category, query, error, nextCursor, isLoadingMore];
+  List<Object?> get props => [
+        status,
+        articles,
+        category,
+        query,
+        error,
+        nextCursor,
+        isLoadingMore,
+        preferredLang,
+      ];
 }

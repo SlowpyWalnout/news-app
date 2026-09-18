@@ -43,6 +43,23 @@ artículo.
 | `approvedAt` | `timestamp \| null` | Fase 6e. Escrito por staff al aprobar. Se compara contra `updatedAt` para derivar el umbral de re-suspensión (ver más abajo). |
 | `approvedBy` | `string` (uid) `\| null` | Fase 6e. UID del staff que aprobó; `firestore.rules` exige que coincida con `request.auth.uid`, así que no se puede falsear. |
 | `suspensionCount` | `number` \| ausente | Fase 6e. Escrito por la Cloud Function, **nunca se reinicia** (ni al editar ni al aprobar) — es la memoria de reincidencia del artículo. |
+| `source` | `'guardian' \| 'gnews'` \| ausente | Noticias externas. Escrito solo por `syncGuardianNews`/`syncGnewsHeadlines` (Admin SDK). Ausente equivale a artículo de la comunidad. |
+| `sourceName` | `string` \| ausente | Nombre del medio (`'The Guardian'` o el `source.name` de GNews). Se renderiza siempre en la UI — es la atribución que exigen los términos de ambas APIs. |
+| `sourceUrl` | `string` \| ausente | URL canónica del artículo original. |
+| `hasFullBody` | `bool` \| ausente | `true` solo en Guardian. Decide si el detalle muestra `body` completo o un resumen + CTA a la fuente (GNews trunca el cuerpo en su free tier). |
+| `lang` | `'es' \| 'en'` \| ausente | Alimenta la priorización por idioma del Feed (no filtra, solo reordena). |
+| `expiresAt` | `timestamp` \| ausente | `fetchedAt + 24h` (Guardian) o `+7d` (GNews). Los cron la usan para autopurgarse; Guardian exige por contrato no conservar contenido más de 24h. |
+
+**Por qué estos seis campos NO están en el `hasOnly` de `create`/`update` de
+`firestore.rules`:** son server-only por omisión, no por una regla explícita.
+Un cliente que intente escribir `source` en un artículo propio falla el
+`hasOnly` igual que si escribiera cualquier otro campo inventado — el badge
+de "Titular" es estructuralmente infalsificable, no solo por convención.
+`authorId` de un artículo externo es un valor sintético (`'external:guardian'`
+/`'external:gnews'`) que no coincide con ningún UID real, así que las mismas
+reglas de `isOwner` que protegen la edición/borrado de artículos de usuarios
+protegen también a estos: nadie puede editarlos ni borrarlos porque nadie es
+su dueño.
 
 Los siete campos de moderación son opcionales y solo los escribe el servidor
 (Admin SDK) o la rama de staff de `firestore.rules` — nunca el autor, ni

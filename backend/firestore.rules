@@ -45,6 +45,16 @@ service cloud.firestore {
         return ['general', 'business', 'entertainment', 'health', 'science', 'sports', 'technology', 'politics', 'other'];
       }
 
+      // Campos que un autor puede escribir en create/update, fuera de los de
+      // moderación (que tienen su propia lista) y de los server-only de
+      // noticias externas (que a propósito no aparecen en ninguna lista de
+      // hasOnly — ver DB_SCHEMA.md).
+      function authorWritableFields() {
+        return ['authorId', 'authorName', 'authorPhotoURL', 'title', 'body',
+                'status', 'category', 'thumbnailURL', 'thumbnailPath',
+                'searchKeywords', 'createdAt', 'updatedAt', 'publishedAt'];
+      }
+
       function isValidArticle(data) {
         return data.authorId is string
           && data.authorName is string && data.authorName.size() > 0 && data.authorName.size() <= 60
@@ -69,14 +79,17 @@ service cloud.firestore {
         return ['reportCount', 'moderationState', 'suspendedAt', 'approvedAt', 'approvedBy', 'suspensionCount'];
       }
 
+      // Noticias externas (Guardian/GNews) las escriben solo
+      // syncGuardianNews/syncGnewsHeadlines vía Admin SDK, que bypassa estas
+      // rules. A propósito, `source`/`sourceName`/`sourceUrl`/`hasFullBody`/
+      // `lang`/`expiresAt` NO están en el hasOnly de create/update de abajo:
+      // eso basta para que ningún cliente pueda falsificar el badge de
+      // "Titular" en un artículo propio. Ver backend/docs/DB_SCHEMA.md.
+
       allow read: if resource.data.status == 'published' || isOwner(resource.data.authorId) || isStaff();
 
       allow create: if isOwner(request.resource.data.authorId)
-        && request.resource.data.keys().hasOnly([
-             'authorId', 'authorName', 'authorPhotoURL', 'title', 'body',
-             'status', 'category', 'thumbnailURL', 'thumbnailPath',
-             'searchKeywords', 'createdAt', 'updatedAt', 'publishedAt'
-           ])
+        && request.resource.data.keys().hasOnly(authorWritableFields())
         && isValidArticle(request.resource.data)
         && request.resource.data.createdAt == request.time
         && request.resource.data.updatedAt == request.time;
@@ -90,7 +103,12 @@ service cloud.firestore {
           && !request.resource.data.diff(resource.data).affectedKeys().hasAny(moderationFields())
           && (
                // Edición normal de contenido: updatedAt debe avanzar a ahora.
+               // hasOnly aquí (no solo en create) es lo que hace imposible
+               // que un autor cuele un campo server-only (p.ej. `source`) en
+               // su propio artículo vía update — sin esto, isValidArticle no
+               // rechaza campos extra que no reconoce.
                (isValidArticle(request.resource.data)
+                 && request.resource.data.keys().hasOnly(authorWritableFields().concat(moderationFields()))
                  && request.resource.data.updatedAt == request.time)
                ||
                // Fan-out de rename de autor: solo estos dos campos, sin tocar updatedAt.

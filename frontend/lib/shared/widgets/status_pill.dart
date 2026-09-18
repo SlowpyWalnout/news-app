@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import '../../config/theme/app_dimensions.dart';
 import '../../config/theme/app_palette.dart';
 
-enum ArticlePillVariant { published, draft, suspended, alreadyRead }
+enum ArticlePillVariant { published, draft, suspended, alreadyRead, external }
 
 /// Publicado/borrador/suspendido/ya-lo-leí pill, shared by "Mis artículos"
 /// and "Leer después" cards.
 class StatusPill extends StatelessWidget {
-  const StatusPill({super.key, required this.label, required this.variant, this.icon});
+  const StatusPill(
+      {super.key, required this.label, required this.variant, this.icon});
 
   final String label;
   final ArticlePillVariant variant;
@@ -40,6 +41,10 @@ class StatusPill extends StatelessWidget {
         bg = palette.line;
         border = palette.line;
         fg = palette.ink3;
+      case ArticlePillVariant.external:
+        bg = palette.accentSoft;
+        border = palette.accentInk;
+        fg = palette.accentInk;
     }
 
     return Container(

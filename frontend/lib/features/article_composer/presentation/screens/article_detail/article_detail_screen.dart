@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../config/theme/app_dimensions.dart';
 import '../../../../../config/theme/app_palette.dart';
@@ -15,6 +16,7 @@ import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../../shared/widgets/markdown_text.dart';
 import '../../../../../shared/widgets/screen_header.dart';
 import '../../../../../shared/widgets/scrim_overlay.dart';
+import '../../../../../shared/widgets/status_pill.dart';
 import '../../../../../shared/widgets/striped_image_placeholder.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../../../daily_news/domain/entities/article.dart';
@@ -86,6 +88,16 @@ class _ArticleDetailViewState extends State<_ArticleDetailView> {
       showAppToast(context, l10n.articleDeletedToast);
       Navigator.of(context).pop(true);
     }
+  }
+
+  Future<void> _openSource(BuildContext context) async {
+    final url = article.sourceUrl;
+    if (url == null) return;
+    final l10n = AppLocalizations.of(context)!;
+    final launched =
+        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    if (!context.mounted || launched) return;
+    showAppToast(context, l10n.externalOpenSourceError);
   }
 
   Future<void> _handleReport(BuildContext context) async {
@@ -321,6 +333,41 @@ class _ArticleDetailViewState extends State<_ArticleDetailView> {
                                       onPressed: () => _handleDelete(context)),
                                 ),
                               ],
+                            ),
+                          ] else if (article.isExternal) ...[
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                StatusPill(
+                                  label: l10n.sourceBadgeLabel,
+                                  variant: ArticlePillVariant.external,
+                                  icon: Icons.public,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    l10n.externalAttribution(
+                                        article.sourceName ??
+                                            article.authorName),
+                                    style: TextStyle(
+                                        fontSize: dims.fXs,
+                                        color: palette.ink3),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (!article.hasFullBody) ...[
+                              const SizedBox(height: 11),
+                              InlineBanner(
+                                title: l10n.externalPartialContentTitle,
+                                body: l10n.externalPartialContentNotice,
+                                variant: BannerVariant.info,
+                              ),
+                            ],
+                            const SizedBox(height: 11),
+                            PrimaryButton(
+                              label: l10n.externalReadAtSource,
+                              onPressed: () => _openSource(context),
                             ),
                           ] else ...[
                             const SizedBox(height: 20),

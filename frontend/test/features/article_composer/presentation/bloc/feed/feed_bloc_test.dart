@@ -245,6 +245,29 @@ void main() {
       expect(uncaught, isNull);
     });
 
+    blocTest<FeedBloc, FeedState>(
+      'FeedPreferredLanguageChanged solo reordena el estado, no vuelve a pedir el feed',
+      setUp: () {
+        when(() => repo.getFeed(
+              cursor: any(named: 'cursor'),
+              category: any(named: 'category'),
+              searchToken: any(named: 'searchToken'),
+            )).thenAnswer((_) async => DataSuccess(PaginatedResult(items: [authoredArticle('1')])));
+      },
+      build: () => FeedBloc(GetFeedUseCase(repo)),
+      act: (bloc) => bloc.add(const FeedPreferredLanguageChanged('es')),
+      expect: () => [
+        isA<FeedState>().having((s) => s.preferredLang, 'preferredLang', 'es'),
+      ],
+      verify: (_) {
+        verifyNever(() => repo.getFeed(
+              cursor: any(named: 'cursor'),
+              category: any(named: 'category'),
+              searchToken: any(named: 'searchToken'),
+            ));
+      },
+    );
+
     test('cerrar el bloc a mitad de la ventana de debounce no lanza error', () async {
       when(() => repo.getFeed(
             cursor: any(named: 'cursor'),

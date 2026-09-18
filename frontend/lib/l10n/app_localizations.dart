@@ -524,6 +524,42 @@ abstract class AppLocalizations {
   /// **'Lo publicó {author}, así que no puedes editarlo ni borrarlo. Puedes marcarlo como Leer después o escribir tu propia noticia.'**
   String notYoursBody(String author);
 
+  /// No description provided for @sourceBadgeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Titular'**
+  String get sourceBadgeLabel;
+
+  /// No description provided for @externalAttribution.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicado originalmente por {source}.'**
+  String externalAttribution(String source);
+
+  /// No description provided for @externalPartialContentTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Contenido parcial'**
+  String get externalPartialContentTitle;
+
+  /// No description provided for @externalPartialContentNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta fuente no permite mostrar el artículo completo dentro de la app. Lee el resto en el sitio original.'**
+  String get externalPartialContentNotice;
+
+  /// No description provided for @externalReadAtSource.
+  ///
+  /// In es, this message translates to:
+  /// **'Leer en la fuente'**
+  String get externalReadAtSource;
+
+  /// No description provided for @externalOpenSourceError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo abrir el enlace de la fuente.'**
+  String get externalOpenSourceError;
+
   /// No description provided for @exit.
   ///
   /// In es, this message translates to:
@@ -715,12 +751,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Borrador guardado en este teléfono'**
   String get draftSavedToast;
-
-  /// No description provided for @publishedToast.
-  ///
-  /// In es, this message translates to:
-  /// **'¡Publicado! Ya está en el feed'**
-  String get publishedToast;
 
   /// No description provided for @myArticlesTitle.
   ///

@@ -58,7 +58,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: SafeArea(
         child: BlocConsumer<AuthBloc, AuthState>(
-          listenWhen: (a, b) => b.status == AuthStatus.authenticated,
+          // Fires on signingIn, not authenticated: RegisterScreen is pushed
+          // on top of whatever AuthGate is showing underneath, so popping
+          // here (not 2s later) is what reveals AuthGate's own BrandedSplash
+          // for the rest of the signingIn transition instead of leaving the
+          // form sitting on top of it, frozen, for those 2s.
+          listenWhen: (a, b) => b.status == AuthStatus.signingIn,
           listener: (context, state) => Navigator.of(context).pop(),
           builder: (context, state) {
             final loading = state.status == AuthStatus.loading;

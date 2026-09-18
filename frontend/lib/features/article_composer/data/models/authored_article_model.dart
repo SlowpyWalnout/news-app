@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
+import 'package:news_app/features/article_composer/domain/entities/article_source.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_status.dart';
 import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
 import 'package:news_app/features/moderation/domain/entities/moderation_state.dart';
@@ -24,6 +25,11 @@ class AuthoredArticleModel extends AuthoredArticleEntity {
     super.moderationState,
     super.suspendedAt,
     super.approvedAt,
+    super.source,
+    super.sourceName,
+    super.sourceUrl,
+    super.hasFullBody,
+    super.lang,
   });
 
   factory AuthoredArticleModel.fromFirestore(
@@ -41,14 +47,25 @@ class AuthoredArticleModel extends AuthoredArticleEntity {
       category: ArticleCategory.values.byName(data['category'] as String),
       thumbnailURL: data['thumbnailURL'] as String?,
       thumbnailPath: data['thumbnailPath'] as String?,
-      searchKeywords: List<String>.from(data['searchKeywords'] as List? ?? const []),
+      searchKeywords:
+          List<String>.from(data['searchKeywords'] as List? ?? const []),
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
       publishedAt: (data['publishedAt'] as Timestamp?)?.toDate(),
       reportCount: (data['reportCount'] as int?) ?? 0,
-      moderationState: ModerationState.fromValue(data['moderationState'] as String?),
+      moderationState:
+          ModerationState.fromValue(data['moderationState'] as String?),
       suspendedAt: (data['suspendedAt'] as Timestamp?)?.toDate(),
       approvedAt: (data['approvedAt'] as Timestamp?)?.toDate(),
+      // Absent for every community article — only syncGuardianNews/
+      // syncGnewsHeadlines ever set these (see firestore.rules).
+      source: (data['source'] as String?) == null
+          ? null
+          : ArticleSource.values.byName(data['source'] as String),
+      sourceName: data['sourceName'] as String?,
+      sourceUrl: data['sourceUrl'] as String?,
+      hasFullBody: (data['hasFullBody'] as bool?) ?? false,
+      lang: data['lang'] as String?,
     );
   }
 

@@ -80,6 +80,13 @@
   "notYoursTitle": "This article isn't yours",
   "notYoursBody": "{author} published it, so you can't edit or delete it. You can mark it Read it later or write your own story.",
   "@notYoursBody": {"placeholders": {"author": {"type": "String"}}},
+  "sourceBadgeLabel": "Headline",
+  "externalAttribution": "Originally published by {source}.",
+  "@externalAttribution": {"placeholders": {"source": {"type": "String"}}},
+  "externalPartialContentTitle": "Partial content",
+  "externalPartialContentNotice": "This source doesn't allow showing the full article in the app. Read the rest on the original site.",
+  "externalReadAtSource": "Read at the source",
+  "externalOpenSourceError": "Couldn't open the source link.",
 
   "exit": "Exit",
   "newArticleTitle": "New article",
@@ -116,7 +123,6 @@
   "publishing": "Publishing…",
   "emptyDraftToast": "Write a title or body before saving",
   "draftSavedToast": "Draft saved on this phone",
-  "publishedToast": "Published! It's live on the feed",
 
   "myArticlesTitle": "My articles",
   "tabAll": "All",

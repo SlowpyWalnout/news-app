@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
+import 'package:news_app/features/article_composer/domain/entities/article_source.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_status.dart';
 import 'package:news_app/features/daily_news/domain/entities/article.dart';
 import 'package:news_app/features/moderation/domain/entities/moderation_state.dart';
@@ -29,6 +30,17 @@ class AuthoredArticleEntity extends Equatable {
   final ModerationState? moderationState;
   final DateTime? suspendedAt;
   final DateTime? approvedAt;
+  // External news (Guardian/GNews). Written only by the backend crons — see
+  // ArticleSource. Absent (source == null) means a community article. Not in
+  // copyWith: same reasoning as reportCount/moderationState above, the
+  // client never mutates these directly.
+  final ArticleSource? source;
+  final String? sourceName;
+  final String? sourceUrl;
+  final bool hasFullBody;
+  final String? lang;
+
+  bool get isExternal => source != null;
 
   const AuthoredArticleEntity({
     required this.id,
@@ -49,21 +61,35 @@ class AuthoredArticleEntity extends Equatable {
     this.moderationState,
     this.suspendedAt,
     this.approvedAt,
+    this.source,
+    this.sourceName,
+    this.sourceUrl,
+    this.hasFullBody = false,
+    this.lang,
   });
 
   // Adapts to the existing NewsAPI entity so favorites, the article tile and
   // the detail screen can be reused without touching them or Floor's schema.
+  //
+  // External news is never cached locally beyond title/summary/image: The
+  // Guardian's terms forbid keeping their content past 24h, and sqflite rows
+  // live on the device indefinitely, outside the reach of the backend's own
+  // purge. `content: null` here is what enforces that — the reader always
+  // re-fetches from Firestore (or shows "no longer available") instead of
+  // reading a permanently-cached body. `url` carries the original source so
+  // Read Later can still open it once the doc expires.
   ArticleEntity toFeedArticle() {
     final plainBody = stripMarkdown(body);
     return ArticleEntity(
       sourceId: id,
       author: authorName,
       title: title,
-      description: plainBody.length > 200 ? plainBody.substring(0, 200) : plainBody,
-      url: null,
+      description:
+          plainBody.length > 200 ? plainBody.substring(0, 200) : plainBody,
+      url: isExternal ? sourceUrl : null,
       urlToImage: thumbnailURL,
       publishedAt: publishedAt?.toIso8601String(),
-      content: body,
+      content: isExternal ? null : body,
     );
   }
 
@@ -140,6 +166,11 @@ class AuthoredArticleEntity extends Equatable {
       moderationState,
       suspendedAt,
       approvedAt,
+      source,
+      sourceName,
+      sourceUrl,
+      hasFullBody,
+      lang,
     ];
   }
 }

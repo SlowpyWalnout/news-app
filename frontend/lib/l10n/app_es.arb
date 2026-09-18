@@ -81,6 +81,13 @@
   "notYoursTitle": "Este artículo no es tuyo",
   "notYoursBody": "Lo publicó {author}, así que no puedes editarlo ni borrarlo. Puedes marcarlo como Leer después o escribir tu propia noticia.",
   "@notYoursBody": {"placeholders": {"author": {"type": "String"}}},
+  "sourceBadgeLabel": "Titular",
+  "externalAttribution": "Publicado originalmente por {source}.",
+  "@externalAttribution": {"placeholders": {"source": {"type": "String"}}},
+  "externalPartialContentTitle": "Contenido parcial",
+  "externalPartialContentNotice": "Esta fuente no permite mostrar el artículo completo dentro de la app. Lee el resto en el sitio original.",
+  "externalReadAtSource": "Leer en la fuente",
+  "externalOpenSourceError": "No se pudo abrir el enlace de la fuente.",
 
   "exit": "Salir",
   "newArticleTitle": "Nuevo artículo",
@@ -117,7 +124,6 @@
   "publishing": "Publicando…",
   "emptyDraftToast": "Escribe un título o el cuerpo antes de guardar",
   "draftSavedToast": "Borrador guardado en este teléfono",
-  "publishedToast": "¡Publicado! Ya está en el feed",
 
   "myArticlesTitle": "Mis artículos",
   "tabAll": "Todas",

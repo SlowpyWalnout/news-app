@@ -12,6 +12,7 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_text_field.dart';
 import '../../../../../shared/widgets/app_toast.dart';
+import '../../../../../shared/widgets/branded_splash.dart';
 import '../../../../../shared/widgets/category_chip.dart';
 import '../../widgets/dashed_border_box.dart';
 import '../../../../../shared/widgets/inline_banner.dart';
@@ -77,6 +78,24 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
     super.dispose();
   }
 
+  // Pushes the branded splash on top of the editor, holds it for a moment,
+  // then pops everything back to the shell in one go — same deliberate-delay
+  // pattern as the sign-out splash in AuthGate, so publishing feels like an
+  // intentional beat instead of the toast+instant-pop it used to be. A
+  // PageRouteBuilder with an explicit FadeTransition (not MaterialPageRoute)
+  // so both the push in and the pop back out dissolve instead of cutting.
+  void _showPublishedSplashThenReturn(BuildContext context) {
+    Navigator.of(context).push(PageRouteBuilder(
+      pageBuilder: (_, __, ___) => const BrandedSplash(),
+      transitionsBuilder: (_, animation, __, child) =>
+          FadeTransition(opacity: animation, child: child),
+    ));
+    Future.delayed(const Duration(milliseconds: 1400), () {
+      if (!context.mounted) return;
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    });
+  }
+
   Future<void> _pickCover(BuildContext context) async {
     final picked = await ImagePicker()
         .pickImage(source: ImageSource.gallery, imageQuality: 90);
@@ -107,13 +126,16 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
         }
         if (state.submitStatus == EditorSubmitStatus.success) {
           final wasDraft = _lastAction == _EditorAction.draft;
-          showAppToast(
-              context, wasDraft ? l10n.draftSavedToast : l10n.publishedToast);
           sl<ArticleChangesNotifier>().notifyArticleSaved(
             subTab: wasDraft ? 'drafts' : 'published',
           );
           sl<AppShellController>().goToTab(1);
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          if (wasDraft) {
+            showAppToast(context, l10n.draftSavedToast);
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          } else {
+            _showPublishedSplashThenReturn(context);
+          }
         }
       },
       builder: (context, state) {

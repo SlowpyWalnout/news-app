@@ -1,4 +1,5 @@
 import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
+import 'package:news_app/features/article_composer/domain/entities/article_source.dart';
 import 'package:news_app/features/article_composer/domain/entities/article_status.dart';
 import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
 import 'package:news_app/features/auth/domain/entities/user_entity.dart';
@@ -33,6 +34,11 @@ AuthoredArticleEntity authoredArticle(
   ModerationState? moderationState,
   DateTime? suspendedAt,
   DateTime? approvedAt,
+  ArticleSource? source,
+  String? sourceName,
+  String? sourceUrl,
+  bool hasFullBody = false,
+  String? lang,
 }) {
   final now = createdAt ?? DateTime(2026, 1, 1);
   return AuthoredArticleEntity(
@@ -54,6 +60,11 @@ AuthoredArticleEntity authoredArticle(
     moderationState: moderationState,
     suspendedAt: suspendedAt,
     approvedAt: approvedAt,
+    source: source,
+    sourceName: sourceName,
+    sourceUrl: sourceUrl,
+    hasFullBody: hasFullBody,
+    lang: lang,
   );
 }
 
@@ -98,6 +109,11 @@ Map<String, dynamic> firestoreArticleData({
   String? moderationState,
   DateTime? suspendedAt,
   DateTime? approvedAt,
+  String? source,
+  String? sourceName,
+  String? sourceUrl,
+  bool? hasFullBody,
+  String? lang,
   bool minimal = false,
 }) {
   final now = createdAt ?? DateTime(2026, 1, 1);
@@ -119,6 +135,11 @@ Map<String, dynamic> firestoreArticleData({
     if (!minimal) 'moderationState': moderationState,
     if (!minimal && suspendedAt != null) 'suspendedAt': Timestamp.fromDate(suspendedAt),
     if (!minimal && approvedAt != null) 'approvedAt': Timestamp.fromDate(approvedAt),
+    if (source != null) 'source': source,
+    if (sourceName != null) 'sourceName': sourceName,
+    if (sourceUrl != null) 'sourceUrl': sourceUrl,
+    if (hasFullBody != null) 'hasFullBody': hasFullBody,
+    if (lang != null) 'lang': lang,
   };
 }
 

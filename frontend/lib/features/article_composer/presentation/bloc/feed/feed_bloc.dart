@@ -14,6 +14,7 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     on<FeedCategorySelected>(onCategorySelected);
     on<FeedQueryChanged>(onQueryChanged);
     on<FeedMoreRequested>(onMoreRequested);
+    on<FeedPreferredLanguageChanged>(onPreferredLanguageChanged);
   }
 
   final GetFeedUseCase _getFeedUseCase;
@@ -91,6 +92,13 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
       // articles already shown and let the user retry.
       emit(state.copyWith(isLoadingMore: false));
     }
+  }
+
+  // No fetch, no epoch bump: a locale toggle re-sorts the page(s) already in
+  // memory (see FeedState._prioritizedByLanguage), it never restarts pagination.
+  void onPreferredLanguageChanged(
+      FeedPreferredLanguageChanged event, Emitter<FeedState> emit) {
+    emit(state.copyWith(preferredLang: event.languageCode));
   }
 
   Future<void> _fetchFirstPage(Emitter<FeedState> emit, int epoch) async {

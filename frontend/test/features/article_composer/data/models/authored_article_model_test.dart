@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app/features/article_composer/data/models/authored_article_model.dart';
+import 'package:news_app/features/article_composer/domain/entities/article_source.dart';
 import 'package:news_app/features/moderation/domain/entities/moderation_state.dart';
 
 import '../../../../helpers/helpers.dart';
@@ -64,6 +65,44 @@ void main() {
 
       expect(() => AuthoredArticleModel.fromFirestore(doc), throwsArgumentError);
     });
+
+    test('a community article (no source field) maps source-related fields to defaults', () {
+      final doc = MockDocumentSnapshot();
+      when(() => doc.id).thenReturn('a1');
+      when(() => doc.data()).thenReturn(firestoreArticleData());
+
+      final model = AuthoredArticleModel.fromFirestore(doc);
+
+      expect(model.source, isNull);
+      expect(model.isExternal, isFalse);
+      expect(model.sourceName, isNull);
+      expect(model.sourceUrl, isNull);
+      expect(model.hasFullBody, isFalse);
+      expect(model.lang, isNull);
+    });
+
+    test('an external headline maps every source field', () {
+      final doc = MockDocumentSnapshot();
+      when(() => doc.id).thenReturn('h1');
+      when(() => doc.data()).thenReturn(firestoreArticleData(
+        authorId: 'external:guardian',
+        authorName: 'The Guardian',
+        source: 'guardian',
+        sourceName: 'The Guardian',
+        sourceUrl: 'https://www.theguardian.com/some-article',
+        hasFullBody: true,
+        lang: 'en',
+      ));
+
+      final model = AuthoredArticleModel.fromFirestore(doc);
+
+      expect(model.source, ArticleSource.guardian);
+      expect(model.isExternal, isTrue);
+      expect(model.sourceName, 'The Guardian');
+      expect(model.sourceUrl, 'https://www.theguardian.com/some-article');
+      expect(model.hasFullBody, isTrue);
+      expect(model.lang, 'en');
+    });
   });
 
   test('toFirestore emits exactly the 10 content keys — no server-fixed timestamps', () {
@@ -83,6 +122,17 @@ void main() {
       'thumbnailPath',
       'searchKeywords',
     });
+  });
+
+  test('toFirestore never writes source fields, even for an external entity — the client can never falsify the badge', () {
+    final external = authoredArticle('h1', source: ArticleSource.guardian, sourceName: 'The Guardian', hasFullBody: true);
+    final map = AuthoredArticleModel.fromEntity(external).toFirestore();
+
+    expect(map.containsKey('source'), isFalse);
+    expect(map.containsKey('sourceName'), isFalse);
+    expect(map.containsKey('sourceUrl'), isFalse);
+    expect(map.containsKey('hasFullBody'), isFalse);
+    expect(map.containsKey('lang'), isFalse);
   });
 
   test('fromEntity then toFirestore round-trips the content fields', () {

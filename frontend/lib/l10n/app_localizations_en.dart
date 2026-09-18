@@ -240,6 +240,27 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get sourceBadgeLabel => 'Headline';
+
+  @override
+  String externalAttribution(String source) {
+    return 'Originally published by $source.';
+  }
+
+  @override
+  String get externalPartialContentTitle => 'Partial content';
+
+  @override
+  String get externalPartialContentNotice =>
+      'This source doesn\'t allow showing the full article in the app. Read the rest on the original site.';
+
+  @override
+  String get externalReadAtSource => 'Read at the source';
+
+  @override
+  String get externalOpenSourceError => 'Couldn\'t open the source link.';
+
+  @override
   String get exit => 'Exit';
 
   @override
@@ -341,9 +362,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get draftSavedToast => 'Draft saved on this phone';
-
-  @override
-  String get publishedToast => 'Published! It\'s live on the feed';
 
   @override
   String get myArticlesTitle => 'My articles';

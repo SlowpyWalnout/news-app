@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../config/theme/app_dimensions.dart';
 import '../../config/theme/app_palette.dart';
 
-enum BannerVariant { danger, warn }
+enum BannerVariant { danger, warn, info }
 
 /// Title+body banner for credential/network/permission notices.
 class InlineBanner extends StatelessWidget {
@@ -25,9 +25,14 @@ class InlineBanner extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     final isDanger = variant == BannerVariant.danger;
-    final borderColor = isDanger ? scheme.error : palette.warn;
-    final bgColor = isDanger ? palette.dangerSoft : palette.warnSoft;
-    final textColor = isDanger ? scheme.error : palette.warn;
+    final isInfo = variant == BannerVariant.info;
+    final borderColor =
+        isDanger ? scheme.error : (isInfo ? palette.line : palette.warn);
+    final bgColor = isDanger
+        ? palette.dangerSoft
+        : (isInfo ? palette.line.withValues(alpha: 0.3) : palette.warnSoft);
+    final textColor =
+        isDanger ? scheme.error : (isInfo ? palette.ink2 : palette.warn);
 
     return Semantics(
       liveRegion: true,
@@ -45,13 +50,17 @@ class InlineBanner extends StatelessWidget {
             if (title != null) ...[
               Text(
                 title!,
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd, color: isDanger ? textColor : scheme.onSurface),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: dims.fMd,
+                    color: isDanger ? textColor : scheme.onSurface),
               ),
               const SizedBox(height: 4),
             ],
             Text(
               body,
-              style: TextStyle(fontSize: dims.fSm, height: 1.5, color: palette.ink2),
+              style: TextStyle(
+                  fontSize: dims.fSm, height: 1.5, color: palette.ink2),
             ),
           ],
         ),

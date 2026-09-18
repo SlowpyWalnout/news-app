@@ -56,6 +56,10 @@ dependencies:
   # network reachability, for the offline banner in AppShell
   connectivity_plus: ^7.3.1
 
+  # opens the original article in the browser for external news (Guardian/
+  # GNews) whose license forbids storing/showing the full body in-app
+  url_launcher: ^6.3.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

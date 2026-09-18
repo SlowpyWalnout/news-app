@@ -39,3 +39,16 @@ class FeedQueryChanged extends FeedEvent {
 class FeedMoreRequested extends FeedEvent {
   const FeedMoreRequested();
 }
+
+/// Fired when the app's UI locale changes. Pure client-side reorder of the
+/// page(s) already loaded (see [FeedState.visibleArticles]) — never
+/// refetches, since language is a per-viewer preference, not a server-side
+/// filter (it would also break the pagination cursor).
+class FeedPreferredLanguageChanged extends FeedEvent {
+  const FeedPreferredLanguageChanged(this.languageCode);
+
+  final String languageCode;
+
+  @override
+  List<Object?> get props => [languageCode];
+}

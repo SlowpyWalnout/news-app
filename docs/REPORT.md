@@ -298,6 +298,22 @@ Más allá del CRUD de artículos con borradores que pedía el encargo:
 - **Semilla reproducible del emulador** (`backend/scripts/seed-emulator.mjs`)
   para levantar un entorno de desarrollo con datos realistas de un
   comando.
+- **Noticias reales mezcladas en el Feed**: dos Cloud Functions programadas
+  (`syncGuardianNews` cada 30 min, `syncGnewsHeadlines` cada hora en
+  español e inglés) llaman a The Guardian Open Platform y a GNews.io
+  **desde el servidor** y escriben en `articles` con un campo `source` que
+  el propio `hasOnly` de las rules hace infalsificable por un cliente — el
+  badge "Titular" es una garantía estructural, no una convención de UI. El
+  cuerpo completo de Guardian se lee dentro de la app; GNews (que trunca su
+  free tier) muestra resumen + "Leer en la fuente". Resuelve las tres
+  dudas que `ROADMAP.md` dejaba abiertas en la sección "Idea pendiente" y
+  además el problema real que motivó la idea: el Feed nunca se ve vacío en
+  una demo sin usuarios reales. Cumplimiento de licencia explícito:
+  atribución siempre visible (`sourceName`), sin traducción automática (se
+  prefirió contenido nativo vía el parámetro `lang` de GNews), y purga
+  automática a las 24h para Guardian (sus términos prohíben conservar el
+  contenido más tiempo) vía un campo `expiresAt` que la propia función
+  revisa en cada corrida — no queda en promesa de diseño.
 
 ### 6.2 Prototipos creados
 
@@ -311,12 +327,14 @@ Más allá del CRUD de artículos con borradores que pedía el encargo:
 - **Diseño del feed social** (likes, comentarios, contador de vistas):
   quedó fuera del presupuesto de horas y se documentó en `ROADMAP.md` en
   vez de simplemente omitirse, incluyendo el esquema que habría tenido.
-- **Diseño de semilla de noticias reales vía Cloud Function en cron**: una
-  función server-side llamaría a NewsAPI periódicamente y escribiría a
-  Firestore, de modo que el cliente nunca vuelva a llamar a una API externa
-  directamente — resolvería tanto el feed vacío en una demo sin usuarios
-  como la `NEWS_API_KEY` hoy horneada en el binario del cliente. No
-  construido; documentado con su diseño completo en `ROADMAP.md`.
+- **Semilla de noticias reales vía Cloud Function en cron**: la idea nació
+  como prototipo documentado en `ROADMAP.md` (server-side, nunca el
+  cliente llamando a una API externa directamente) y terminó
+  construyéndose por completo — ver 6.1. Queda aquí la nota de proceso: el
+  diseño original proponía NewsAPI; se cambió a Guardian + GNews porque
+  NewsAPI (y NewsData.io) truncan o cobran por el cuerpo completo en su
+  free tier, y el requisito real era poder leer la noticia sin salir de la
+  app.
 
 ### 6.3 Cómo se puede mejorar esto
 
@@ -340,6 +358,28 @@ Más allá del CRUD de artículos con borradores que pedía el encargo:
 - CI no corre `dart format --set-exit-if-changed` porque el árbol no está
   format-limpio hoy; formatear todo el proyecto y añadir ese paso sería un
   cambio de una tarde con beneficio real para cualquier colaborador nuevo.
+- **Noticias externas — desplegado y confirmado en producción**: José dio de
+  alta las API keys, corrió `firebase functions:secrets:set` y
+  `firebase deploy` (regla fija del proyecto: el asistente nunca ejecuta
+  esos comandos, ver CLAUDE.md). El primer deploy real destapó dos bugs que
+  ningún test local podía atrapar — un import que quedaba fuera del paquete
+  que `firebase deploy` sube (rompía el arranque del contenedor en Cloud
+  Run) y dos campos de timestamp faltantes que colgaban el Feed en
+  `loading` infinito sin ningún error visible. Ambos corregidos y
+  verificados por José en dispositivo real; detalle completo en
+  `ROADMAP.md`, Fase 10.
+- **Ambas APIs son de uso no comercial en su free tier** (Guardian y
+  GNews): la app puede demostrarse pero no monetizarse mientras dependa de
+  estas keys — pasar a un plan de pago sería el camino natural para
+  producción real.
+- La priorización por idioma del Feed reordena solo la página ya cargada
+  en memoria, no el feed completo — mismo compromiso que ya asumía "Leer
+  después" con leídos/no leídos. Resolverlo de forma global exigiría un
+  segundo índice compuesto por `lang` y perder la ganancia (evitar dos
+  round-trips) que motivó hacerlo así.
+- La purga de noticias expiradas está acotada a 200 documentos por
+  corrida; a 48 corridas/día sobra en la práctica, pero un pico real de
+  contenido lo notaría con un día de retraso, no instantáneamente.
 
 ## 7. Secciones extra
 

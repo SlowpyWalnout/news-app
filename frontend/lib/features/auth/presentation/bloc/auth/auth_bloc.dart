@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app/core/resources/data_state.dart';
 import 'package:news_app/core/resources/failure.dart';
 import 'package:news_app/core/usecase/usecase.dart';
+import 'package:news_app/features/auth/domain/entities/user_entity.dart';
 import 'package:news_app/features/auth/domain/params/sign_in_params.dart';
 import 'package:news_app/features/auth/domain/params/sign_up_params.dart';
 import 'package:news_app/features/auth/domain/use_cases/auth_validator.dart';
@@ -55,7 +56,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       SignInParams(email: event.email, password: event.password),
     );
     if (result is DataSuccess<dynamic> && result.data != null) {
-      emit(state.copyWith(status: AuthStatus.authenticated, user: result.data));
+      await _completeSignIn(emit, result.data as UserEntity);
     } else if (result is DataFailed<dynamic>) {
       emit(state.copyWith(status: AuthStatus.unauthenticated, submitError: result.error));
     }
@@ -95,7 +96,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
     if (result is DataSuccess<dynamic> && result.data != null) {
-      emit(state.copyWith(status: AuthStatus.authenticated, user: result.data));
+      await _completeSignIn(emit, result.data as UserEntity);
     } else if (result is DataFailed<dynamic>) {
       emit(state.copyWith(status: AuthStatus.unauthenticated, submitError: result.error));
     }
@@ -108,7 +109,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading, clearSubmitError: true));
     final result = await _signInWithGoogleUseCase(const NoParams());
     if (result is DataSuccess<dynamic> && result.data != null) {
-      emit(state.copyWith(status: AuthStatus.authenticated, user: result.data));
+      await _completeSignIn(emit, result.data as UserEntity);
     } else if (result is DataFailed<dynamic>) {
       // Cancelling the Google account picker isn't a real error; stay quiet.
       final error = result.error;
@@ -120,8 +121,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
+  // Shared tail of sign-in/sign-up/Google sign-in: the credential check
+  // already happened (the caller awaited its use case), so this delay is
+  // purely cosmetic — same idea as onSignedOut's, but with nothing real left
+  // to wait for concurrently.
+  Future<void> _completeSignIn(Emitter<AuthState> emit, UserEntity user) async {
+    emit(state.copyWith(status: AuthStatus.signingIn, user: user));
+    await Future.delayed(const Duration(milliseconds: 1400));
+    if (isClosed) return;
+    emit(state.copyWith(status: AuthStatus.authenticated, user: user));
+  }
+
   Future<void> onSignedOut(AuthSignedOut event, Emitter<AuthState> emit) async {
-    await _signOutUseCase(const NoParams());
+    emit(state.copyWith(status: AuthStatus.signingOut));
+    // Deliberate minimum so the splash AuthGate shows for this status reads
+    // as "doing something" rather than a flash — same idea as the 1s refresh
+    // delay in FeedBloc/ReadLaterBloc, not a workaround for a real wait.
+    final minimumSplash = Future.delayed(const Duration(milliseconds: 1400));
+    await Future.wait([_signOutUseCase(const NoParams()), minimumSplash]);
+    if (isClosed) return;
     emit(const AuthState(status: AuthStatus.unauthenticated));
   }
 

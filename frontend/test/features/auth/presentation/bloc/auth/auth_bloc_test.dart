@@ -66,10 +66,35 @@ void main() {
     );
 
     blocTest<AuthBloc, AuthState>(
+      'AuthSignInSubmitted exitoso pasa por signingIn antes de authenticated',
+      setUp: () => when(() => repo.signIn(any())).thenAnswer((_) async => DataSuccess(testUser)),
+      build: () => _buildBloc(repo),
+      act: (bloc) => bloc.add(const AuthSignInSubmitted(email: 'rosa@correo.com', password: '123456')),
+      wait: const Duration(milliseconds: 50),
+      verify: (bloc) {
+        expect(bloc.state.status, AuthStatus.signingIn);
+        expect(bloc.state.user, testUser);
+      },
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthSignInSubmitted exitoso termina en authenticated',
+      setUp: () => when(() => repo.signIn(any())).thenAnswer((_) async => DataSuccess(testUser)),
+      build: () => _buildBloc(repo),
+      act: (bloc) => bloc.add(const AuthSignInSubmitted(email: 'rosa@correo.com', password: '123456')),
+      wait: const Duration(milliseconds: 1500),
+      verify: (bloc) {
+        expect(bloc.state.status, AuthStatus.authenticated);
+        expect(bloc.state.user, testUser);
+      },
+    );
+
+    blocTest<AuthBloc, AuthState>(
       'AuthSignUpSubmitted exitoso emite authenticated',
       setUp: () => when(() => repo.signUp(any())).thenAnswer((_) async => DataSuccess(testUser)),
       build: () => _buildBloc(repo),
       act: (bloc) => bloc.add(const AuthSignUpSubmitted(displayName: 'Rosa', email: 'rosa@correo.com', password: '123456')),
+      wait: const Duration(milliseconds: 1500),
       verify: (bloc) {
         expect(bloc.state.status, AuthStatus.authenticated);
         expect(bloc.state.user, testUser);
@@ -92,6 +117,7 @@ void main() {
       setUp: () => when(() => repo.signInWithGoogle()).thenAnswer((_) async => DataSuccess(testUser)),
       build: () => _buildBloc(repo),
       act: (bloc) => bloc.add(const AuthGoogleSignInRequested()),
+      wait: const Duration(milliseconds: 1500),
       verify: (bloc) {
         expect(bloc.state.status, AuthStatus.authenticated);
         expect(bloc.state.user, testUser);
@@ -126,7 +152,26 @@ void main() {
         await Future.delayed(Duration.zero);
         bloc.add(const AuthSignedOut());
       },
+      // The deliberate minimum-splash delay (AuthGate's sign-out screen)
+      // means the bloc sits in `signingOut` briefly before `unauthenticated`.
+      wait: const Duration(milliseconds: 1500),
       verify: (bloc) => expect(bloc.state.status, AuthStatus.unauthenticated),
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'AuthSignedOut pasa primero por signingOut, para que AuthGate pueda mostrar el splash',
+      setUp: () {
+        when(() => repo.getCurrentUser()).thenAnswer((_) async => testUser);
+        when(() => repo.signOut()).thenAnswer((_) async => const DataSuccess(null));
+      },
+      build: () => _buildBloc(repo),
+      act: (bloc) async {
+        bloc.add(const AuthSessionChecked());
+        await Future.delayed(Duration.zero);
+        bloc.add(const AuthSignedOut());
+      },
+      wait: const Duration(milliseconds: 50),
+      verify: (bloc) => expect(bloc.state.status, AuthStatus.signingOut),
     );
   });
 }
