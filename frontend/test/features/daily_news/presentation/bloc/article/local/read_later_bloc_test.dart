@@ -27,10 +27,6 @@ class _FakeArticleRepository implements ArticleRepository {
   List<ArticleEntity> articles;
 
   @override
-  Future<DataState<List<ArticleEntity>>> getNewsArticles() async =>
-      const DataSuccess([]);
-
-  @override
   Future<List<ArticleEntity>> getReadLaterArticles() async => articles;
 
   @override

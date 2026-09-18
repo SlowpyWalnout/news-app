@@ -1,17 +1,12 @@
 import 'package:get_it/get_it.dart';
-import 'package:floor/floor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:news_app/features/daily_news/data/data_sources/remote/news_api_service.dart';
 import 'package:news_app/features/daily_news/data/repository/article_repository_impl.dart';
 import 'package:news_app/features/daily_news/domain/repository/article_repository.dart';
-import 'package:news_app/features/daily_news/domain/use_cases/get_article.dart';
-import 'package:news_app/features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
 import 'features/daily_news/data/data_sources/local/app_database.dart';
 import 'features/daily_news/domain/use_cases/get_read_later_articles_use_case.dart';
 import 'features/daily_news/domain/use_cases/mark_read_later_article_as_read_use_case.dart';
@@ -73,20 +68,11 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton<AppShellController>(() => AppShellController());
   sl.registerLazySingleton<ArticleChangesNotifier>(() => ArticleChangesNotifier());
 
-  final database = await $FloorAppDatabase
-      .databaseBuilder('app_database.db')
-      .addMigrations([
-        Migration(1, 2, (db) => db.execute('ALTER TABLE article ADD COLUMN sourceId TEXT')),
-        Migration(2, 3, (db) => db.execute('ALTER TABLE article ADD COLUMN isRead INTEGER NOT NULL DEFAULT 0')),
-      ])
-      .build();
+  final database = await AppDatabase.open('app_database.db');
   sl.registerSingleton<AppDatabase>(database);
 
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerSingleton<SharedPreferences>(sharedPreferences);
-
-  // Dio
-  sl.registerSingleton<Dio>(Dio());
 
   // Firebase
   sl.registerSingleton<fb_auth.FirebaseAuth>(fb_auth.FirebaseAuth.instance);
@@ -94,16 +80,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<FirebaseStorage>(FirebaseStorage.instance);
 
   // Dependencies
-  sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
-
-  sl.registerSingleton<ArticleRepository>(ArticleRepositoryImpl(sl(), sl()));
-
-  // NOTE: legacy NewsAPI plumbing above (NewsApiService/ArticleRepositoryImpl)
-  // is no longer wired into any screen — Fase 5 moved the feed to
-  // AuthoredArticleRepository. Kept registered because ArticleRepository
-  // still backs the local "Read it later" cache (GetReadLaterArticlesUseCase
-  // et al.). RemoteArticlesBloc itself has no remaining consumer; see
-  // ROADMAP.md.
+  sl.registerSingleton<ArticleRepository>(ArticleRepositoryImpl(sl()));
 
   final googleSignIn = GoogleSignIn.instance;
   await googleSignIn.initialize();
@@ -128,8 +105,6 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl()));
 
   //UseCases
-  sl.registerSingleton<GetArticleUseCase>(GetArticleUseCase(sl()));
-
   sl.registerSingleton<GetReadLaterArticlesUseCase>(GetReadLaterArticlesUseCase(sl()));
 
   sl.registerSingleton<AddToReadLaterUseCase>(AddToReadLaterUseCase(sl()));
@@ -162,8 +137,6 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<SaveSettingsUseCase>(SaveSettingsUseCase(sl()));
 
   //Blocs
-  sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl()));
-
   sl.registerFactory<ReadLaterBloc>(() => ReadLaterBloc(sl(), sl(), sl(), sl(), sl()));
 
   sl.registerFactory<AuthBloc>(() => AuthBloc(sl(), sl(), sl(), sl(), sl()));

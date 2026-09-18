@@ -11,8 +11,6 @@ To do this, follow these steps:
 2. Watch this [tutorial to setup Firebase for Flutter](https://youtu.be/Wa0rdbb53I8?list=PL4cUxeGkcC9j--TKIdkb3ISfRbJeJYQwC)
 Once you have completed this appropriately, you can start to work with the project.
 
-### Generate files for routing, di etc.:
-`flutter pub run build_runner build --delete-conflicting-outputs`
 ### Generate the icons:
 `flutter pub run flutter_launcher_icons`
 ### Install the Project Dependencies (in pubsec.yaml)

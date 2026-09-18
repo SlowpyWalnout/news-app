@@ -466,10 +466,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo cargar la política de privacidad.';
 
   @override
-  String get legalNoticePrefix => 'Al continuar, aceptas nuestros ';
+  String get legalNoticePrefix => 'Al continuar, aceptas nuestra ';
 
   @override
-  String get legalNoticeAnd => ' y nuestra ';
+  String get legalNoticeAnd => ' y ';
 
   @override
   String get logOut => 'Cerrar sesión';

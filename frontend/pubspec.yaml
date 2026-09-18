@@ -35,12 +35,7 @@ dependencies:
   shared_preferences: ^2.3.3
 
   # local database (favorites cache)
-  floor: ^1.5.0
   sqflite: ^2.4.4
-
-  # remote API client (NewsAPI)
-  retrofit: ^4.10.0
-  dio: ^5.9.0
 
   # Firebase
   firebase_core: ^4.15.0
@@ -65,16 +60,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  retrofit_generator: ^8.2.1
-  floor_generator: ^1.5.0
-  build_runner: ^2.4.13
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.8
-  # NOTE: bloc_test/mocktail are NOT added here — floor_generator ^1.5.0 (no
-  # newer version exists) pins analyzer ^6.4.1, which conflicts with every
-  # test_api version bloc_test's `test` dependency chain can resolve to.
-  # Fase 5 tests below use plain flutter_test (bloc.stream + expectLater) and
-  # hand-written fakes instead. Revisit in Fase 8 if Floor gets dropped.
+  bloc_test: ^9.1.7
+  mocktail: ^1.0.4
 
 
 flutter:

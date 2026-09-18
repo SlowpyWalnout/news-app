@@ -36,6 +36,10 @@ class _LegalLinksNoticeState extends State<LegalLinksNotice> {
     super.dispose();
   }
 
+  /// Non-breaking space in place of regular spaces, so the phrase wraps
+  /// as one unbreakable unit instead of splitting mid-phrase.
+  String _nbsp(String text) => text.replaceAll(' ', ' ');
+
   void _open({required String assetBaseName}) {
     final l10n = AppLocalizations.of(context)!;
     final isTerms = assetBaseName == 'terms';
@@ -62,13 +66,17 @@ class _LegalLinksNoticeState extends State<LegalLinksNotice> {
         style: baseStyle,
         children: [
           TextSpan(text: l10n.legalNoticePrefix),
-          // Line break so "Términos y condiciones ... Política de privacidad"
-          // stays together on its own line instead of splitting mid-phrase
-          // wherever the prefix happens to run out of width.
-          const TextSpan(text: '\n'),
-          TextSpan(text: l10n.termsOfServiceRow, style: linkStyle, recognizer: _termsRecognizer),
-          TextSpan(text: l10n.legalNoticeAnd),
-          TextSpan(text: l10n.privacyPolicyRow, style: linkStyle, recognizer: _privacyRecognizer),
+          TextSpan(
+            text: _nbsp(l10n.privacyPolicyRow),
+            style: linkStyle,
+            recognizer: _privacyRecognizer,
+          ),
+          TextSpan(text: _nbsp(l10n.legalNoticeAnd)),
+          TextSpan(
+            text: _nbsp(l10n.termsOfServiceRow),
+            style: linkStyle,
+            recognizer: _termsRecognizer,
+          ),
           const TextSpan(text: '.'),
         ],
       ),

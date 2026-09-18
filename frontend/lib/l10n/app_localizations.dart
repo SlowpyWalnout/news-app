@@ -953,13 +953,13 @@ abstract class AppLocalizations {
   /// No description provided for @legalNoticePrefix.
   ///
   /// In es, this message translates to:
-  /// **'Al continuar, aceptas nuestros '**
+  /// **'Al continuar, aceptas nuestra '**
   String get legalNoticePrefix;
 
   /// No description provided for @legalNoticeAnd.
   ///
   /// In es, this message translates to:
-  /// **' y nuestra '**
+  /// **' y '**
   String get legalNoticeAnd;
 
   /// No description provided for @logOut.
