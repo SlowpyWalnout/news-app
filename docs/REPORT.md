@@ -229,23 +229,21 @@ Direcciones futuras, en orden de valor si continuara el proyecto:
 
 ## 5. Prueba del proyecto
 
-Las capturas y el video de este proyecto **no se generaron en esta sesión**
-por falta de herramienta de UI automation disponible. En vez de omitir la
-sección o fingir evidencia, se dejó preparado el hueco exacto: el guion de
-captura completo, con nombre de archivo y qué mostrar en cada una, vive en
-[`docs/assets/screenshots/README.md`](./assets/screenshots/README.md).
-Al capturar y guardar cada archivo con el nombre indicado, las imágenes de
-abajo aparecen automáticamente sin editar este documento.
+Capturas y video tomados por José en dispositivo/simulador real. Cobertura
+parcial del guion original (`docs/assets/screenshots/README.md`): de las 14
+capturas previstas, 10 quedaron incluidas abajo; el resto no se pudo
+capturar en esta sesión y queda pendiente para una siguiente ronda.
 
 | | |
 |---|---|
 | ![Login](./assets/screenshots/01-login.png) | ![Feed](./assets/screenshots/02-feed.png) |
-| ![Búsqueda](./assets/screenshots/03-feed-busqueda.png) | ![Editor - escritura](./assets/screenshots/04-editor-escritura.png) |
-| ![Editor - preview](./assets/screenshots/05-editor-preview.png) | ![Detalle](./assets/screenshots/06-detalle.png) |
-| ![Mis artículos](./assets/screenshots/07-mis-articulos.png) | ![Leer después](./assets/screenshots/08-leer-despues.png) |
-| ![Reportar](./assets/screenshots/09-reportar.png) | ![Cola de revisión](./assets/screenshots/10-cola-revision.png) |
-| ![Tema oscuro](./assets/screenshots/11-tema-oscuro.png) | ![Modo accesible](./assets/screenshots/12-modo-accesible.png) |
-| ![Perfil y configuración](./assets/screenshots/13-perfil-config.png) | ![Offline](./assets/screenshots/14-offline.png) |
+| ![Búsqueda](./assets/screenshots/03-feed-busqueda.png) | ![Editor - preview](./assets/screenshots/05-editor-preview.png) |
+| ![Detalle](./assets/screenshots/06-detalle.png) | ![Mis artículos](./assets/screenshots/07-mis-articulos.png) |
+| ![Leer después](./assets/screenshots/08-leer-despues.png) | ![Cola de revisión](./assets/screenshots/10-cola-revision.png) |
+| ![Tema oscuro](./assets/screenshots/11-tema-oscuro.png) | ![Perfil y configuración](./assets/screenshots/13-perfil-config.png) |
+
+`10-cola-revision.png` muestra la cola sin artículos suspendidos pendientes
+en el momento de la captura, no un caso con un artículo suspendido.
 
 Video de flujo completo: [`assets/screenshots/demo.mp4`](./assets/screenshots/demo.mp4)
 (registro → publicar artículo con foto → verlo en el feed → editarlo →
