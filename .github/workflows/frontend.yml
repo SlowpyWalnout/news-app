@@ -1,0 +1,41 @@
+name: frontend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      # Checkout completo (no sparse): search_keywords_test.dart lee
+      # backend/scripts/tokenizer-fixtures.json por ruta relativa.
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('frontend/pubspec.lock') }}
+          restore-keys: |
+            pub-${{ runner.os }}-
+
+      - run: flutter pub get
+
+      - run: flutter analyze
+
+      - run: flutter test --reporter expanded

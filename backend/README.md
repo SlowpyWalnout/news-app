@@ -109,3 +109,28 @@ npm install
 apenas los tokens queden escritos. El script es idempotente — una segunda
 corrida no reescribe nada — así que una pasada interrumpida se retoma
 volviendo a correrlo.
+
+## Semilla de datos para el emulador (Fase 8)
+
+`backend/seed/` es un export de Auth/Firestore/Storage con datos de ejemplo
+(2 usuarios, 6 artículos —publicados, borrador y suspendido—, 1 reporte y 1
+objeto de Storage), pensado para desarrollo local y demo — **no** se usa en
+los tests de rules, que crean sus propios datos.
+
+Reusarla:
+```
+firebase emulators:start --project=news-app-f979a --import=./seed
+```
+
+Regenerarla desde cero (`backend/scripts/seed-emulator.mjs`, se niega a
+correr si no detecta las tres variables de emulador):
+```
+firebase emulators:start --project=news-app-f979a --only auth,firestore,storage --export-on-exit=./seed
+# en otra terminal:
+cd backend/scripts && \
+  FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 \
+  FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 \
+  FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 \
+  npm run seed
+# Ctrl-C en la primera terminal para disparar el export
+```

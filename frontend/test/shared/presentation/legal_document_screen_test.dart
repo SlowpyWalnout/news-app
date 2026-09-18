@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:news_app/config/theme/app_colors.dart';
-import 'package:news_app/config/theme/app_themes.dart';
-import 'package:news_app/l10n/app_localizations.dart';
 import 'package:news_app/shared/presentation/screens/legal_document_screen.dart';
 import 'package:news_app/shared/widgets/markdown_text.dart';
+
+import '../../helpers/helpers.dart';
 
 // Regression: Localizations.localeOf(context) was read from initState(),
 // which throws ("dependOnInheritedWidgetOfExactType... called before
@@ -14,12 +12,10 @@ import 'package:news_app/shared/widgets/markdown_text.dart';
 void main() {
   for (final doc in ['privacy', 'terms']) {
     testWidgets('opening LegalDocumentScreen($doc) does not throw and renders content', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        theme: appTheme(brightness: Brightness.light, accent: AppAccent.lime, accessible: false),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: LegalDocumentScreen(assetBaseName: doc, title: 'Title', errorMessage: 'Error'),
-      ));
+      await tester.pumpApp(
+        LegalDocumentScreen(assetBaseName: doc, title: 'Title', errorMessage: 'Error'),
+        centerInScaffold: false,
+      );
 
       expect(tester.takeException(), isNull);
 

@@ -1,51 +1,35 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:news_app/core/resources/data_state.dart';
 import 'package:news_app/core/resources/failure.dart';
-import 'package:news_app/core/resources/paginated_result.dart';
-import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
 import 'package:news_app/features/moderation/domain/entities/report_reason.dart';
 import 'package:news_app/features/moderation/domain/params/decide_params.dart';
 import 'package:news_app/features/moderation/domain/params/report_article_params.dart';
-import 'package:news_app/features/moderation/domain/repository/moderation_repository.dart';
 import 'package:news_app/features/moderation/domain/use_cases/decide_on_article_use_case.dart';
 import 'package:news_app/features/moderation/domain/use_cases/has_reported_use_case.dart';
 import 'package:news_app/features/moderation/domain/use_cases/report_article_use_case.dart';
 import 'package:news_app/features/moderation/presentation/bloc/moderation_cubit.dart';
 
-/// Hand-written fake — mocktail isn't available (see pubspec.yaml note).
-class _FakeModerationRepository implements ModerationRepository {
-  _FakeModerationRepository({this.reportResult, this.hasReportedResult, this.decideResult});
+import '../../../../helpers/helpers.dart';
 
-  DataState<void>? reportResult;
-  DataState<bool>? hasReportedResult;
-  DataState<void>? decideResult;
-  DecideParams? lastDecideParams;
-
-  @override
-  Future<DataState<void>> reportArticle(ReportArticleParams params) async => reportResult ?? const DataSuccess(null);
-
-  @override
-  Future<DataState<bool>> hasReported(String articleId) async => hasReportedResult ?? const DataSuccess(false);
-
-  @override
-  Future<DataState<bool>> isStaff() async => const DataSuccess(false);
-
-  @override
-  Future<DataState<void>> decideOnArticle(DecideParams params) async {
-    lastDecideParams = params;
-    return decideResult ?? const DataSuccess(null);
-  }
-
-  @override
-  Future<DataState<PaginatedResult<AuthoredArticleEntity>>> listSuspended({String? cursor}) async {
-    return const DataSuccess(PaginatedResult(items: []));
-  }
-}
-
+// Se queda en test() crudo: los 4 casos afirman el bool devuelto por el
+// método (o el estado tras esa llamada), no una secuencia de emisiones —
+// blocTest solo lo taparía sin añadir nada.
 void main() {
+  setUpAll(registerCommonFallbacks);
+
+  late MockModerationRepository repo;
+
+  setUp(() {
+    repo = MockModerationRepository();
+  });
+
+  ModerationCubit buildCubit() =>
+      ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), HasReportedUseCase(repo));
+
   test('report() devuelve true en éxito y marca el estado como reportado', () async {
-    final repo = _FakeModerationRepository();
-    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), HasReportedUseCase(repo));
+    when(() => repo.reportArticle(any())).thenAnswer((_) async => const DataSuccess(null));
+    final cubit = buildCubit();
 
     final ok = await cubit.report(const ReportArticleParams(articleId: 'a1', reason: ReportReason.spam));
 
@@ -55,8 +39,8 @@ void main() {
   });
 
   test('report() devuelve false si el repositorio falla', () async {
-    final repo = _FakeModerationRepository(reportResult: const DataFailed(ServerFailure('boom')));
-    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), HasReportedUseCase(repo));
+    when(() => repo.reportArticle(any())).thenAnswer((_) async => const DataFailed(ServerFailure('boom')));
+    final cubit = buildCubit();
 
     final ok = await cubit.report(const ReportArticleParams(articleId: 'a1', reason: ReportReason.spam));
 
@@ -65,8 +49,8 @@ void main() {
   });
 
   test('checkReported() refleja el resultado del repositorio en el estado', () async {
-    final repo = _FakeModerationRepository(hasReportedResult: const DataSuccess(true));
-    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), HasReportedUseCase(repo));
+    when(() => repo.hasReported(any())).thenAnswer((_) async => const DataSuccess(true));
+    final cubit = buildCubit();
 
     await cubit.checkReported('a1');
 
@@ -75,13 +59,14 @@ void main() {
   });
 
   test('decide() pasa la decisión al repositorio', () async {
-    final repo = _FakeModerationRepository();
-    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), HasReportedUseCase(repo));
+    when(() => repo.decideOnArticle(any())).thenAnswer((_) async => const DataSuccess(null));
+    final cubit = buildCubit();
 
     final ok = await cubit.decide(const DecideParams(articleId: 'a1', decision: ModerationDecision.approve));
 
     expect(ok, isTrue);
-    expect(repo.lastDecideParams?.decision, ModerationDecision.approve);
+    final captured = verify(() => repo.decideOnArticle(captureAny())).captured.single as DecideParams;
+    expect(captured.decision, ModerationDecision.approve);
     await cubit.close();
   });
 }

@@ -1,0 +1,90 @@
+name: backend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+# Node 20 en todo el workflow para que coincida con backend/functions
+# (engines.node = "20", el runtime real de Cloud Functions).
+env:
+  NODE_VERSION: '20'
+  FIREBASE_TOOLS_VERSION: '15.28.1'
+
+jobs:
+  unit:
+    # functions (Cloud Functions, sin emulador) y scripts (tokenizer) no
+    # necesitan Java ni el emulador de Firestore/Storage — job aparte del
+    # de rules, separados por toolchain, no por paquete.
+    strategy:
+      matrix:
+        package: [functions, scripts]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/${{ matrix.package }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/${{ matrix.package }}/package-lock.json
+
+      - run: npm ci
+
+      - run: npm test
+
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/tests/package-lock.json
+
+      # Los emuladores de Firestore/Storage son JVM.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - run: npm install -g firebase-tools@${{ env.FIREBASE_TOOLS_VERSION }}
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ env.FIREBASE_TOOLS_VERSION }}
+
+      - run: firebase setup:emulators:firestore
+      - run: firebase setup:emulators:storage
+
+      - run: npm ci
+        working-directory: backend/tests
+
+      # Reusa backend/tests/run.sh tal cual (evita firebase emulators:exec:
+      # su Node embebido no puede cargar el vitest ESM, ver cabecera de
+      # run.sh). Timeout de arranque más largo que el default local (60s)
+      # porque un runner en frío puede tardar más en levantar el emulador.
+      - run: npm test
+        working-directory: backend/tests
+        env:
+          EMULATOR_WAIT_SECONDS: '120'
+          CI: 'true'
+
+      - name: Upload emulator log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firestore-emulator-log
+          path: ${{ runner.temp }}/emulators.*.log
+          if-no-files-found: ignore

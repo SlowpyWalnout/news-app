@@ -1,0 +1,15 @@
+{
+  "name": "media/articles/seed-author/seed-article-1/seed-thumbnail.jpg",
+  "bucket": "news-app-f979a.firebasestorage.app",
+  "metageneration": 1,
+  "generation": 1789711335539,
+  "contentType": "image/jpeg",
+  "storageClass": "STANDARD",
+  "downloadTokens": [],
+  "etag": "QZh9U9Wcr8sZJ9FHBao6LxL/mU8",
+  "timeCreated": "2026-09-18T06:02:15.539Z",
+  "updated": "2026-09-18T06:02:15.539Z",
+  "size": 54,
+  "md5Hash": "XS6LmfVgICTauFVRw7Cw9w==",
+  "crc32c": "246564902"
+}

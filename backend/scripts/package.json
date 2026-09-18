@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "backfill": "node backfill-search-keywords.mjs"
+    "backfill": "node backfill-search-keywords.mjs",
+    "seed": "node seed-emulator.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.0.0"
