@@ -27,10 +27,13 @@ void showAppToast(BuildContext context, String message) {
                 BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 28, offset: const Offset(0, 12)),
               ],
             ),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fSm, color: scheme.surface),
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fSm, color: scheme.surface),
+              ),
             ),
           ),
         ),

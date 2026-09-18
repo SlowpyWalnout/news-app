@@ -25,7 +25,17 @@ class CompactArticleCard extends StatelessWidget {
     final dateLabel = article.publishedAt != null ? DateFormat.MMMd(l10n.localeName).format(article.publishedAt!) : '';
     final readLabel = l10n.readTimeMinutes(estimateReadingMinutes(article.body));
 
-    return GestureDetector(
+    final semanticLabel = l10n.articleCardLabel(
+      article.title,
+      article.authorName,
+      categoryLabel(l10n, article.category),
+    );
+
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      excludeSemantics: true,
+      child: GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(14),
@@ -105,6 +115,7 @@ class CompactArticleCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

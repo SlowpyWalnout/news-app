@@ -13,6 +13,7 @@ import '../../../../../shared/widgets/confirm_delete_sheet.dart';
 import '../../../../../shared/widgets/inline_banner.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../../shared/widgets/markdown_text.dart';
+import '../../../../../shared/widgets/screen_header.dart';
 import '../../../../../shared/widgets/scrim_overlay.dart';
 import '../../../../../shared/widgets/striped_image_placeholder.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
@@ -154,39 +155,34 @@ class _ArticleDetailViewState extends State<_ArticleDetailView> {
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.line, width: 1.5))),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  BackPillButton(label: l10n.backToFeed, onPressed: () => Navigator.of(context).maybePop()),
-                  BlocBuilder<ReadLaterBloc, ReadLaterState>(
-                    builder: (context, state) {
-                      final stored = state.articles ?? const <ArticleEntity>[];
-                      final match = _findStoredMatch(stored);
-                      final saved = match != null;
-                      return OutlinedButton(
-                        onPressed: () {
-                          if (saved) {
-                            context.read<ReadLaterBloc>().add(ReadLaterRemoved(match));
-                          } else {
-                            context.read<ReadLaterBloc>().add(ReadLaterAdded(article.toFeedArticle()));
-                          }
-                          showAppToast(context, saved ? l10n.readLaterRemovedToast : l10n.readLaterAddedToast);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          backgroundColor: saved ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
-                          foregroundColor: saved ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
-                          side: BorderSide(color: saved ? Theme.of(context).colorScheme.primary : palette.edge),
-                          minimumSize: const Size(0, 48),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
-                        ),
-                        child: Text(saved ? l10n.readLaterAdded : l10n.readLaterAdd, style: const TextStyle(fontWeight: FontWeight.w700)),
-                      );
-                    },
-                  ),
-                ],
+            ScreenHeader(
+              trailing: BlocBuilder<ReadLaterBloc, ReadLaterState>(
+                builder: (context, state) {
+                  final stored = state.articles ?? const <ArticleEntity>[];
+                  final match = _findStoredMatch(stored);
+                  final saved = match != null;
+                  return Semantics(
+                    toggled: saved,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        if (saved) {
+                          context.read<ReadLaterBloc>().add(ReadLaterRemoved(match));
+                        } else {
+                          context.read<ReadLaterBloc>().add(ReadLaterAdded(article.toFeedArticle()));
+                        }
+                        showAppToast(context, saved ? l10n.readLaterRemovedToast : l10n.readLaterAddedToast);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: saved ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+                        foregroundColor: saved ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
+                        side: BorderSide(color: saved ? Theme.of(context).colorScheme.primary : palette.edge),
+                        minimumSize: const Size(0, 48),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                      ),
+                      child: Text(saved ? l10n.readLaterAdded : l10n.readLaterAdd, style: const TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  );
+                },
               ),
             ),
             Expanded(

@@ -7,8 +7,8 @@ import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/app_shell_controller.dart';
 import '../../../../../shared/article_changes_notifier.dart';
-import '../../../../../shared/settings/presentation/cubit/settings_cubit.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
+import '../../../../../shared/widgets/settings_row.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../../../auth/presentation/bloc/auth/auth_event.dart';
 import '../../../../daily_news/presentation/screens/read_later/read_later_screen.dart';
@@ -18,6 +18,7 @@ import '../../bloc/my_articles/my_articles_bloc.dart';
 import '../../bloc/my_articles/my_articles_event.dart';
 import '../../bloc/my_articles/my_articles_state.dart';
 import '../article_editor/article_editor_screen.dart';
+import '../settings/settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -83,7 +84,6 @@ class _ProfileViewState extends State<_ProfileView> {
     final palette = context.palette;
     final dims = Theme.of(context).extension<AppDimensions>()!;
     final user = context.watch<AuthBloc>().state.user;
-    final settings = context.watch<SettingsCubit>().state;
 
     return Scaffold(
       body: SafeArea(
@@ -132,21 +132,21 @@ class _ProfileViewState extends State<_ProfileView> {
                 },
               ),
               const SizedBox(height: 22),
-              _SettingsRow(
+              SettingsRow(
                 label: l10n.myArticlesRow,
                 leading: Icons.article_outlined,
                 trailing: const Icon(Icons.arrow_forward, size: 18),
                 onTap: () => sl<AppShellController>().goToTab(1),
               ),
               const SizedBox(height: 11),
-              _SettingsRow(
+              SettingsRow(
                 label: l10n.writeArticleRow,
                 leading: Icons.edit_outlined,
                 trailing: const Icon(Icons.arrow_forward, size: 18),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ArticleEditorScreen())),
               ),
               const SizedBox(height: 11),
-              _SettingsRow(
+              SettingsRow(
                 label: l10n.readLaterRow,
                 leading: Icons.bookmark_border,
                 trailing: const Icon(Icons.arrow_forward, size: 18),
@@ -154,7 +154,7 @@ class _ProfileViewState extends State<_ProfileView> {
               ),
               if (_isStaff) ...[
                 const SizedBox(height: 11),
-                _SettingsRow(
+                SettingsRow(
                   label: l10n.staffReviewRow,
                   leading: Icons.shield_outlined,
                   trailing: const Icon(Icons.arrow_forward, size: 18),
@@ -162,28 +162,14 @@ class _ProfileViewState extends State<_ProfileView> {
                 ),
               ],
               const SizedBox(height: 11),
-              _SettingsRow(
-                label: l10n.appearanceRow,
-                leading: Icons.palette_outlined,
-                trailingText: settings.themeMode == ThemeMode.dark ? l10n.themeDark : l10n.themeLight,
-                onTap: () => context.read<SettingsCubit>().toggleTheme(),
-              ),
-              const SizedBox(height: 11),
-              _SettingsRow(
-                label: l10n.accessibleModeRow,
-                leading: Icons.accessibility_new_outlined,
-                trailingText: settings.accessible ? l10n.on : l10n.off,
-                onTap: () => context.read<SettingsCubit>().toggleAccessible(),
-              ),
-              const SizedBox(height: 11),
-              _SettingsRow(
-                label: l10n.languageRow,
-                leading: Icons.language_outlined,
-                trailingText: settings.locale.languageCode == 'es' ? l10n.languageSpanish : l10n.languageEnglish,
-                onTap: () => context.read<SettingsCubit>().toggleLocale(),
+              SettingsRow(
+                label: l10n.settingsRow,
+                leading: Icons.settings_outlined,
+                trailing: const Icon(Icons.arrow_forward, size: 18),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
               ),
               const SizedBox(height: 19),
-              _SettingsRow(
+              SettingsRow(
                 label: l10n.logOut,
                 leading: Icons.logout,
                 isDestructive: true,
@@ -233,68 +219,6 @@ class _StatTile extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fXs, color: filled ? scheme.onPrimary : palette.ink2),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SettingsRow extends StatelessWidget {
-  const _SettingsRow({
-    required this.label,
-    required this.onTap,
-    this.leading,
-    this.trailing,
-    this.trailingText,
-    this.isDestructive = false,
-  });
-
-  final String label;
-  final VoidCallback onTap;
-  final IconData? leading;
-  final Widget? trailing;
-  final String? trailingText;
-  final bool isDestructive;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.palette;
-    final scheme = Theme.of(context).colorScheme;
-    final dims = Theme.of(context).extension<AppDimensions>()!;
-    final color = isDestructive ? scheme.error : scheme.onSurface;
-
-    return SizedBox(
-      width: double.infinity,
-      height: dims.tap,
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          backgroundColor: scheme.surface,
-          foregroundColor: color,
-          side: BorderSide(color: isDestructive ? scheme.error : palette.line, width: isDestructive ? 2.5 : dims.borderWidth),
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (leading != null) ...[
-                    Icon(leading, size: 18, color: color),
-                    const SizedBox(width: 12),
-                  ],
-                  Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd))),
-                ],
-              ),
-            ),
-            if (trailingText != null)
-              Text(trailingText!, style: TextStyle(fontWeight: FontWeight.w500, color: palette.ink2))
-            else if (trailing != null)
-              trailing!,
-          ],
-        ),
       ),
     );
   }

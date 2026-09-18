@@ -29,27 +29,30 @@ class InlineBanner extends StatelessWidget {
     final bgColor = isDanger ? palette.dangerSoft : palette.warnSoft;
     final textColor = isDanger ? scheme.error : palette.warn;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
-      decoration: BoxDecoration(
-        color: bgColor,
-        border: Border.all(color: borderColor, width: dims.borderWidth),
-        borderRadius: BorderRadius.circular(AppRadii.r16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd, color: isDanger ? textColor : scheme.onSurface),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            body,
-            style: TextStyle(fontSize: dims.fSm, height: 1.5, color: palette.ink2),
-          ),
-        ],
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
+        decoration: BoxDecoration(
+          color: bgColor,
+          border: Border.all(color: borderColor, width: dims.borderWidth),
+          borderRadius: BorderRadius.circular(AppRadii.r16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd, color: isDanger ? textColor : scheme.onSurface),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              body,
+              style: TextStyle(fontSize: dims.fSm, height: 1.5, color: palette.ink2),
+            ),
+          ],
+        ),
       ),
     );
   }

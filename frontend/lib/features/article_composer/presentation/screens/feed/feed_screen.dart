@@ -141,7 +141,7 @@ class _FeedViewState extends State<_FeedView>
                 title: const SizedBox.shrink(),
                 bottom: PreferredSize(
                   preferredSize:
-                      Size.fromHeight(164 + math.max(46, dims.fH * 1.3)),
+                      Size.fromHeight(170 + math.max(46, dims.fH * 1.3)),
                   child: Container(
                     padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
                     decoration: BoxDecoration(
@@ -174,11 +174,16 @@ class _FeedViewState extends State<_FeedView>
                                   ],
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: () =>
-                                    sl<AppShellController>().goToTab(2),
-                                child: InitialsAvatar(
-                                    initials: userInitials, size: 46),
+                              Semantics(
+                                button: true,
+                                label: l10n.openProfile,
+                                excludeSemantics: true,
+                                child: GestureDetector(
+                                  onTap: () =>
+                                      sl<AppShellController>().goToTab(2),
+                                  child: InitialsAvatar(
+                                      initials: userInitials, size: 46),
+                                ),
                               ),
                             ],
                           ),
@@ -224,8 +229,6 @@ class _FeedViewState extends State<_FeedView>
                                     icon: Icon(Icons.close,
                                         color: palette.ink3, size: 18),
                                     tooltip: l10n.searchClear,
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
                                     onPressed: () {
                                       _searchController.clear();
                                       context
@@ -243,7 +246,7 @@ class _FeedViewState extends State<_FeedView>
                           buildWhen: (a, b) => a.category != b.category,
                           builder: (context, state) {
                             return SizedBox(
-                              height: 42,
+                              height: 48,
                               child: EdgeFadeScroll(
                                 children: [
                                   Padding(

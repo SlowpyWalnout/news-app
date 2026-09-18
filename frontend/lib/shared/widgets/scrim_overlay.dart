@@ -43,7 +43,10 @@ class GlassPill extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.45),
+        // 0.72, not the visually lighter 0.45 this used to be: white text at
+        // 9.5-13px must still hit WCAG AA (4.5:1) over an arbitrary photo —
+        // worst case (a white background photo) 0.45 dropped to ~2:1.
+        color: Colors.black.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
       ),

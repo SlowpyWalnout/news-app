@@ -19,22 +19,27 @@ class InitialsAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: glass ? Colors.white.withValues(alpha: 0.16) : scheme.primary,
-        border: glass ? Border.all(color: Colors.white.withValues(alpha: 0.35)) : null,
-      ),
-      child: Text(
-        initials,
-        style: TextStyle(
-          fontFamily: 'Figtree',
-          fontWeight: FontWeight.w700,
-          fontSize: fontSize ?? size * 0.32,
-          color: glass ? Colors.white : scheme.onPrimary,
+    // Decorative on its own — a screen reader would otherwise spell out the
+    // initials letter by letter. Callers that make this tappable provide
+    // their own Semantics(label:) wrapper around it.
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: glass ? Colors.white.withValues(alpha: 0.16) : scheme.primary,
+          border: glass ? Border.all(color: Colors.white.withValues(alpha: 0.35)) : null,
+        ),
+        child: Text(
+          initials,
+          style: TextStyle(
+            fontFamily: 'Figtree',
+            fontWeight: FontWeight.w700,
+            fontSize: fontSize ?? size * 0.32,
+            color: glass ? Colors.white : scheme.onPrimary,
+          ),
         ),
       ),
     );

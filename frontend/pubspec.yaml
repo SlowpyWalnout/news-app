@@ -82,6 +82,9 @@ flutter:
   uses-material-design: true
   generate: true
 
+  assets:
+    - assets/legal/
+
   # Both families ship as single variable-font files (wght axis); Skia
   # interpolates the requested FontWeight from them directly, so no
   # per-weight asset entries are declared.

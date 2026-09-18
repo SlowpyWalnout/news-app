@@ -45,6 +45,16 @@ class MyApp extends StatelessWidget {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             onGenerateRoute: AppRoutes.onGenerateRoutes,
+            // The app already has its own larger accessible-mode font ramp
+            // (AppDimensions.accessible); without a clamp here, the OS text
+            // scale compounds on top of that and blows out fixed-height
+            // cards (e.g. featured_article_card.dart's 330px hero).
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: MediaQuery.of(context).textScaler.clamp(maxScaleFactor: 1.5),
+              ),
+              child: child!,
+            ),
             home: const AuthGate(),
           );
         },

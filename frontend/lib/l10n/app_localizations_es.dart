@@ -200,6 +200,14 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get openProfile => 'Abrir perfil';
+
+  @override
+  String articleCardLabel(String title, String author, String category) {
+    return '$title. $author. $category';
+  }
+
+  @override
   String get backToFeed => 'Feed';
 
   @override
@@ -213,6 +221,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get readLaterRemovedToast => 'Quitado de Leer después';
+
+  @override
+  String get readLaterRemoveTooltip => 'Quitar de Leer después';
 
   @override
   String get editAction => 'Editar';
@@ -384,6 +395,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noMore => 'No hay más';
 
   @override
+  String get articleMenuTooltip => 'Más opciones';
+
+  @override
   String get publishedStatLabel => 'publicados';
 
   @override
@@ -397,6 +411,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get readLaterRow => 'Leer después';
+
+  @override
+  String get settingsRow => 'Configuración';
+
+  @override
+  String get settingsTitle => 'Configuración';
 
   @override
   String get appearanceRow => 'Apariencia';
@@ -424,6 +444,32 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get languageEnglish => 'English';
+
+  @override
+  String get termsOfServiceRow => 'Términos y condiciones';
+
+  @override
+  String get termsOfServiceTitle => 'Términos y condiciones';
+
+  @override
+  String get termsOfServiceError =>
+      'No se pudieron cargar los términos y condiciones.';
+
+  @override
+  String get privacyPolicyRow => 'Política de privacidad';
+
+  @override
+  String get privacyPolicyTitle => 'Política de privacidad';
+
+  @override
+  String get privacyPolicyError =>
+      'No se pudo cargar la política de privacidad.';
+
+  @override
+  String get legalNoticePrefix => 'Al continuar, aceptas nuestros ';
+
+  @override
+  String get legalNoticeAnd => ' y nuestra ';
 
   @override
   String get logOut => 'Cerrar sesión';

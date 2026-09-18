@@ -92,7 +92,6 @@ class _ReportSheetState extends State<_ReportSheet> {
                           value: reason,
                           title: Text(_reasonLabel(l10n, reason), style: TextStyle(fontSize: dims.fMd)),
                           contentPadding: EdgeInsets.zero,
-                          dense: true,
                         ),
                       )
                       .toList(),

@@ -25,44 +25,50 @@ class CategoryChip extends StatelessWidget {
     final palette = context.palette;
     final scheme = Theme.of(context).colorScheme;
 
-    return Material(
-      color: active ? scheme.primary : scheme.surface,
-      borderRadius: BorderRadius.circular(AppRadii.pill),
-      child: InkWell(
-        onTap: onTap,
+    return Semantics(
+      button: true,
+      selected: active,
+      label: label,
+      excludeSemantics: true,
+      child: Material(
+        color: active ? scheme.primary : scheme.surface,
         borderRadius: BorderRadius.circular(AppRadii.pill),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 42),
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadii.pill),
-            border: Border.all(
-              color: active ? scheme.primary : palette.edge,
-              width: dims.borderWidth,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadii.pill),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadii.pill),
+              border: Border.all(
+                color: active ? scheme.primary : palette.edge,
+                width: dims.borderWidth,
+              ),
             ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: dims.fXs + 3,
-                  color: active ? scheme.onPrimary : scheme.onSurface,
-                ),
-                const SizedBox(width: 6),
-              ],
-              Flexible(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: dims.fXs,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(
+                    icon,
+                    size: dims.fXs + 3,
                     color: active ? scheme.onPrimary : scheme.onSurface,
                   ),
+                  const SizedBox(width: 6),
+                ],
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: dims.fXs,
+                      color: active ? scheme.onPrimary : scheme.onSurface,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

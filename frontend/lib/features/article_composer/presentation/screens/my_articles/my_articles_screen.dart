@@ -151,7 +151,7 @@ class _MyArticlesViewState extends State<_MyArticlesView>
                 title: const SizedBox.shrink(),
                 bottom: PreferredSize(
                   preferredSize:
-                      Size.fromHeight(14 + dims.fH * 1.3 + 14 + 56 + 12 + 8),
+                      Size.fromHeight(14 + dims.fH * 1.3 + 14 + 58 + 12 + 8),
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
@@ -400,58 +400,74 @@ class _MyArticleCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 78,
-                    height: 78,
-                    child: StripedImagePlaceholder(
-                        imageUrl: article.thumbnailURL,
-                        borderRadius: BorderRadius.circular(13)),
-                  ),
-                  const SizedBox(width: 13),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            StatusPill(
-                                label: suspended
-                                    ? l10n.statusSuspended
-                                    : (published ? l10n.publishedPill : l10n.draftPill),
-                                variant: suspended
-                                    ? ArticlePillVariant.suspended
-                                    : (published ? ArticlePillVariant.published : ArticlePillVariant.draft)),
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(dateLabel,
-                                  maxLines: 1,
+                    child: Semantics(
+                      button: true,
+                      label: l10n.articleCardLabel(article.title, dateLabel, categoryText),
+                      excludeSemantics: true,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 78,
+                            height: 78,
+                            child: StripedImagePlaceholder(
+                                imageUrl: article.thumbnailURL,
+                                borderRadius: BorderRadius.circular(13)),
+                          ),
+                          const SizedBox(width: 13),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    StatusPill(
+                                        label: suspended
+                                            ? l10n.statusSuspended
+                                            : (published ? l10n.publishedPill : l10n.draftPill),
+                                        variant: suspended
+                                            ? ArticlePillVariant.suspended
+                                            : (published ? ArticlePillVariant.published : ArticlePillVariant.draft)),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(dateLabel,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: dims.fXs,
+                                              color: palette.ink3)),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  article.title,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                      fontSize: dims.fXs,
-                                      color: palette.ink3)),
+                                      fontFamily: 'Space Grotesk',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: dims.fMd),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(categoryText,
+                                    style: TextStyle(
+                                        fontSize: dims.fXs, color: palette.ink3)),
+                              ],
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          article.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontFamily: 'Space Grotesk',
-                              fontWeight: FontWeight.w600,
-                              fontSize: dims.fMd),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(categoryText,
-                            style: TextStyle(
-                                fontSize: dims.fXs, color: palette.ink3)),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  IconButton(
-                      onPressed: onToggleMenu,
-                      icon: const Icon(Icons.more_horiz)),
+                  Semantics(
+                    expanded: menuOpen,
+                    child: IconButton(
+                        tooltip: l10n.articleMenuTooltip,
+                        onPressed: onToggleMenu,
+                        icon: const Icon(Icons.more_horiz)),
+                  ),
                 ],
               ),
             ),

@@ -28,9 +28,19 @@ class FeaturedArticleCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final dims = Theme.of(context).extension<AppDimensions>()!;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
+    final semanticLabel = l10n.articleCardLabel(
+      article.title,
+      article.authorName,
+      categoryLabel(l10n, article.category),
+    );
+
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
         // A fixed height (not minHeight) is required: Stack's fit:expand
         // below needs a bounded box to fill, and ListView.separated gives
         // this item unbounded height, so minHeight alone left it sizing to
@@ -108,6 +118,7 @@ class FeaturedArticleCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

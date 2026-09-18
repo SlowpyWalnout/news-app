@@ -39,9 +39,20 @@ class ArticleWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            _buildImage(context),
-            _buildTitleAndDescription(context),
-            _buildRemovableArea(),
+            Expanded(
+              child: Semantics(
+                button: true,
+                label: article.title,
+                excludeSemantics: true,
+                child: Row(
+                  children: [
+                    _buildImage(context),
+                    _buildTitleAndDescription(context),
+                  ],
+                ),
+              ),
+            ),
+            _buildRemovableArea(context),
           ],
         ),
       ),
@@ -167,14 +178,12 @@ class ArticleWidget extends StatelessWidget {
     return DateFormat.yMMMd(locale).add_Hm().format(parsed.toLocal());
   }
 
-  Widget _buildRemovableArea() {
+  Widget _buildRemovableArea(BuildContext context) {
     if (!isRemovable) return const SizedBox.shrink();
-    return GestureDetector(
-      onTap: () => onRemove?.call(article),
-      child: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8),
-        child: Icon(Icons.bookmark_remove_outlined, color: Colors.red),
-      ),
+    return IconButton(
+      tooltip: AppLocalizations.of(context)!.readLaterRemoveTooltip,
+      onPressed: () => onRemove?.call(article),
+      icon: Icon(Icons.bookmark_remove_outlined, color: Theme.of(context).colorScheme.error),
     );
   }
 }

@@ -452,6 +452,18 @@ abstract class AppLocalizations {
   /// **'{minutes} min'**
   String readTimeMinutes(int minutes);
 
+  /// No description provided for @openProfile.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir perfil'**
+  String get openProfile;
+
+  /// No description provided for @articleCardLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'{title}. {author}. {category}'**
+  String articleCardLabel(String title, String author, String category);
+
   /// No description provided for @backToFeed.
   ///
   /// In es, this message translates to:
@@ -481,6 +493,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Quitado de Leer después'**
   String get readLaterRemovedToast;
+
+  /// No description provided for @readLaterRemoveTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar de Leer después'**
+  String get readLaterRemoveTooltip;
 
   /// No description provided for @editAction.
   ///
@@ -794,6 +812,12 @@ abstract class AppLocalizations {
   /// **'No hay más'**
   String get noMore;
 
+  /// No description provided for @articleMenuTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Más opciones'**
+  String get articleMenuTooltip;
+
   /// No description provided for @publishedStatLabel.
   ///
   /// In es, this message translates to:
@@ -823,6 +847,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Leer después'**
   String get readLaterRow;
+
+  /// No description provided for @settingsRow.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración'**
+  String get settingsRow;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración'**
+  String get settingsTitle;
 
   /// No description provided for @appearanceRow.
   ///
@@ -877,6 +913,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'English'**
   String get languageEnglish;
+
+  /// No description provided for @termsOfServiceRow.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos y condiciones'**
+  String get termsOfServiceRow;
+
+  /// No description provided for @termsOfServiceTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos y condiciones'**
+  String get termsOfServiceTitle;
+
+  /// No description provided for @termsOfServiceError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar los términos y condiciones.'**
+  String get termsOfServiceError;
+
+  /// No description provided for @privacyPolicyRow.
+  ///
+  /// In es, this message translates to:
+  /// **'Política de privacidad'**
+  String get privacyPolicyRow;
+
+  /// No description provided for @privacyPolicyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Política de privacidad'**
+  String get privacyPolicyTitle;
+
+  /// No description provided for @privacyPolicyError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo cargar la política de privacidad.'**
+  String get privacyPolicyError;
+
+  /// No description provided for @legalNoticePrefix.
+  ///
+  /// In es, this message translates to:
+  /// **'Al continuar, aceptas nuestros '**
+  String get legalNoticePrefix;
+
+  /// No description provided for @legalNoticeAnd.
+  ///
+  /// In es, this message translates to:
+  /// **' y nuestra '**
+  String get legalNoticeAnd;
 
   /// No description provided for @logOut.
   ///

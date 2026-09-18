@@ -96,7 +96,7 @@ class ErrorStateCard extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(color: scheme.error, borderRadius: BorderRadius.circular(AppRadii.r14)),
-            child: const Icon(Icons.cloud_off, color: Colors.white),
+            child: Icon(Icons.cloud_off, color: scheme.onError),
           ),
           const SizedBox(height: 18),
           Text(title, style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fLg)),

@@ -63,21 +63,27 @@ class _Segment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: active ? scheme.onSurface : Colors.transparent,
-      borderRadius: BorderRadius.circular(AppRadii.r11),
-      child: InkWell(
-        onTap: onTap,
+    return Semantics(
+      button: true,
+      selected: active,
+      label: item.label,
+      excludeSemantics: true,
+      child: Material(
+        color: active ? scheme.onSurface : Colors.transparent,
         borderRadius: BorderRadius.circular(AppRadii.r11),
-        child: Container(
-          height: 46,
-          alignment: Alignment.center,
-          child: Text(
-            item.label,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: dims.fXs,
-              color: active ? scheme.surface : scheme.onSurfaceVariant,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadii.r11),
+          child: Container(
+            height: 48,
+            alignment: Alignment.center,
+            child: Text(
+              item.label,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: dims.fXs,
+                color: active ? scheme.surface : scheme.onSurfaceVariant,
+              ),
             ),
           ),
         ),

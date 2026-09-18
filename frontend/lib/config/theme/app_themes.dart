@@ -18,7 +18,11 @@ ThemeData appTheme({
   final bg = isDark ? AppColors.bgDark : AppColors.bgLight;
   final surface = isDark ? AppColors.surfaceDark : AppColors.surfaceLight;
   final ink2 = accessible ? ink : (isDark ? AppColors.ink2Dark : AppColors.ink2Light);
-  final ink3 = isDark ? AppColors.ink3Dark : AppColors.ink3Light;
+  // Accessible mode raises ink2 all the way to ink (see above) but left ink3
+  // — the palette's contrast floor, ~4.96:1 light and used at the smallest
+  // font size (fXs) — untouched. Raise it one step to ink2 for the same
+  // reason ink2 gets raised to ink.
+  final ink3 = accessible ? ink2 : (isDark ? AppColors.ink3Dark : AppColors.ink3Light);
   final line = isDark ? AppColors.lineDark : AppColors.lineLight;
   final edge = isDark ? AppColors.edgeDark : AppColors.edgeLight;
   final danger = isDark ? AppColors.dangerDark : AppColors.dangerLight;

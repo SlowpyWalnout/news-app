@@ -14,17 +14,22 @@ class StripedImagePlaceholder extends StatelessWidget {
     this.child,
     this.borderRadius,
     this.stripeWidth = 14,
+    this.semanticLabel,
   });
 
   final String? imageUrl;
   final Widget? child;
   final BorderRadius? borderRadius;
   final double stripeWidth;
+  // Callers that already show the article title as visible text nearby
+  // leave this null — the image is then purely decorative and excluded
+  // from the accessibility tree instead of forcing a redundant label.
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
     final radius = borderRadius ?? BorderRadius.zero;
-    return ClipRRect(
+    final image = ClipRRect(
       borderRadius: radius,
       child: Stack(
         fit: StackFit.expand,
@@ -42,6 +47,10 @@ class StripedImagePlaceholder extends StatelessWidget {
         ],
       ),
     );
+    if (semanticLabel != null) {
+      return Semantics(image: true, label: semanticLabel, child: image);
+    }
+    return ExcludeSemantics(child: image);
   }
 }
 

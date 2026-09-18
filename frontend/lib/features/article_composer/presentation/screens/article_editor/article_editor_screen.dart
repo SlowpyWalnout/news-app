@@ -16,6 +16,7 @@ import '../../../../../shared/widgets/category_chip.dart';
 import '../../../../../shared/widgets/dashed_border_box.dart';
 import '../../../../../shared/widgets/inline_banner.dart';
 import '../../../../../shared/widgets/markdown_text.dart';
+import '../../../../../shared/widgets/screen_header.dart';
 import '../../../../../shared/widgets/scrim_overlay.dart';
 import '../../../../../shared/widgets/segmented_tabs.dart';
 import '../../../../../shared/widgets/striped_image_placeholder.dart';
@@ -118,36 +119,7 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
           body: SafeArea(
             child: Column(
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(color: palette.line, width: 1.5))),
-                  child: Row(
-                    children: [
-                      BackPillButton(
-                          label: l10n.exit,
-                          onPressed: () => Navigator.of(context).maybePop()),
-                      Expanded(
-                        child: Text(
-                          state.isEditing
-                              ? l10n.editArticleTitle
-                              : l10n.newArticleTitle,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontFamily: 'Space Grotesk',
-                              fontWeight: FontWeight.w600,
-                              fontSize: dims.fMd),
-                        ),
-                      ),
-                      const SizedBox(width: 44),
-                    ],
-                  ),
-                ),
+                ScreenHeader(title: state.isEditing ? l10n.editArticleTitle : l10n.newArticleTitle),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
@@ -399,7 +371,7 @@ class _CoverPreview extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 if (path != null)
-                  Image.file(File(path), fit: BoxFit.cover)
+                  ExcludeSemantics(child: Image.file(File(path), fit: BoxFit.cover))
                 else
                   StripedImagePlaceholder(imageUrl: state.thumbnailURL),
                 const ScrimOverlay(opacityTop: 0.9, opacityBottom: 0.0),

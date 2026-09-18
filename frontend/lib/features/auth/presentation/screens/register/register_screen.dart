@@ -7,6 +7,7 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/presentation/failure_localizer.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_text_field.dart';
+import '../../../../../shared/widgets/legal_links_notice.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
@@ -61,85 +62,104 @@ class _RegisterScreenState extends State<RegisterScreen> {
           builder: (context, state) {
             final loading = state.status == AuthStatus.loading;
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    icon: const Icon(Icons.arrow_back, size: 16),
-                    label: Text(l10n.back, style: const TextStyle(fontWeight: FontWeight.w700)),
-                    style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      foregroundColor: Theme.of(context).colorScheme.onSurface,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      minimumSize: const Size(0, 48),
+            return Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        BackButton(onPressed: () => Navigator.of(context).maybePop()),
+                        const SizedBox(height: 14),
+                        Text(
+                          l10n.createAccountTitle,
+                          style: TextStyle(
+                              fontFamily: 'Space Grotesk',
+                              fontWeight: FontWeight.w600,
+                              fontSize: dims.fH,
+                              letterSpacing: -0.03 * dims.fH),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(l10n.createAccountSubtitle,
+                            style: TextStyle(
+                                fontSize: dims.fMd,
+                                height: 1.5,
+                                color: palette.ink2)),
+                        const SizedBox(height: 22),
+                        if (state.submitError != null) ...[
+                          _PlainDangerCard(
+                              message:
+                                  describeFailure(l10n, state.submitError!)),
+                          const SizedBox(height: 18),
+                        ],
+                        AppTextField(
+                          label: l10n.displayNameLabel,
+                          controller: _nameController,
+                          placeholder: l10n.displayNamePlaceholder,
+                          errorText: state.registerNameError,
+                          counterText: l10n
+                              .displayNameCounter(_nameController.text.length),
+                          onChanged: (v) {
+                            if (v.length > 60) {
+                              _nameController.text = v.substring(0, 60);
+                              _nameController.selection =
+                                  TextSelection.collapsed(offset: 60);
+                            }
+                            _onFieldsChanged(context);
+                            setState(() {});
+                          },
+                        ),
+                        const SizedBox(height: 18),
+                        AppTextField(
+                          label: l10n.emailLabel,
+                          controller: _emailController,
+                          placeholder: l10n.emailPlaceholder,
+                          keyboardType: TextInputType.emailAddress,
+                          errorText: state.registerEmailError,
+                          onChanged: (_) => _onFieldsChanged(context),
+                        ),
+                        const SizedBox(height: 18),
+                        AppTextField(
+                          label: l10n.passwordLabel,
+                          controller: _passwordController,
+                          placeholder: l10n.passwordPlaceholder,
+                          obscureText: true,
+                          errorText: state.registerPasswordError,
+                          onChanged: (_) => _onFieldsChanged(context),
+                        ),
+                        if (state.registerPasswordValid &&
+                            state.registerPasswordError == null) ...[
+                          const SizedBox(height: 6),
+                          Text(l10n.passwordValid,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: dims.fSm,
+                                  color: palette.ok)),
+                        ],
+                        const SizedBox(height: 18),
+                        PrimaryButton(
+                          label: loading
+                              ? l10n.creatingAccount
+                              : l10n.createAccount,
+                          loading: loading,
+                          onPressed: () {
+                            context.read<AuthBloc>().add(AuthSignUpSubmitted(
+                                  displayName: _nameController.text.trim(),
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text,
+                                ));
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  Text(
-                    l10n.createAccountTitle,
-                    style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fH, letterSpacing: -0.03 * dims.fH),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(l10n.createAccountSubtitle, style: TextStyle(fontSize: dims.fMd, height: 1.5, color: palette.ink2)),
-                  const SizedBox(height: 22),
-                  if (state.submitError != null) ...[
-                    _PlainDangerCard(message: describeFailure(l10n, state.submitError!)),
-                    const SizedBox(height: 18),
-                  ],
-                  AppTextField(
-                    label: l10n.displayNameLabel,
-                    controller: _nameController,
-                    placeholder: l10n.displayNamePlaceholder,
-                    errorText: state.registerNameError,
-                    counterText: l10n.displayNameCounter(_nameController.text.length),
-                    onChanged: (v) {
-                      if (v.length > 60) {
-                        _nameController.text = v.substring(0, 60);
-                        _nameController.selection = TextSelection.collapsed(offset: 60);
-                      }
-                      _onFieldsChanged(context);
-                      setState(() {});
-                    },
-                  ),
-                  const SizedBox(height: 18),
-                  AppTextField(
-                    label: l10n.emailLabel,
-                    controller: _emailController,
-                    placeholder: l10n.emailPlaceholder,
-                    keyboardType: TextInputType.emailAddress,
-                    errorText: state.registerEmailError,
-                    onChanged: (_) => _onFieldsChanged(context),
-                  ),
-                  const SizedBox(height: 18),
-                  AppTextField(
-                    label: l10n.passwordLabel,
-                    controller: _passwordController,
-                    placeholder: l10n.passwordPlaceholder,
-                    obscureText: true,
-                    errorText: state.registerPasswordError,
-                    onChanged: (_) => _onFieldsChanged(context),
-                  ),
-                  if (state.registerPasswordValid && state.registerPasswordError == null) ...[
-                    const SizedBox(height: 6),
-                    Text(l10n.passwordValid, style: TextStyle(fontWeight: FontWeight.w600, fontSize: dims.fSm, color: palette.ok)),
-                  ],
-                  const SizedBox(height: 18),
-                  PrimaryButton(
-                    label: loading ? l10n.creatingAccount : l10n.createAccount,
-                    loading: loading,
-                    onPressed: () {
-                      context.read<AuthBloc>().add(AuthSignUpSubmitted(
-                            displayName: _nameController.text.trim(),
-                            email: _emailController.text.trim(),
-                            password: _passwordController.text,
-                          ));
-                    },
-                  ),
-                ],
-              ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(24, 0, 24, 18),
+                  child: LegalLinksNotice(),
+                ),
+              ],
             );
           },
         ),
@@ -165,7 +185,12 @@ class _PlainDangerCard extends StatelessWidget {
         border: Border.all(color: scheme.error),
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Text(message, style: TextStyle(fontWeight: FontWeight.w600, fontSize: dims.fSm, height: 1.5, color: scheme.error)),
+      child: Text(message,
+          style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: dims.fSm,
+              height: 1.5,
+              color: scheme.error)),
     );
   }
 }

@@ -200,6 +200,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get openProfile => 'Open profile';
+
+  @override
+  String articleCardLabel(String title, String author, String category) {
+    return '$title. $author. $category';
+  }
+
+  @override
   String get backToFeed => 'Feed';
 
   @override
@@ -213,6 +221,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readLaterRemovedToast => 'Removed from Read it later';
+
+  @override
+  String get readLaterRemoveTooltip => 'Remove from Read it later';
 
   @override
   String get editAction => 'Edit';
@@ -383,6 +394,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noMore => 'No more';
 
   @override
+  String get articleMenuTooltip => 'More options';
+
+  @override
   String get publishedStatLabel => 'published';
 
   @override
@@ -396,6 +410,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get readLaterRow => 'Read it later';
+
+  @override
+  String get settingsRow => 'Settings';
+
+  @override
+  String get settingsTitle => 'Settings';
 
   @override
   String get appearanceRow => 'Appearance';
@@ -423,6 +443,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageEnglish => 'English';
+
+  @override
+  String get termsOfServiceRow => 'Terms of Service';
+
+  @override
+  String get termsOfServiceTitle => 'Terms of Service';
+
+  @override
+  String get termsOfServiceError => 'We couldn\'t load the terms of service.';
+
+  @override
+  String get privacyPolicyRow => 'Privacy policy';
+
+  @override
+  String get privacyPolicyTitle => 'Privacy policy';
+
+  @override
+  String get privacyPolicyError => 'We couldn\'t load the privacy policy.';
+
+  @override
+  String get legalNoticePrefix => 'By continuing, you agree to our ';
+
+  @override
+  String get legalNoticeAnd => ' and our ';
 
   @override
   String get logOut => 'Log out';

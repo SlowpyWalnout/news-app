@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../../../config/theme/app_dimensions.dart';
@@ -35,8 +37,9 @@ class MarkdownToolbar extends StatelessWidget {
     final dims = Theme.of(context).extension<AppDimensions>()!;
     final palette = context.palette;
 
+    final buttonSize = math.max(kMinInteractiveDimension, dims.tap * 0.7);
     return SizedBox(
-      height: dims.tap * 0.7,
+      height: buttonSize,
       child: EdgeFadeScroll(
         children: [
           _ToolbarButton(
@@ -107,6 +110,7 @@ class _ToolbarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
+    final buttonSize = math.max(kMinInteractiveDimension, dims.tap * 0.7);
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Tooltip(
@@ -118,8 +122,8 @@ class _ToolbarButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadii.r11),
             onTap: onPressed,
             child: Container(
-              width: dims.tap * 0.7,
-              height: dims.tap * 0.7,
+              width: buttonSize,
+              height: buttonSize,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadii.r11),

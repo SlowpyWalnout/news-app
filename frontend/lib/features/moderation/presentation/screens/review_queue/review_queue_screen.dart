@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../config/theme/app_palette.dart';
 import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/presentation/failure_localizer.dart';
-import '../../../../../shared/widgets/app_buttons.dart';
+import '../../../../../shared/widgets/screen_header.dart';
 import '../../../../../shared/widgets/skeleton_block.dart';
 import '../../../../../shared/widgets/state_cards.dart';
 import '../../../../article_composer/presentation/screens/article_detail/article_detail_screen.dart';
@@ -55,23 +54,12 @@ class _ReviewQueueViewState extends State<_ReviewQueueView> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final palette = context.palette;
 
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.line, width: 1.5))),
-              child: Row(
-                children: [
-                  BackPillButton(label: l10n.backToFeed, onPressed: () => Navigator.of(context).maybePop()),
-                  const SizedBox(width: 12),
-                  Text(l10n.staffReviewQueueTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
-                ],
-              ),
-            ),
+            ScreenHeader(title: l10n.staffReviewQueueTitle),
             Expanded(
               child: BlocBuilder<ReviewQueueCubit, ReviewQueueState>(
                 builder: (context, state) {
