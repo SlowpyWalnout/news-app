@@ -9,12 +9,12 @@ enum BannerVariant { danger, warn }
 class InlineBanner extends StatelessWidget {
   const InlineBanner({
     super.key,
-    required this.title,
+    this.title,
     required this.body,
     this.variant = BannerVariant.danger,
   });
 
-  final String title;
+  final String? title;
   final String body;
   final BannerVariant variant;
 
@@ -42,11 +42,13 @@ class InlineBanner extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd, color: isDanger ? textColor : scheme.onSurface),
-            ),
-            const SizedBox(height: 4),
+            if (title != null) ...[
+              Text(
+                title!,
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: dims.fMd, color: isDanger ? textColor : scheme.onSurface),
+              ),
+              const SizedBox(height: 4),
+            ],
             Text(
               body,
               style: TextStyle(fontSize: dims.fSm, height: 1.5, color: palette.ink2),

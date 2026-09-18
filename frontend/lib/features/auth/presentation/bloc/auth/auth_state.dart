@@ -13,6 +13,8 @@ class AuthState extends Equatable {
     this.registerEmailError,
     this.registerPasswordError,
     this.registerPasswordValid = false,
+    this.loginEmailValid = true,
+    this.loginPasswordValid = true,
   });
 
   final AuthStatus status;
@@ -27,6 +29,11 @@ class AuthState extends Equatable {
   final String? registerPasswordError;
   final bool registerPasswordValid;
 
+  /// Live login-field validation, recomputed on every keystroke — `true`
+  /// while the field is empty (nothing to complain about yet) or valid.
+  final bool loginEmailValid;
+  final bool loginPasswordValid;
+
   const AuthState.initial() : this();
 
   AuthState copyWith({
@@ -38,6 +45,8 @@ class AuthState extends Equatable {
     String? registerEmailError,
     String? registerPasswordError,
     bool? registerPasswordValid,
+    bool? loginEmailValid,
+    bool? loginPasswordValid,
   }) {
     return AuthState(
       status: status ?? this.status,
@@ -47,6 +56,8 @@ class AuthState extends Equatable {
       registerEmailError: registerEmailError,
       registerPasswordError: registerPasswordError,
       registerPasswordValid: registerPasswordValid ?? this.registerPasswordValid,
+      loginEmailValid: loginEmailValid ?? this.loginEmailValid,
+      loginPasswordValid: loginPasswordValid ?? this.loginPasswordValid,
     );
   }
 
@@ -59,5 +70,7 @@ class AuthState extends Equatable {
         registerEmailError,
         registerPasswordError,
         registerPasswordValid,
+        loginEmailValid,
+        loginPasswordValid,
       ];
 }

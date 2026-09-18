@@ -1,6 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_app/core/resources/data_state.dart';
 import 'package:news_app/core/resources/failure.dart';
 import 'package:news_app/core/usecase/usecase.dart';
+import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
+import 'package:news_app/features/article_composer/domain/use_cases/get_article_by_id_use_case.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/local/read_later_event.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/local/read_later_state.dart';
 
@@ -15,12 +18,14 @@ class ReadLaterBloc extends Bloc<ReadLaterEvent, ReadLaterState> {
   final AddToReadLaterUseCase _addToReadLaterUseCase;
   final RemoveFromReadLaterUseCase _removeFromReadLaterUseCase;
   final MarkReadLaterArticleAsReadUseCase _markReadLaterArticleAsReadUseCase;
+  final GetArticleByIdUseCase _getArticleByIdUseCase;
 
   ReadLaterBloc(
     this._getReadLaterArticlesUseCase,
     this._addToReadLaterUseCase,
     this._removeFromReadLaterUseCase,
     this._markReadLaterArticleAsReadUseCase,
+    this._getArticleByIdUseCase,
   ) : super(const ReadLaterLoading()) {
     on<ReadLaterRequested>(onRequested);
     on<ReadLaterRefreshed>(onRefreshed);
@@ -87,6 +92,32 @@ class ReadLaterBloc extends Bloc<ReadLaterEvent, ReadLaterState> {
       if (isClosed) return;
       emit(ReadLaterError(StorageFailure(e.toString())));
     }
+  }
+
+  // Tries the fresh Firestore doc first (so the reader sees current
+  // category/author and, if it's their own article, Edit/Delete); falls
+  // back to the cached row — read-only — if there's no network or the
+  // article was since deleted. The only place allowed to call
+  // GetArticleByIdUseCase for this screen (rule 3.2.2).
+  Future<(AuthoredArticleEntity resolved, bool openedFromCache)> resolveArticleToOpen(ArticleEntity cached) async {
+    AuthoredArticleEntity resolved = AuthoredArticleEntity.fromCachedArticle(cached);
+    var openedFromCache = true;
+
+    final sourceId = cached.sourceId;
+    if (sourceId != null && sourceId.isNotEmpty) {
+      final result = await _getArticleByIdUseCase.call(sourceId);
+      if (result is DataSuccess<AuthoredArticleEntity?> && result.data != null) {
+        resolved = result.data!;
+        openedFromCache = false;
+      }
+    }
+
+    final id = cached.id;
+    if (id != null && !cached.isRead && !isClosed) {
+      add(ReadLaterMarkedRead(id));
+    }
+
+    return (resolved, openedFromCache);
   }
 
   // Unread rows first, read rows at the bottom; each group keeps the order

@@ -47,9 +47,7 @@ class EmptyStateCard extends StatelessWidget {
             child: Icon(icon, color: scheme.onPrimary),
           ),
           const SizedBox(height: 18),
-          Text(title, style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fLg)),
-          const SizedBox(height: 10),
-          Text(body, style: TextStyle(fontSize: dims.fMd, height: 1.5, color: palette.ink2)),
+          _CardHeader(title: title, body: body),
           const SizedBox(height: 20),
           PrimaryButton(label: ctaLabel, onPressed: onCtaPressed),
         ],
@@ -99,9 +97,7 @@ class ErrorStateCard extends StatelessWidget {
             child: Icon(Icons.cloud_off, color: scheme.onError),
           ),
           const SizedBox(height: 18),
-          Text(title, style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fLg)),
-          const SizedBox(height: 10),
-          Text(body, style: TextStyle(fontSize: dims.fMd, height: 1.5, color: palette.ink2)),
+          _CardHeader(title: title, body: body),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
@@ -119,6 +115,28 @@ class ErrorStateCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CardHeader extends StatelessWidget {
+  const _CardHeader({required this.title, required this.body});
+
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    final dims = Theme.of(context).extension<AppDimensions>()!;
+    final palette = context.palette;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontFamily: 'Space Grotesk', fontWeight: FontWeight.w600, fontSize: dims.fLg)),
+        const SizedBox(height: 10),
+        Text(body, style: TextStyle(fontSize: dims.fMd, height: 1.5, color: palette.ink2)),
+      ],
     );
   }
 }

@@ -7,6 +7,7 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/presentation/failure_localizer.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_text_field.dart';
+import '../../../../../shared/widgets/inline_banner.dart';
 import '../../../../../shared/widgets/legal_links_notice.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
@@ -88,9 +89,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 color: palette.ink2)),
                         const SizedBox(height: 22),
                         if (state.submitError != null) ...[
-                          _PlainDangerCard(
-                              message:
-                                  describeFailure(l10n, state.submitError!)),
+                          InlineBanner(body: describeFailure(l10n, state.submitError!)),
                           const SizedBox(height: 18),
                         ],
                         AppTextField(
@@ -164,33 +163,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           },
         ),
       ),
-    );
-  }
-}
-
-class _PlainDangerCard extends StatelessWidget {
-  const _PlainDangerCard({required this.message});
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.palette;
-    final scheme = Theme.of(context).colorScheme;
-    final dims = Theme.of(context).extension<AppDimensions>()!;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 14),
-      decoration: BoxDecoration(
-        color: palette.dangerSoft,
-        border: Border.all(color: scheme.error),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Text(message,
-          style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: dims.fSm,
-              height: 1.5,
-              color: scheme.error)),
     );
   }
 }

@@ -90,7 +90,8 @@ class ArticleEditorBloc extends Bloc<ArticleEditorEvent, ArticleEditorState> {
   Future<void> onDraftSaved(
       EditorDraftSaved event, Emitter<ArticleEditorState> emit) async {
     if (state.title.trim().isEmpty && state.body.trim().isEmpty) {
-      emit(state.copyWith(touched: true));
+      emit(state.copyWith(touched: true, submitStatus: EditorSubmitStatus.emptyDraftRejected));
+      emit(state.copyWith(touched: true, submitStatus: EditorSubmitStatus.idle));
       return;
     }
     emit(state.copyWith(

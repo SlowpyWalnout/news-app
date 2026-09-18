@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../config/theme/app_dimensions.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/utils/initials.dart';
 import '../../../../shared/widgets/initials_avatar.dart';
 import '../../../../shared/widgets/scrim_overlay.dart';
 import '../../../../shared/widgets/striped_image_placeholder.dart';
@@ -15,13 +16,6 @@ class FeaturedArticleCard extends StatelessWidget {
 
   final AuthoredArticleEntity article;
   final VoidCallback onTap;
-
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
-    if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +91,7 @@ class FeaturedArticleCard extends StatelessWidget {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        InitialsAvatar(initials: _initials(article.authorName), size: 36, glass: true),
+                        InitialsAvatar(initials: initialsFrom(article.authorName), size: 36, glass: true),
                         const SizedBox(width: 11),
                         Flexible(
                           child: Text(

@@ -22,6 +22,19 @@ class AuthSignInSubmitted extends AuthEvent {
   List<Object?> get props => [email, password];
 }
 
+/// Fired on every login keystroke so the bloc can recompute live field
+/// errors via the domain validators (only blocs may touch domain code) —
+/// same pattern as [AuthRegisterFieldsChanged].
+class AuthLoginFieldsChanged extends AuthEvent {
+  const AuthLoginFieldsChanged({required this.email, required this.password});
+
+  final String email;
+  final String password;
+
+  @override
+  List<Object?> get props => [email, password];
+}
+
 /// Fired on every register keystroke so the bloc can recompute live field
 /// errors via the domain validators (only blocs may touch domain code).
 class AuthRegisterFieldsChanged extends AuthEvent {

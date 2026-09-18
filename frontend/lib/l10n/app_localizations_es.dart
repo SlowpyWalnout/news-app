@@ -518,8 +518,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get readLaterTitle => 'Leer después';
 
   @override
+  String get readLaterEmptyTitle => 'Todavía no hay nada guardado';
+
+  @override
   String get readLaterEmpty =>
       'Todavía no marcaste ningún artículo para leer después.';
+
+  @override
+  String get readLaterEmptyCta => 'Ir al feed';
 
   @override
   String get readLaterAlreadyRead => 'Ya lo leí';

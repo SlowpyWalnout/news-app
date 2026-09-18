@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,10 +9,16 @@ import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/app_shell_controller.dart';
 import '../../../../../shared/article_changes_notifier.dart';
+import '../../../../../shared/presentation/article_changes_listener.dart';
+import '../../../../../shared/utils/bloc_refresh.dart';
+import '../../../../../shared/utils/initials.dart';
+import '../../../../../shared/widgets/app_wordmark.dart';
+import '../../../../../shared/widgets/blurred_sliver_header.dart';
 import '../../../../../shared/widgets/category_chip.dart';
 import '../../../../../shared/widgets/edge_fade_scroll.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
-import '../../../../../shared/widgets/skeleton_block.dart';
+import '../../../../../shared/widgets/load_more_footer.dart';
+import '../../../../../shared/widgets/skeleton_list.dart';
 import '../../../../../shared/widgets/staggered_fade_in.dart';
 import '../../../../../shared/widgets/state_cards.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
@@ -47,32 +52,20 @@ class _FeedView extends StatefulWidget {
 }
 
 class _FeedViewState extends State<_FeedView>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, ArticleChangesListenerMixin<_FeedView> {
   final _searchController = TextEditingController();
-  final _articleChanges = sl<ArticleChangesNotifier>();
-  late int _lastSeenRevision = _articleChanges.revision;
 
   @override
   bool get wantKeepAlive => true;
 
   @override
-  void initState() {
-    super.initState();
-    _articleChanges.addListener(_onArticlesChanged);
-  }
-
-  @override
   void dispose() {
-    _articleChanges.removeListener(_onArticlesChanged);
     _searchController.dispose();
     super.dispose();
   }
 
-  void _onArticlesChanged() {
-    if (!mounted) return;
-    final revision = _articleChanges.revision;
-    if (revision == _lastSeenRevision) return;
-    _lastSeenRevision = revision;
+  @override
+  void onArticlesChanged(ArticleChangesNotifier notifier) {
     final bloc = context.read<FeedBloc>();
     if (bloc.isClosed) return;
     bloc.add(const FeedRequested());
@@ -90,196 +83,134 @@ class _FeedViewState extends State<_FeedView>
     final l10n = AppLocalizations.of(context)!;
     final palette = context.palette;
     final dims = Theme.of(context).extension<AppDimensions>()!;
-    final userInitials = context.select<AuthBloc, String>((bloc) {
-      final name = bloc.state.user?.displayName ?? '';
-      final parts =
-          name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
-      if (parts.isEmpty) return '?';
-      if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-      return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
-          .toUpperCase();
-    });
+    final userInitials = context.select<AuthBloc, String>(
+        (bloc) => initialsFrom(bloc.state.user?.displayName ?? ''));
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
           color: palette.accentInk,
-          onRefresh: () async {
-            final bloc = context.read<FeedBloc>();
-            if (bloc.isClosed) return;
-            bloc.add(const FeedRefreshed());
-            try {
-              await bloc.stream
-                  .firstWhere((s) => s.status != FeedStatus.loading);
-            } on StateError {
-              // Tab cerrada a mitad del refresh: el bloc se cerró antes de
-              // un estado terminal. No hay nada que mostrar ni que fallar.
-            }
-          },
+          onRefresh: () => refreshAndSettle(
+            bloc: context.read<FeedBloc>(),
+            event: const FeedRefreshed(),
+            isSettled: (s) => s.status != FeedStatus.loading,
+          ),
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              SliverAppBar(
-                pinned: false,
-                floating: true,
-                snap: true,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                backgroundColor: Theme.of(context)
-                    .scaffoldBackgroundColor
-                    .withValues(alpha: 0.82),
-                surfaceTintColor: Colors.transparent,
-                flexibleSpace: ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                    child: const SizedBox.expand(),
-                  ),
-                ),
-                automaticallyImplyLeading: false,
-                toolbarHeight: 0,
-                titleSpacing: 0,
-                title: const SizedBox.shrink(),
-                bottom: PreferredSize(
-                  preferredSize:
-                      Size.fromHeight(170 + math.max(46, dims.fH * 1.3)),
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
-                    decoration: BoxDecoration(
-                        border: Border(
-                            bottom:
-                                BorderSide(color: palette.line, width: 1.5))),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: math.max(46, dims.fH * 1.3),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  style: TextStyle(
-                                    fontFamily: 'Space Grotesk',
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: dims.fH,
-                                    letterSpacing: -0.8,
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                  children: [
-                                    TextSpan(text: l10n.appWordmark),
-                                    TextSpan(
-                                        text: '.',
-                                        style:
-                                            TextStyle(color: palette.accentInk)),
-                                  ],
-                                ),
-                              ),
-                              Semantics(
-                                button: true,
-                                label: l10n.openProfile,
-                                excludeSemantics: true,
-                                child: GestureDetector(
-                                  onTap: () =>
-                                      sl<AppShellController>().goToTab(2),
-                                  child: InitialsAvatar(
-                                      initials: userInitials, size: 46),
-                                ),
-                              ),
-                            ],
+              BlurredSliverHeader(
+                preferredHeight: 170 + math.max(46, dims.fH * 1.3),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: math.max(46, dims.fH * 1.3),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          AppWordmark(text: l10n.appWordmark),
+                          Semantics(
+                            button: true,
+                            label: l10n.openProfile,
+                            excludeSemantics: true,
+                            child: GestureDetector(
+                              onTap: () => sl<AppShellController>().goToTab(2),
+                              child: InitialsAvatar(
+                                  initials: userInitials, size: 46),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 14),
-                        Container(
-                          constraints: const BoxConstraints(minHeight: 52),
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                            border: Border.all(color: palette.line),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.search, color: palette.ink3, size: 20),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextField(
-                                  controller: _searchController,
-                                  onChanged: (v) => context
-                                      .read<FeedBloc>()
-                                      .add(FeedQueryChanged(v)),
-                                  decoration: InputDecoration(
-                                    hintText: l10n.searchPlaceholder,
-                                    border: InputBorder.none,
-                                    isDense: true,
-                                  ),
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: dims.fMd),
-                                ),
-                              ),
-                              ValueListenableBuilder<TextEditingValue>(
-                                valueListenable: _searchController,
-                                builder: (context, value, _) {
-                                  if (value.text.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return IconButton(
-                                    icon: Icon(Icons.close,
-                                        color: palette.ink3, size: 18),
-                                    tooltip: l10n.searchClear,
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      context
-                                          .read<FeedBloc>()
-                                          .add(const FeedQueryChanged(''));
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        BlocBuilder<FeedBloc, FeedState>(
-                          buildWhen: (a, b) => a.category != b.category,
-                          builder: (context, state) {
-                            return SizedBox(
-                              height: 48,
-                              child: EdgeFadeScroll(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 8),
-                                    child: CategoryChip(
-                                      label: l10n.categoryAll,
-                                      icon: Icons.grid_view_outlined,
-                                      active: state.category == null,
-                                      onTap: () => context.read<FeedBloc>().add(
-                                          const FeedCategorySelected(null)),
-                                    ),
-                                  ),
-                                  for (final category in ArticleCategory.values)
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 8),
-                                      child: CategoryChip(
-                                        label: categoryLabel(l10n, category),
-                                        icon: categoryIcon(category),
-                                        active: state.category == category,
-                                        onTap: () => context
-                                            .read<FeedBloc>()
-                                            .add(
-                                                FeedCategorySelected(category)),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 14),
+                    Container(
+                      constraints: const BoxConstraints(minHeight: 52),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        border: Border.all(color: palette.line),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search, color: palette.ink3, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: (v) => context
+                                  .read<FeedBloc>()
+                                  .add(FeedQueryChanged(v)),
+                              decoration: InputDecoration(
+                                hintText: l10n.searchPlaceholder,
+                                border: InputBorder.none,
+                                isDense: true,
+                              ),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: dims.fMd),
+                            ),
+                          ),
+                          ValueListenableBuilder<TextEditingValue>(
+                            valueListenable: _searchController,
+                            builder: (context, value, _) {
+                              if (value.text.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+                              return IconButton(
+                                icon: Icon(Icons.close,
+                                    color: palette.ink3, size: 18),
+                                tooltip: l10n.searchClear,
+                                onPressed: () {
+                                  _searchController.clear();
+                                  context
+                                      .read<FeedBloc>()
+                                      .add(const FeedQueryChanged(''));
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    BlocBuilder<FeedBloc, FeedState>(
+                      buildWhen: (a, b) => a.category != b.category,
+                      builder: (context, state) {
+                        return SizedBox(
+                          height: 48,
+                          child: EdgeFadeScroll(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: CategoryChip(
+                                  label: l10n.categoryAll,
+                                  icon: Icons.grid_view_outlined,
+                                  active: state.category == null,
+                                  onTap: () => context
+                                      .read<FeedBloc>()
+                                      .add(const FeedCategorySelected(null)),
+                                ),
+                              ),
+                              for (final category in ArticleCategory.values)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: CategoryChip(
+                                    label: categoryLabel(l10n, category),
+                                    icon: categoryIcon(category),
+                                    active: state.category == category,
+                                    onTap: () => context
+                                        .read<FeedBloc>()
+                                        .add(FeedCategorySelected(category)),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
               BlocBuilder<FeedBloc, FeedState>(
@@ -288,18 +219,8 @@ class _FeedViewState extends State<_FeedView>
                     return SliverPadding(
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
                       sliver: SliverList.list(
-                        children: [
-                          const SkeletonBlock(height: 250, borderRadius: 20),
-                          const SizedBox(height: 16),
-                          const SkeletonBlock(
-                              height: 120,
-                              borderRadius: 18,
-                              delay: Duration(milliseconds: 200)),
-                          const SizedBox(height: 16),
-                          const SkeletonBlock(
-                              height: 120,
-                              borderRadius: 18,
-                              delay: Duration(milliseconds: 400)),
+                        children: const [
+                          SkeletonList(heights: [250, 120, 120], gap: 16),
                         ],
                       ),
                     );
@@ -354,39 +275,13 @@ class _FeedViewState extends State<_FeedView>
                       separatorBuilder: (_, __) => const SizedBox(height: 16),
                       itemBuilder: (context, index) {
                         if (index == visible.length) {
-                          if (!state.hasMore) return const SizedBox.shrink();
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Center(
-                              child: state.isLoadingMore
-                                  ? const Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 13),
-                                      child: SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2.5),
-                                      ),
-                                    )
-                                  : OutlinedButton(
-                                      onPressed: () => context
-                                          .read<FeedBloc>()
-                                          .add(const FeedMoreRequested()),
-                                      style: OutlinedButton.styleFrom(
-                                        minimumSize: const Size(0, 50),
-                                        side: BorderSide(color: palette.edge),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(14)),
-                                      ),
-                                      child: Text(
-                                        l10n.loadMore,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w700),
-                                      ),
-                                    ),
-                            ),
+                          return LoadMoreFooter(
+                            hasMore: state.hasMore,
+                            isLoadingMore: state.isLoadingMore,
+                            label: l10n.loadMore,
+                            onPressed: () => context
+                                .read<FeedBloc>()
+                                .add(const FeedMoreRequested()),
                           );
                         }
                         final article = visible[index];

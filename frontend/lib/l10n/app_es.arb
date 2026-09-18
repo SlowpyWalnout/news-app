@@ -179,7 +179,9 @@
   "offlineBannerBody": "Algunas funciones pueden no estar disponibles hasta que se restablezca tu conexión a internet.",
 
   "readLaterTitle": "Leer después",
+  "readLaterEmptyTitle": "Todavía no hay nada guardado",
   "readLaterEmpty": "Todavía no marcaste ningún artículo para leer después.",
+  "readLaterEmptyCta": "Ir al feed",
   "readLaterAlreadyRead": "Ya lo leí",
   "readLaterErrorTitle": "No se pudo cargar tu lista",
   "readLaterErrorBody": "Algo falló al cargar Leer después. Tus artículos guardados siguen en el teléfono.",

@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import '../../../../config/theme/app_dimensions.dart';
 import '../../../../config/theme/app_palette.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/widgets/article_card_shell.dart';
+import '../../../../shared/widgets/status_pill.dart';
 import '../../domain/entities/article.dart';
 
 class ArticleWidget extends StatelessWidget {
@@ -24,36 +26,33 @@ class ArticleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.palette;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => onArticlePressed?.call(article),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsetsDirectional.only(start: 14, end: 14, bottom: 7, top: 7),
         height: MediaQuery.of(context).size.width / 2.2,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          border: Border.all(color: palette.line),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Semantics(
-                button: true,
-                label: article.title,
-                excludeSemantics: true,
-                child: Row(
-                  children: [
-                    _buildImage(context),
-                    _buildTitleAndDescription(context),
-                  ],
+        child: ArticleCardShell(
+          padding: const EdgeInsetsDirectional.only(
+              start: 14, end: 14, bottom: 7, top: 7),
+          child: Row(
+            children: [
+              Expanded(
+                child: Semantics(
+                  button: true,
+                  label: article.title,
+                  excludeSemantics: true,
+                  child: Row(
+                    children: [
+                      _buildImage(context),
+                      _buildTitleAndDescription(context),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            _buildRemovableArea(context),
-          ],
+              _buildRemovableArea(context),
+            ],
+          ),
         ),
       ),
     );
@@ -98,7 +97,8 @@ class ArticleWidget extends StatelessWidget {
           child: Container(
             width: MediaQuery.of(context).size.width / 3,
             height: double.maxFinite,
-            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.08)),
+            decoration:
+                BoxDecoration(color: Colors.black.withValues(alpha: 0.08)),
             child: const CupertinoActivityIndicator(),
           ),
         ),
@@ -110,7 +110,8 @@ class ArticleWidget extends StatelessWidget {
           child: Container(
             width: MediaQuery.of(context).size.width / 3,
             height: double.maxFinite,
-            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.08)),
+            decoration:
+                BoxDecoration(color: Colors.black.withValues(alpha: 0.08)),
             child: const Icon(Icons.error),
           ),
         ),
@@ -130,7 +131,11 @@ class ArticleWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isRemovable && article.isRead) ...[
-              _AlreadyReadPill(label: AppLocalizations.of(context)!.readLaterAlreadyRead),
+              StatusPill(
+                label: AppLocalizations.of(context)!.readLaterAlreadyRead,
+                variant: ArticlePillVariant.alreadyRead,
+                icon: Icons.check_circle,
+              ),
               const SizedBox(height: 6),
             ],
             Text(
@@ -147,7 +152,8 @@ class ArticleWidget extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text(article.description ?? '', maxLines: 2, style: TextStyle(color: palette.ink2)),
+                child: Text(article.description ?? '',
+                    maxLines: 2, style: TextStyle(color: palette.ink2)),
               ),
             ),
             if (article.publishedAt != null)
@@ -183,39 +189,8 @@ class ArticleWidget extends StatelessWidget {
     return IconButton(
       tooltip: AppLocalizations.of(context)!.readLaterRemoveTooltip,
       onPressed: () => onRemove?.call(article),
-      icon: Icon(Icons.bookmark_remove_outlined, color: Theme.of(context).colorScheme.error),
-    );
-  }
-}
-
-// Tells the reader this row is safe to unmark — it's already been opened
-// once from Read it later.
-class _AlreadyReadPill extends StatelessWidget {
-  const _AlreadyReadPill({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.palette;
-    final dims = Theme.of(context).extension<AppDimensions>()!;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: palette.line,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.check_circle, size: 12, color: palette.ink3),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(fontSize: dims.fXs, fontWeight: FontWeight.w700, color: palette.ink3),
-          ),
-        ],
-      ),
+      icon: Icon(Icons.bookmark_remove_outlined,
+          color: Theme.of(context).colorScheme.error),
     );
   }
 }

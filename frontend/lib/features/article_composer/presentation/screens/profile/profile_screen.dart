@@ -7,13 +7,15 @@ import '../../../../../injection_container.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/app_shell_controller.dart';
 import '../../../../../shared/article_changes_notifier.dart';
+import '../../../../../shared/presentation/article_changes_listener.dart';
+import '../../../../../shared/utils/initials.dart';
 import '../../../../../shared/widgets/initials_avatar.dart';
 import '../../../../../shared/widgets/settings_row.dart';
 import '../../../../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../../../auth/presentation/bloc/auth/auth_event.dart';
 import '../../../../daily_news/presentation/screens/read_later/read_later_screen.dart';
+import '../../../../moderation/presentation/bloc/staff_cubit.dart';
 import '../../../../moderation/presentation/screens/review_queue/review_queue_screen.dart';
-import '../../../../moderation/presentation/staff_gate.dart';
 import '../../bloc/my_articles/my_articles_bloc.dart';
 import '../../bloc/my_articles/my_articles_event.dart';
 import '../../bloc/my_articles/my_articles_state.dart';
@@ -26,8 +28,11 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authorId = context.read<AuthBloc>().state.user?.uid ?? '';
-    return BlocProvider(
-      create: (_) => sl<MyArticlesBloc>()..add(MyArticlesRequested(authorId)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<MyArticlesBloc>()..add(MyArticlesRequested(authorId))),
+        BlocProvider(create: (_) => sl<StaffCubit>()..check()),
+      ],
       child: const _ProfileView(),
     );
   }
@@ -40,42 +45,13 @@ class _ProfileView extends StatefulWidget {
   State<_ProfileView> createState() => _ProfileViewState();
 }
 
-class _ProfileViewState extends State<_ProfileView> {
-  final _articleChanges = sl<ArticleChangesNotifier>();
-  late int _lastSeenRevision = _articleChanges.revision;
-  bool _isStaff = false;
-
+class _ProfileViewState extends State<_ProfileView> with ArticleChangesListenerMixin<_ProfileView> {
   @override
-  void initState() {
-    super.initState();
-    _articleChanges.addListener(_onArticlesChanged);
-    sl<StaffGate>().isStaff.then((value) {
-      if (mounted) setState(() => _isStaff = value);
-    });
-  }
-
-  @override
-  void dispose() {
-    _articleChanges.removeListener(_onArticlesChanged);
-    super.dispose();
-  }
-
-  void _onArticlesChanged() {
-    if (!mounted) return;
-    final revision = _articleChanges.revision;
-    if (revision == _lastSeenRevision) return;
-    _lastSeenRevision = revision;
+  void onArticlesChanged(ArticleChangesNotifier notifier) {
     final bloc = context.read<MyArticlesBloc>();
     if (bloc.isClosed) return;
     final authorId = context.read<AuthBloc>().state.user?.uid ?? '';
     bloc.add(MyArticlesRequested(authorId));
-  }
-
-  String _initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
-    if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
-    return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
   }
 
   @override
@@ -84,6 +60,7 @@ class _ProfileViewState extends State<_ProfileView> {
     final palette = context.palette;
     final dims = Theme.of(context).extension<AppDimensions>()!;
     final user = context.watch<AuthBloc>().state.user;
+    final isStaff = context.watch<StaffCubit>().state;
 
     return Scaffold(
       body: SafeArea(
@@ -94,7 +71,7 @@ class _ProfileViewState extends State<_ProfileView> {
             children: [
               Row(
                 children: [
-                  InitialsAvatar(initials: _initials(user?.displayName ?? ''), size: 84, fontSize: 28),
+                  InitialsAvatar(initials: initialsFrom(user?.displayName ?? ''), size: 84, fontSize: 28),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -152,7 +129,7 @@ class _ProfileViewState extends State<_ProfileView> {
                 trailing: const Icon(Icons.arrow_forward, size: 18),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ReadLaterScreen())),
               ),
-              if (_isStaff) ...[
+              if (isStaff) ...[
                 const SizedBox(height: 11),
                 SettingsRow(
                   label: l10n.staffReviewRow,

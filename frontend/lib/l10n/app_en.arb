@@ -178,7 +178,9 @@
   "offlineBannerBody": "Some features may not work until your internet connection is back.",
 
   "readLaterTitle": "Read it later",
+  "readLaterEmptyTitle": "Nothing saved yet",
   "readLaterEmpty": "You haven't marked any articles Read it later yet.",
+  "readLaterEmptyCta": "Go to the feed",
   "readLaterAlreadyRead": "Already read",
   "readLaterErrorTitle": "Couldn't load your list",
   "readLaterErrorBody": "Something went wrong loading Read it later. Your saved articles are still on this phone.",

@@ -7,6 +7,8 @@ import '../../../../../l10n/app_localizations.dart';
 import '../../../../../shared/presentation/failure_localizer.dart';
 import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_text_field.dart';
+import '../../../../../shared/widgets/app_wordmark.dart';
+import '../../../../../shared/widgets/inline_banner.dart';
 import '../../../../../shared/widgets/legal_links_notice.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
@@ -25,8 +27,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-  bool _submitted = false;
 
   @override
   void initState() {
@@ -41,10 +41,12 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  bool get _hasFieldErrors =>
-      _emailController.text.trim().isEmpty ||
-      !_emailPattern.hasMatch(_emailController.text) ||
-      _passwordController.text.length < 6;
+  void _onFieldsChanged(BuildContext context) {
+    context.read<AuthBloc>().add(AuthLoginFieldsChanged(
+          email: _emailController.text,
+          password: _passwordController.text,
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,21 +59,11 @@ class _LoginScreenState extends State<LoginScreen> {
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             final loading = state.status == AuthStatus.loading;
-            final emailError = !_submitted
-                ? null
-                : (_emailController.text.trim().isEmpty
-                    ? l10n.emailRequired
-                    : (!_emailPattern.hasMatch(_emailController.text)
-                        ? l10n.emailInvalid
-                        : null));
-            final passwordError = !_submitted
-                ? null
-                : (_passwordController.text.isEmpty
-                    ? l10n.passwordRequired
-                    : (_passwordController.text.length < 6
-                        ? l10n.passwordTooShort
-                        : null));
-            final showAuthError = state.submitError != null && !_hasFieldErrors;
+            final emailError = state.loginEmailValid ? null : l10n.emailInvalid;
+            final passwordError = state.loginPasswordValid ? null : l10n.passwordTooShort;
+            final showAuthError = state.submitError != null &&
+                state.loginEmailValid &&
+                state.loginPasswordValid;
 
             return Column(
               children: [
@@ -81,23 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        RichText(
-                          text: TextSpan(
-                            style: TextStyle(
-                              fontFamily: 'Space Grotesk',
-                              fontWeight: FontWeight.w700,
-                              fontSize: dims.fH,
-                              letterSpacing: -1.05,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            children: [
-                              TextSpan(text: l10n.appWordmark),
-                              TextSpan(
-                                  text: '.',
-                                  style: TextStyle(color: palette.accentInk)),
-                            ],
-                          ),
-                        ),
+                        AppWordmark(text: l10n.appWordmark, letterSpacing: -1.05),
                         const SizedBox(height: 20),
                         Text(
                           l10n.loginHeroTitle,
@@ -120,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           placeholder: l10n.emailPlaceholder,
                           keyboardType: TextInputType.emailAddress,
                           errorText: emailError,
+                          onChanged: (_) => _onFieldsChanged(context),
                         ),
                         const SizedBox(height: 18),
                         AppTextField(
@@ -128,25 +105,20 @@ class _LoginScreenState extends State<LoginScreen> {
                           placeholder: l10n.passwordPlaceholder,
                           obscureText: true,
                           errorText: passwordError,
+                          onChanged: (_) => _onFieldsChanged(context),
                         ),
                         if (showAuthError) ...[
                           const SizedBox(height: 18),
-                          _AuthErrorCard(
-                              message:
-                                  describeFailure(l10n, state.submitError!)),
+                          InlineBanner(body: describeFailure(l10n, state.submitError!)),
                         ],
                         const SizedBox(height: 18),
                         PrimaryButton(
                           label: loading ? l10n.signingIn : l10n.signIn,
                           loading: loading,
-                          onPressed: () {
-                            setState(() => _submitted = true);
-                            if (_hasFieldErrors) return;
-                            context.read<AuthBloc>().add(AuthSignInSubmitted(
-                                  email: _emailController.text.trim(),
-                                  password: _passwordController.text,
-                                ));
-                          },
+                          onPressed: () => context.read<AuthBloc>().add(AuthSignInSubmitted(
+                                email: _emailController.text.trim(),
+                                password: _passwordController.text,
+                              )),
                         ),
                         const SizedBox(height: 18),
                         Row(
@@ -214,33 +186,6 @@ class _LoginScreenState extends State<LoginScreen> {
           },
         ),
       ),
-    );
-  }
-}
-
-class _AuthErrorCard extends StatelessWidget {
-  const _AuthErrorCard({required this.message});
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = context.palette;
-    final scheme = Theme.of(context).colorScheme;
-    final dims = Theme.of(context).extension<AppDimensions>()!;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 14),
-      decoration: BoxDecoration(
-        color: palette.dangerSoft,
-        border: Border.all(color: scheme.error),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Text(message,
-          style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: dims.fSm,
-              height: 1.5,
-              color: scheme.error)),
     );
   }
 }

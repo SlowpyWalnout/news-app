@@ -8,6 +8,7 @@ import 'package:news_app/features/moderation/domain/params/decide_params.dart';
 import 'package:news_app/features/moderation/domain/params/report_article_params.dart';
 import 'package:news_app/features/moderation/domain/repository/moderation_repository.dart';
 import 'package:news_app/features/moderation/domain/use_cases/decide_on_article_use_case.dart';
+import 'package:news_app/features/moderation/domain/use_cases/has_reported_use_case.dart';
 import 'package:news_app/features/moderation/domain/use_cases/report_article_use_case.dart';
 import 'package:news_app/features/moderation/presentation/bloc/moderation_cubit.dart';
 
@@ -42,19 +43,20 @@ class _FakeModerationRepository implements ModerationRepository {
 }
 
 void main() {
-  test('report() devuelve true en éxito', () async {
+  test('report() devuelve true en éxito y marca el estado como reportado', () async {
     final repo = _FakeModerationRepository();
-    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), repo);
+    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), HasReportedUseCase(repo));
 
     final ok = await cubit.report(const ReportArticleParams(articleId: 'a1', reason: ReportReason.spam));
 
     expect(ok, isTrue);
+    expect(cubit.state, isTrue);
     await cubit.close();
   });
 
   test('report() devuelve false si el repositorio falla', () async {
     final repo = _FakeModerationRepository(reportResult: const DataFailed(ServerFailure('boom')));
-    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), repo);
+    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), HasReportedUseCase(repo));
 
     final ok = await cubit.report(const ReportArticleParams(articleId: 'a1', reason: ReportReason.spam));
 
@@ -62,17 +64,19 @@ void main() {
     await cubit.close();
   });
 
-  test('hasReported() refleja el resultado del repositorio', () async {
+  test('checkReported() refleja el resultado del repositorio en el estado', () async {
     final repo = _FakeModerationRepository(hasReportedResult: const DataSuccess(true));
-    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), repo);
+    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), HasReportedUseCase(repo));
 
-    expect(await cubit.hasReported('a1'), isTrue);
+    await cubit.checkReported('a1');
+
+    expect(cubit.state, isTrue);
     await cubit.close();
   });
 
   test('decide() pasa la decisión al repositorio', () async {
     final repo = _FakeModerationRepository();
-    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), repo);
+    final cubit = ModerationCubit(ReportArticleUseCase(repo), DecideOnArticleUseCase(repo), HasReportedUseCase(repo));
 
     final ok = await cubit.decide(const DecideParams(articleId: 'a1', decision: ModerationDecision.approve));
 

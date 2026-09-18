@@ -24,6 +24,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) : super(const AuthState.initial()) {
     on<AuthSessionChecked>(onSessionChecked);
     on<AuthSignInSubmitted>(onSignInSubmitted);
+    on<AuthLoginFieldsChanged>(onLoginFieldsChanged);
     on<AuthRegisterFieldsChanged>(onRegisterFieldsChanged);
     on<AuthSignUpSubmitted>(onSignUpSubmitted);
     on<AuthGoogleSignInRequested>(onGoogleSignInRequested);
@@ -58,6 +59,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } else if (result is DataFailed<dynamic>) {
       emit(state.copyWith(status: AuthStatus.unauthenticated, submitError: result.error));
     }
+  }
+
+  void onLoginFieldsChanged(AuthLoginFieldsChanged event, Emitter<AuthState> emit) {
+    emit(state.copyWith(
+      loginEmailValid: event.email.trim().isEmpty || isValidEmail(event.email),
+      loginPasswordValid: event.password.isEmpty || isValidPassword(event.password),
+    ));
   }
 
   Future<void> onRegisterFieldsChanged(

@@ -13,7 +13,7 @@ import '../../../../../shared/widgets/app_buttons.dart';
 import '../../../../../shared/widgets/app_text_field.dart';
 import '../../../../../shared/widgets/app_toast.dart';
 import '../../../../../shared/widgets/category_chip.dart';
-import '../../../../../shared/widgets/dashed_border_box.dart';
+import '../../widgets/dashed_border_box.dart';
 import '../../../../../shared/widgets/inline_banner.dart';
 import '../../../../../shared/widgets/markdown_text.dart';
 import '../../../../../shared/widgets/screen_header.dart';
@@ -95,8 +95,16 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
     final palette = context.palette;
 
     return BlocConsumer<ArticleEditorBloc, ArticleEditorState>(
-      listenWhen: (a, b) => a.submitStatus != b.submitStatus,
+      listenWhen: (a, b) => a.submitStatus != b.submitStatus || a.articleId != b.articleId,
       listener: (context, state) {
+        if (_syncedArticleId != state.articleId) {
+          _titleController.text = state.title;
+          _bodyController.text = state.body;
+          _syncedArticleId = state.articleId;
+        }
+        if (state.submitStatus == EditorSubmitStatus.emptyDraftRejected) {
+          showAppToast(context, l10n.emptyDraftToast);
+        }
         if (state.submitStatus == EditorSubmitStatus.success) {
           final wasDraft = _lastAction == _EditorAction.draft;
           showAppToast(
@@ -109,12 +117,6 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
         }
       },
       builder: (context, state) {
-        if (_syncedArticleId != state.articleId) {
-          _titleController.text = state.title;
-          _bodyController.text = state.body;
-          _syncedArticleId = state.articleId;
-        }
-
         return Scaffold(
           body: SafeArea(
             child: Column(
@@ -297,10 +299,6 @@ class _ArticleEditorViewState extends State<_ArticleEditorView> {
                             child: SecondaryButton(
                               label: l10n.saveDraft,
                               onPressed: () {
-                                if (_titleController.text.trim().isEmpty &&
-                                    _bodyController.text.trim().isEmpty) {
-                                  showAppToast(context, l10n.emptyDraftToast);
-                                }
                                 _lastAction = _EditorAction.draft;
                                 context
                                     .read<ArticleEditorBloc>()

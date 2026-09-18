@@ -1,6 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:news_app/core/resources/data_state.dart';
+import 'package:news_app/core/resources/paginated_result.dart';
+import 'package:news_app/features/article_composer/domain/entities/article_category.dart';
+import 'package:news_app/features/article_composer/domain/entities/authored_article_entity.dart';
+import 'package:news_app/features/article_composer/domain/entities/upload_thumbnail_result.dart';
+import 'package:news_app/features/article_composer/domain/repository/authored_article_repository.dart';
+import 'package:news_app/features/article_composer/domain/use_cases/get_article_by_id_use_case.dart';
 import 'package:news_app/features/daily_news/domain/entities/article.dart';
 import 'package:news_app/features/daily_news/domain/repository/article_repository.dart';
 import 'package:news_app/features/daily_news/domain/use_cases/add_to_read_later_use_case.dart';
@@ -10,7 +17,6 @@ import 'package:news_app/features/daily_news/domain/use_cases/remove_from_read_l
 import 'package:news_app/features/daily_news/presentation/bloc/article/local/read_later_bloc.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/local/read_later_event.dart';
 import 'package:news_app/features/daily_news/presentation/bloc/article/local/read_later_state.dart';
-import 'package:news_app/core/resources/data_state.dart';
 
 const _article = ArticleEntity(id: 1, title: 'Título');
 
@@ -37,11 +43,51 @@ class _FakeArticleRepository implements ArticleRepository {
   Future<void> markReadLaterArticleAsRead(int id) async {}
 }
 
+/// Hand-written fake covering only [getArticleById] — nothing in this test
+/// exercises the rest of the interface (same pattern as feed_bloc_test.dart).
+class _FakeAuthoredArticleRepository implements AuthoredArticleRepository {
+  @override
+  Future<DataState<AuthoredArticleEntity?>> getArticleById(String articleId) async => const DataSuccess(null);
+
+  @override
+  Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getFeed({
+    String? cursor,
+    ArticleCategory? category,
+    String? searchToken,
+  }) =>
+      throw UnimplementedError();
+
+  @override
+  Future<DataState<PaginatedResult<AuthoredArticleEntity>>> getMyArticles(String authorId, {String? cursor}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<DataState<AuthoredArticleEntity>> publishArticle(AuthoredArticleEntity article) => throw UnimplementedError();
+
+  @override
+  Future<DataState<AuthoredArticleEntity>> saveDraft(AuthoredArticleEntity article) => throw UnimplementedError();
+
+  @override
+  Future<DataState<AuthoredArticleEntity>> updateArticle(AuthoredArticleEntity article) => throw UnimplementedError();
+
+  @override
+  Future<DataState<void>> deleteArticle(String articleId) => throw UnimplementedError();
+
+  @override
+  Future<DataState<UploadThumbnailResult>> uploadThumbnail(
+    String articleId,
+    String filePath, {
+    void Function(double progress)? onProgress,
+  }) =>
+      throw UnimplementedError();
+}
+
 ReadLaterBloc _bloc(_FakeArticleRepository repo) => ReadLaterBloc(
       GetReadLaterArticlesUseCase(repo),
       AddToReadLaterUseCase(repo),
       RemoveFromReadLaterUseCase(repo),
       MarkReadLaterArticleAsReadUseCase(repo),
+      GetArticleByIdUseCase(_FakeAuthoredArticleRepository()),
     );
 
 void main() {

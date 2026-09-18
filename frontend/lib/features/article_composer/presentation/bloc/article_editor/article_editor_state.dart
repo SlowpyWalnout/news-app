@@ -4,7 +4,7 @@ import 'package:news_app/core/resources/failure.dart';
 import '../../../domain/entities/article_category.dart';
 import '../../../domain/use_cases/article_content_validator.dart';
 
-enum EditorSubmitStatus { idle, savingDraft, publishing, success, failure }
+enum EditorSubmitStatus { idle, savingDraft, publishing, success, failure, emptyDraftRejected }
 
 class ArticleEditorState extends Equatable {
   const ArticleEditorState({

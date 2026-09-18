@@ -1046,11 +1046,23 @@ abstract class AppLocalizations {
   /// **'Leer después'**
   String get readLaterTitle;
 
+  /// No description provided for @readLaterEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay nada guardado'**
+  String get readLaterEmptyTitle;
+
   /// No description provided for @readLaterEmpty.
   ///
   /// In es, this message translates to:
   /// **'Todavía no marcaste ningún artículo para leer después.'**
   String get readLaterEmpty;
+
+  /// No description provided for @readLaterEmptyCta.
+  ///
+  /// In es, this message translates to:
+  /// **'Ir al feed'**
+  String get readLaterEmptyCta;
 
   /// No description provided for @readLaterAlreadyRead.
   ///

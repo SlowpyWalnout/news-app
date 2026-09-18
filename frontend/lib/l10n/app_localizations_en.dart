@@ -515,8 +515,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readLaterTitle => 'Read it later';
 
   @override
+  String get readLaterEmptyTitle => 'Nothing saved yet';
+
+  @override
   String get readLaterEmpty =>
       'You haven\'t marked any articles Read it later yet.';
+
+  @override
+  String get readLaterEmptyCta => 'Go to the feed';
 
   @override
   String get readLaterAlreadyRead => 'Already read';

@@ -50,11 +50,13 @@ import 'features/moderation/data/data_sources/remote/moderation_firestore_data_s
 import 'features/moderation/data/repository/moderation_repository_impl.dart';
 import 'features/moderation/domain/repository/moderation_repository.dart';
 import 'features/moderation/domain/use_cases/decide_on_article_use_case.dart';
+import 'features/moderation/domain/use_cases/has_reported_use_case.dart';
 import 'features/moderation/domain/use_cases/list_suspended_articles_use_case.dart';
 import 'features/moderation/domain/use_cases/report_article_use_case.dart';
 import 'features/moderation/presentation/bloc/moderation_cubit.dart';
+import 'features/moderation/presentation/bloc/staff_cubit.dart';
 import 'features/moderation/presentation/bloc/review_queue_cubit.dart';
-import 'features/moderation/presentation/staff_gate.dart';
+import 'features/moderation/domain/services/staff_gate.dart';
 
 import 'shared/settings/data/repository/settings_repository_impl.dart';
 import 'shared/settings/domain/repository/settings_repository.dart';
@@ -154,6 +156,7 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<ReportArticleUseCase>(ReportArticleUseCase(sl()));
   sl.registerSingleton<DecideOnArticleUseCase>(DecideOnArticleUseCase(sl()));
   sl.registerSingleton<ListSuspendedArticlesUseCase>(ListSuspendedArticlesUseCase(sl()));
+  sl.registerSingleton<HasReportedUseCase>(HasReportedUseCase(sl()));
 
   sl.registerSingleton<LoadSettingsUseCase>(LoadSettingsUseCase(sl()));
   sl.registerSingleton<SaveSettingsUseCase>(SaveSettingsUseCase(sl()));
@@ -161,7 +164,7 @@ Future<void> initializeDependencies() async {
   //Blocs
   sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl()));
 
-  sl.registerFactory<ReadLaterBloc>(() => ReadLaterBloc(sl(), sl(), sl(), sl()));
+  sl.registerFactory<ReadLaterBloc>(() => ReadLaterBloc(sl(), sl(), sl(), sl(), sl()));
 
   sl.registerFactory<AuthBloc>(() => AuthBloc(sl(), sl(), sl(), sl(), sl()));
 
@@ -175,6 +178,7 @@ Future<void> initializeDependencies() async {
 
   sl.registerFactory<ModerationCubit>(() => ModerationCubit(sl(), sl(), sl()));
   sl.registerFactory<ReviewQueueCubit>(() => ReviewQueueCubit(sl()));
+  sl.registerFactory<StaffCubit>(() => StaffCubit(sl()));
 
   sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit(sl(), sl()));
 
