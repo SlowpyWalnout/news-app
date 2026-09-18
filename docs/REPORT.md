@@ -186,9 +186,15 @@ Capturas y video tomados en dispositivo/simulador real.
 | ![Leer después](./assets/screenshots/08-leer-despues.png) | ![Cola de revisión](./assets/screenshots/10-cola-revision.png) |
 | ![Tema oscuro](./assets/screenshots/11-tema-oscuro.png) | ![Perfil y configuración](./assets/screenshots/13-perfil-config.png) |
 
-Video del flujo completo: [`assets/screenshots/demo.mp4`](./assets/screenshots/demo.mp4)
+Video del flujo completo: [ver en Google Drive](https://drive.google.com/drive/folders/1LbbYmJw6SYoLVFp-Uog4pboyfsWEJ_sn?usp=sharing)
 (registro → publicar artículo con foto → verlo en el feed → editarlo →
-borrarlo).
+borrarlo). También queda como respaldo en el repo en
+[`assets/screenshots/demo.mp4`](./assets/screenshots/demo.mp4), aunque
+GitHub no lo puede previsualizar en el navegador por su tamaño.
+
+En esa misma carpeta de Drive dejé también el APK (versión debug) para que
+puedan instalar la app directamente en un dispositivo Android y probarla de
+primera mano, sin necesidad de compilar nada.
 
 ## 6. Overdelivery
 
