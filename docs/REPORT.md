@@ -52,8 +52,7 @@ yo. Claude fue la herramienta que aceleró la escritura de código y me ayudó a
 detectar bugs que de otra forma me hubiera tomado mucho más tiempo encontrar,
 pero las decisiones y la responsabilidad del resultado son mías.
 
-Para organizar el trabajo en las 72 horas armé un roadmap con fases (vive en
-`ROADMAP.md` en la raíz del repo, si quieren ver el detalle día a día). A
+Para organizar el trabajo en las 72 horas armé un roadmap con fases (por el momento solo lo tengo yo). A
 grandes rasgos fue: arreglar el proyecto para que compilara, definir el
 esquema de la base de datos y las reglas de seguridad, montar la capa de
 dominio con datos de prueba, construir toda la interfaz sobre esos datos de
